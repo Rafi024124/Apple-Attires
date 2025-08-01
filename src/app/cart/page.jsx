@@ -1,11 +1,16 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Image from 'next/image';
-import { useCart } from '@/app/context/CartContext';
+import React from "react";
+import Image from "next/image";
+import { useCart } from "@/app/context/CartContext";
 
 export default function CartPage() {
-  const { cartItems, updateQuantity, removeFromCart, totalQuantity } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, totalQuantity, hydrated } = useCart();
+
+  // Wait for hydration before rendering UI that depends on localStorage
+  if (!hydrated) {
+    return <p className="text-center p-10">Loading cart...</p>;
+  }
 
   // Calculate total price
   const totalPrice = cartItems.reduce(
@@ -76,7 +81,7 @@ export default function CartPage() {
       <div className="mt-10 flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Total: ৳{totalPrice.toFixed(2)}</h2>
         <button
-          onClick={() => alert('Proceed to checkout (implement later)')}
+          onClick={() => alert("Proceed to checkout (implement later)")}
           className="bg-cyan-600 text-white px-6 py-2 rounded hover:bg-cyan-700"
         >
           Proceed to Checkout

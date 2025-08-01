@@ -5,22 +5,22 @@ import { createContext, useContext, useState, useEffect } from "react";
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState(() => {
-    if (typeof window !== "undefined") {
-      const storedCart = localStorage.getItem("cart");
-      return storedCart ? JSON.parse(storedCart) : [];
-    }
-    return [];
-  });
+  const [hydrated, setHydrated] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
+      setHydrated(true);
+      const storedCart = localStorage.getItem("cart");
+      setCartItems(storedCart ? JSON.parse(storedCart) : []);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (hydrated) {
       localStorage.setItem("cart", JSON.stringify(cartItems));
     }
-  }, [cartItems]);
-
-  console.log(cartItems);
-  
+  }, [cartItems, hydrated]);
 
   const addToCart = (product) => {
     setCartItems((prevItems) => {
@@ -28,22 +28,20 @@ export const CartProvider = ({ children }) => {
       if (existingItem) {
         return prevItems.map(item =>
           item._id === product._id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: item.quantity + (product.quantity || 1) }
             : item
         );
       }
-      return [...prevItems, { ...product, quantity: 1 }];
+      return [...prevItems, { ...product, quantity: product.quantity || 1 }];
     });
   };
 
-  // Remove an item from the cart
   const removeFromCart = (productId) => {
     setCartItems((prevItems) =>
       prevItems.filter(item => item._id !== productId)
     );
   };
 
-  // Update item quantity manually
   const updateQuantity = (productId, quantity) => {
     setCartItems((prevItems) =>
       prevItems.map(item =>
@@ -54,8 +52,11 @@ export const CartProvider = ({ children }) => {
     );
   };
 
-  // Get total quantity for navbar/cart icon
-  const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalQuantity = cartItems?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
+
+  if (!hydrated) {
+    return null; // Avoid hydration mismatch on server
+  }
 
   return (
     <CartContext.Provider
@@ -65,12 +66,12 @@ export const CartProvider = ({ children }) => {
         removeFromCart,
         updateQuantity,
         totalQuantity,
+        hydrated,  // <-- Add hydrated here!
       }}
     >
       {children}
     </CartContext.Provider>
   );
-}
+};
 
-// Custom hook for using cart anywhere
 export const useCart = () => useContext(CartContext);
