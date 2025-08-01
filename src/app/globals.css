@@ -1,3 +1,72 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+/* 🌈 Brand Color Variables */
+:root {
+  --beige: #E9DCCF;
+  --brown: #834F29;
+  --dark-brown: #663817;
+  --soft-white: #FAFAFA;
+}
+
+/* 🛠️ Optional Utility Classes (if you want to use them like Tailwind) */
+.bg-beige {
+  background-color: var(--beige);
+}
+.bg-dark-brown {
+  background-color: var(--dark-brown);
+  box-shadow: 0 0 20px rgba(75, 46, 46, 0.5); /* glow effect */
+  backdrop-filter: blur(5px); /* optional glass-like blur */
+}
+
+
+
+.bg-brown {
+  background-color: var(--brown);
+}
+
+.text-brown {
+  color: var(--brown);
+}
+
+.text-dark-brown {
+  color: var(--dark-brown);
+}
+
+.text-soft-white {
+  color: var(--soft-white);
+}
+
+/* ✨ Example effect (already in your file) */
+.group:hover span::after {
+  width: 100%;
+}
+
+.glow-link {
+  position: relative;
+  display: inline-block;
+  color: #E9DCCF;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.glow-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 2px;
+  width: 0;
+  background: #E9DCCF;
+  box-shadow: 0 0 8px #E9DCCF;
+  transition: width 0.4s ease, box-shadow 0.4s ease;
+}
+
+.glow-link:hover {
+  color: #E9DCCF;
+}
+
+.glow-link:hover::after {
+  width: 100%;
+  box-shadow: 0 0 12px #E9DCCF, 0 0 20px #E9DCCF;
+}
