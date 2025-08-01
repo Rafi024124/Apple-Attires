@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import Image from "next/image";
 import { useState } from "react";
@@ -10,16 +10,20 @@ export default function ProductDetailsModal({ product, onClose }) {
   const {
     name,
     price,
-    image,
-    images = [],
+    images = [],    // Use only images array
     tag,
     model = [],
     isAvailable,
     isFeatured,
     createdAt,
+    type,
+    gender,
+    _id,
   } = product;
 
-  const allImages = [image, ...images]; // Main + extra images
+  // Fallback if images array is empty, use a placeholder image URL or empty array
+  const allImages = images.length ? images : ["/fallback.jpg"];
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
 
@@ -46,18 +50,26 @@ export default function ProductDetailsModal({ product, onClose }) {
   // Add to cart handler
   const handleAddToCart = () => {
     addToCart({
-      _id: product._id,
+      _id,
       name,
       price,
-      image,
-      quantity: selectedQuantity, // pass selected quantity here!
+      image: allImages[currentIndex], // Add current shown image as cart image
+      quantity: selectedQuantity,
     });
     onClose(); // close modal after adding
   };
 
+  // Gender badge color logic (same as CoverCard)
+  const genderColor =
+    gender === 'Ladies'
+      ? 'bg-pink-200 text-pink-800'
+      : gender === 'Unisex'
+      ? 'bg-blue-100 text-blue-800'
+      : 'bg-gray-200 text-gray-800';
+
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+       className="fixed inset-0 bg-transparent backdrop-blur-sm flex justify-center items-center z-50"
       onClick={onClose}
     >
       <div
@@ -81,30 +93,33 @@ export default function ProductDetailsModal({ product, onClose }) {
               width={400}
               height={600}
               className="rounded-md shadow-lg object-cover"
+              unoptimized
             />
             {/* Left arrow */}
-            <button
-              onClick={prevImage}
-              className="absolute top-1/2 left-2 -translate-y-1/2 bg-black bg-opacity-30 text-white p-2 rounded-full hover:bg-opacity-60 transition"
-              aria-label="Previous image"
-            >
-              ‹
-            </button>
+            {allImages.length > 1 && (
+              <button
+                onClick={prevImage}
+                className="absolute top-1/2 left-2 -translate-y-1/2 bg-black bg-opacity-30 text-white p-2 rounded-full hover:bg-opacity-60 transition"
+                aria-label="Previous image"
+              >
+                ‹
+              </button>
+            )}
             {/* Right arrow */}
-            <button
-              onClick={nextImage}
-              className="absolute top-1/2 right-2 -translate-y-1/2 bg-black bg-opacity-30 text-white p-2 rounded-full hover:bg-opacity-60 transition"
-              aria-label="Next image"
-            >
-              ›
-            </button>
+            {allImages.length > 1 && (
+              <button
+                onClick={nextImage}
+                className="absolute top-1/2 right-2 -translate-y-1/2 bg-black bg-opacity-30 text-white p-2 rounded-full hover:bg-opacity-60 transition"
+                aria-label="Next image"
+              >
+                ›
+              </button>
+            )}
           </div>
 
           {/* Details & actions */}
           <div className="flex-1 space-y-4">
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
-              {name}
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">{name}</h1>
             <p className="text-xl text-red-500 font-semibold">৳{price}</p>
 
             {tag && (
@@ -113,7 +128,20 @@ export default function ProductDetailsModal({ product, onClose }) {
               </span>
             )}
 
-            <div className="text-sm text-gray-500 dark:text-gray-300 space-y-1">
+            <div className="flex flex-wrap gap-2 mt-2">
+              {gender && (
+                <span className={`px-2 py-1 rounded text-xs font-medium ${genderColor}`}>
+                  {gender}
+                </span>
+              )}
+              {type && (
+                <span className="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                  {type}
+                </span>
+              )}
+            </div>
+
+            <div className="text-sm text-gray-500 dark:text-gray-300 space-y-1 mt-2">
               <p>
                 <strong>Model Compatibility:</strong> {model.join(", ")}
               </p>
@@ -124,8 +152,7 @@ export default function ProductDetailsModal({ product, onClose }) {
                 <strong>Featured:</strong> {isFeatured ? "Yes" : "No"}
               </p>
               <p>
-                <strong>Created At:</strong>{" "}
-                {new Date(createdAt).toLocaleDateString()}
+                <strong>Created At:</strong> {new Date(createdAt).toLocaleDateString()}
               </p>
             </div>
 
