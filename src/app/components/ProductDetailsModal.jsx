@@ -2,12 +2,16 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/app/context/CartContext";
 
 export default function ProductDetailsModal({ product, onClose }) {
   if (!product) return null;
 
+  const router = useRouter();
+
   const {
+    _id,
     name,
     price,
     images = [],    // Use only images array
@@ -18,7 +22,6 @@ export default function ProductDetailsModal({ product, onClose }) {
     createdAt,
     type,
     gender,
-    _id,
   } = product;
 
   // Fallback if images array is empty, use a placeholder image URL or empty array
@@ -59,6 +62,12 @@ export default function ProductDetailsModal({ product, onClose }) {
     onClose(); // close modal after adding
   };
 
+  // Navigate to details page
+  const goToDetailsPage = () => {
+    onClose(); // close modal first
+    router.push(`/covers/${_id}`);
+  };
+
   // Gender badge color logic (same as CoverCard)
   const genderColor =
     gender === 'Ladies'
@@ -69,7 +78,7 @@ export default function ProductDetailsModal({ product, onClose }) {
 
   return (
     <div
-       className="fixed inset-0 bg-transparent backdrop-blur-sm flex justify-center items-center z-50"
+      className="fixed inset-0 bg-transparent backdrop-blur-sm flex justify-center items-center z-50"
       onClick={onClose}
     >
       <div
@@ -85,8 +94,8 @@ export default function ProductDetailsModal({ product, onClose }) {
         </button>
 
         <div className="flex flex-col md:flex-row gap-6 items-center">
-          {/* Image carousel */}
-          <div className="relative w-[400px] h-[600px] select-none">
+          {/* Image carousel with View Details button on hover */}
+          <div className="relative w-[400px] h-[600px] select-none group">
             <Image
               src={allImages[currentIndex]}
               alt={`${name} image ${currentIndex + 1}`}
@@ -95,6 +104,7 @@ export default function ProductDetailsModal({ product, onClose }) {
               className="rounded-md shadow-lg object-cover"
               unoptimized
             />
+
             {/* Left arrow */}
             {allImages.length > 1 && (
               <button
@@ -105,6 +115,7 @@ export default function ProductDetailsModal({ product, onClose }) {
                 ‹
               </button>
             )}
+
             {/* Right arrow */}
             {allImages.length > 1 && (
               <button
@@ -115,6 +126,14 @@ export default function ProductDetailsModal({ product, onClose }) {
                 ›
               </button>
             )}
+
+            {/* Small View Details button - only visible on hover */}
+            <button
+              onClick={goToDetailsPage}
+              className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-4 left-1/2 -translate-x-1/2 bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded shadow-lg text-sm font-semibold"
+            >
+              View Details
+            </button>
           </div>
 
           {/* Details & actions */}

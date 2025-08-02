@@ -11,42 +11,55 @@ export default function ServicesSection() {
   const [loadingDetails, setLoadingDetails] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  
   const [selectedCoverType, setSelectedCoverType] = useState('');
   const [coverTypes, setCoverTypes] = useState([]);
 
+  const [sortOption, setSortOption] = useState("default");
+
   const [page, setPage] = useState(1);
-  const limit = 6; // items per page
+  const limit = 6;
   const [totalCount, setTotalCount] = useState(0);
 
-  // Fetch distinct cover types on mount
-useEffect(() => {
-  async function fetchCoverTypes() {
-    try {
-      const res = await fetch('/api/covers/types');
-      if (!res.ok) throw new Error('Failed to fetch cover types');
-      const data = await res.json();
-      setCoverTypes(data.types || []);
-    } catch (error) {
-      console.error(error);
+  // Fetch cover types once on mount
+  useEffect(() => {
+    async function fetchCoverTypes() {
+      try {
+        const res = await fetch('/api/covers/types');
+        if (!res.ok) throw new Error('Failed to fetch cover types');
+        const data = await res.json();
+        setCoverTypes(data.types || []);
+      } catch (error) {
+        console.error(error);
+      }
     }
-  }
-  fetchCoverTypes();
-}, []);
+    fetchCoverTypes();
+  }, []);
 
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setPage(1); // Reset page when search changes
+    }, 500);
 
-  // Fetch covers when searchTerm, selectedCoverType or page changes
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  // Fetch covers when filters change
   useEffect(() => {
     async function fetchCovers() {
       setLoading(true);
       try {
         const params = new URLSearchParams();
-        if (searchTerm) params.append('search', searchTerm);
+        if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
         if (selectedCoverType) params.append('type', selectedCoverType);
+        if (sortOption && sortOption !== "default") params.append('sort', sortOption);
         params.append('page', page.toString());
         params.append('limit', limit.toString());
 
-        const url = `/api/covers?${params.toString()}`;
-        const res = await fetch(url);
+        const res = await fetch(`/api/covers?${params.toString()}`);
         if (!res.ok) throw new Error('Failed to fetch covers');
         const data = await res.json();
 
@@ -59,8 +72,9 @@ useEffect(() => {
       setLoading(false);
     }
     fetchCovers();
-  }, [searchTerm, selectedCoverType, page]);
+  }, [debouncedSearchTerm, selectedCoverType, sortOption, page]);
 
+  // Fetch details for a specific cover
   async function handleViewDetails(id) {
     setLoadingDetails(true);
     try {
@@ -75,11 +89,12 @@ useEffect(() => {
     setLoadingDetails(false);
   }
 
-  // Pagination helpers
   const totalPages = Math.ceil(totalCount / limit);
+
   const goPrev = () => {
     if (page > 1) setPage(page - 1);
   };
+
   const goNext = () => {
     if (page < totalPages) setPage(page + 1);
   };
@@ -93,10 +108,7 @@ useEffect(() => {
           placeholder="Search covers by name, etc."
           className="flex-grow p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-400"
           value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setPage(1);
-          }}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
 
         {/* Cover Type Dropdown */}
@@ -117,6 +129,28 @@ useEffect(() => {
                 {type}
               </option>
             ))}
+          </select>
+        </div>
+
+        {/* Sorting Dropdown */}
+        <div className="relative inline-block text-left">
+          <label htmlFor="sort" className="sr-only">Sort By</label>
+          <select
+            id="sort"
+            value={sortOption}
+            onChange={(e) => {
+              setSortOption(e.target.value);
+              setPage(1);
+            }}
+            className="p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+          >
+            <option value="default">Sort By (Default)</option>
+            <option value="name_asc">Name (A-Z)</option>
+            <option value="name_desc">Name (Z-A)</option>
+            <option value="price_asc">Price (Low → High)</option>
+            <option value="price_desc">Price (High → Low)</option>
+            <option value="model_asc">Model (A-Z)</option>
+            <option value="model_desc">Model (Z-A)</option>
           </select>
         </div>
       </div>
