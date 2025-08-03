@@ -40,21 +40,23 @@ export default function CoverCard({ item, onViewDetails }) {
 
   return (
     <div
-      className="col-span-12 md:col-span-6 lg:col-span-4 p-4 bg-white rounded shadow cursor-pointer"
+      className="col-span-12 md:col-span-6 lg:col-span-4 p-4 bg-white rounded shadow cursor-pointer flex flex-col"
       onClick={onViewDetails}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
     >
-      <Image
-        src={images[currentIndex] || images[0] || '/fallback.jpg'}
-        alt={name}
-        width={314}
-        height={200}
-        className="rounded object-contain"
-        unoptimized
-      />
+      <div className="relative w-full h-48">
+        <Image
+          src={images[currentIndex] || images[0] || '/fallback.jpg'}
+          alt={name}
+          fill
+          className="rounded object-contain"
+          unoptimized
+          sizes="(max-width: 768px) 100vw, 314px"
+        />
+      </div>
 
-      <h3 className="font-semibold mt-2 text-lg">{name}</h3>
+      <h3 className="font-semibold mt-4 text-lg">{name}</h3>
       <p className="text-red-500 font-semibold">৳{price}</p>
 
       <div className="flex flex-wrap gap-2 mt-2">

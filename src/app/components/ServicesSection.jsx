@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import CoverCard from "./CoverCard";
 import ProductDetailsModal from "./ProductDetailsModal";
+import Loading from "../categories/[subcategory]/loading";
 
 export default function ServicesSection() {
   const [covers, setCovers] = useState([]);
@@ -256,7 +257,7 @@ export default function ServicesSection() {
 
       {/* Products Grid */}
       {loading ? (
-        <p className="text-center p-10">Loading covers...</p>
+        <Loading></Loading>
       ) : (
         <>
           <div className="grid grid-cols-12 max-w-6xl mx-auto gap-4 p-4">
@@ -299,7 +300,7 @@ export default function ServicesSection() {
       )}
 
       {/* Loading details */}
-      {loadingDetails && <p className="text-center p-4">Loading details...</p>}
+      {loadingDetails && <Loading></Loading>}
 
       {/* Modal */}
       {selectedProduct && !loadingDetails && (

@@ -13,23 +13,21 @@ export const GET = async (request) => {
     const coverType = url.searchParams.get('type') || "";
     const sort = url.searchParams.get('sort') || "default";
     const mainCategory = url.searchParams.get('mainCategory') || "";
+    const subCategory = url.searchParams.get('subCategory') || "";
 
     const page = parseInt(url.searchParams.get('page')) || 1;
     const limit = parseInt(url.searchParams.get('limit')) || 6;
     const skip = (page - 1) * limit;
 
     // Create cache key based on all query params
-    const cacheKey = JSON.stringify({ search, coverType, sort, mainCategory, page, limit });
+    const cacheKey = JSON.stringify({ search, coverType, sort, mainCategory, subCategory, page, limit });
 
     // Check cache
     if (cache.has(cacheKey)) {
       const cached = cache.get(cacheKey);
-      // Check TTL
       if (Date.now() - cached.timestamp < CACHE_TTL) {
-        // Return cached response
         return NextResponse.json(cached.data);
       } else {
-        // Expired cache
         cache.delete(cacheKey);
       }
     }
@@ -53,6 +51,7 @@ export const GET = async (request) => {
     } else {
       if (mainCategory) andConditions.push({ mainCategory });
       if (coverType) andConditions.push({ type: coverType });
+      if (subCategory) andConditions.push({ subCategory });
     }
 
     const query = andConditions.length > 0 ? { $and: andConditions } : {};
