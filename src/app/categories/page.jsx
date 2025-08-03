@@ -21,7 +21,7 @@ export default function CategoryPage() {
   };
 
   return (
-    <div className="min-h-screen px-4 py-8 bg-gray-100 text-center">
+    <div className=" px-4 py-8 max-w-6xl mx-auto text-center">
       <h1 className="text-3xl font-bold mb-8 text-gray-800">Pick Your Device</h1>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6 justify-center mb-10">
@@ -31,7 +31,9 @@ export default function CategoryPage() {
             onClick={() => handleClick(name)}
             className="cursor-pointer flex flex-col items-center transition-transform hover:scale-105"
           >
-            <Image src={image} alt={name} width={80} height={80} className="mb-2" />
+            <Image src={image} alt={name} width={80} height={80} className="mb-2" 
+             style={{ aspectRatio: '1 / 1' }} 
+            />
             <p className="font-semibold text-gray-700">{name}</p>
           </div>
         ))}

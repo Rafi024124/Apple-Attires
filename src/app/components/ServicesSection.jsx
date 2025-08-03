@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import CoverCard from "./CoverCard";
 import ProductDetailsModal from "./ProductDetailsModal";
 import Loading from "../categories/[subcategory]/loading";
+import Image from "next/image";
+
 
 export default function ServicesSection() {
   const [covers, setCovers] = useState([]);
@@ -160,8 +162,8 @@ export default function ServicesSection() {
 
   // Button style helper
   const activeButtonClasses =
-    "bg-cyan-600 text-white border-2 border-cyan-400 shadow-lg shadow-cyan-400/50";
-  const inactiveButtonClasses = "bg-gray-200 text-black border border-transparent";
+    "scale-110 ";
+  const inactiveButtonClasses = " text-black";
 
   const handleTypeChange = (e) => {
     setSelectedCoverType(e.target.value);
@@ -179,30 +181,49 @@ export default function ServicesSection() {
     <>
       {/* Buttons for mainCategory filter */}
       <div className="max-w-6xl mx-auto p-4 flex justify-center gap-6 mb-6">
-        <button
+        <div
           className={`px-6 py-2 rounded font-semibold transition ${
             mainCategory === "Covers"
               ? activeButtonClasses
               : inactiveButtonClasses
-          } hover:bg-cyan-500 hover:text-white`}
+          } hover:scale-105`}
           onClick={() => handleCategoryClick("Covers")}
         >
-          Phone Cases
-        </button>
-        <button
+          <Image src='/iphn.jpg' alt={name} width={90} height={80} className="mb-2" 
+                      style={{ aspectRatio: '1 / 1' }} 
+                     />
+                     <p>Phone Cases</p>
+        </div>
+        <div
           className={`px-6 py-2 rounded font-semibold transition ${
             mainCategory === "Protectors"
               ? activeButtonClasses
               : inactiveButtonClasses
-          } hover:bg-cyan-500 hover:text-white`}
+          } hover:scale-105 hover:text-white`}
           onClick={() => handleCategoryClick("Protectors")}
         >
-          Phone Protectors
-        </button>
+         <Image src='/protector.png' alt={name} width={90} height={80} className="mb-2" 
+                      style={{ aspectRatio: '1 / 1' }} 
+                     />
+                     <p>Glass Protectors</p>
+        </div>
+         <div
+          className={`px-6 py-2 rounded font-semibold transition ${
+            mainCategory === "Protectors"
+              ? activeButtonClasses
+              : inactiveButtonClasses
+          } hover:scale-105 hover:text-white`}
+          onClick={() => handleCategoryClick("lense")}
+        >
+         <Image src='/lens.jpg' alt={name} width={90} height={80} className="mb-2" 
+                      style={{ aspectRatio: '1 / 1' }} 
+                     />
+                     <p>Lens Protectors</p>
+        </div>
         <button
           className={`px-6 py-2 rounded font-semibold transition ${
             mainCategory === "" ? activeButtonClasses : inactiveButtonClasses
-          } hover:bg-cyan-500 hover:text-white`}
+          }  hover:text-white`}
           onClick={() => handleCategoryClick("")}
         >
           All Products
@@ -214,7 +235,7 @@ export default function ServicesSection() {
         <input
           type="text"
           placeholder="Search covers by name, etc."
-          className="flex-grow p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+          className="flex-grow p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#834F29]"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -226,7 +247,7 @@ export default function ServicesSection() {
               handleTypeChange(e);
               setPage(1);
             }}
-            className="p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+            className="p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#834F29]"
           >
             <option value="">All Cover Types</option>
             {coverTypes.map((type) => (
@@ -243,7 +264,7 @@ export default function ServicesSection() {
             setSortOption(e.target.value);
             setPage(1);
           }}
-          className="p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+          className="p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#834F29]"
         >
           <option value="default">Sort By (Default)</option>
           <option value="name_asc">Name (A-Z)</option>
@@ -281,7 +302,7 @@ export default function ServicesSection() {
             <button
               onClick={goPrev}
               disabled={page === 1}
-              className="px-4 py-2 rounded bg-cyan-600 text-white hover:bg-cyan-700 disabled:opacity-50"
+              className="px-4 py-2 rounded bg-beige text-white  disabled:opacity-50"
             >
               Prev
             </button>
@@ -291,7 +312,7 @@ export default function ServicesSection() {
             <button
               onClick={goNext}
               disabled={page === totalPages}
-              className="px-4 py-2 rounded bg-cyan-600 text-white hover:bg-cyan-700 disabled:opacity-50"
+              className="px-4 py-2 rounded bg-[#834F29] text-white hover:bg-cyan-700 disabled:opacity-50"
             >
               Next
             </button>

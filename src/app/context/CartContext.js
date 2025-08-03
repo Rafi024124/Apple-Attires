@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid"; // install uuid package with: npm install uuid
 
 const CartContext = createContext();
 
@@ -24,35 +25,57 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = (product) => {
     setCartItems((prevItems) => {
-      const existingItem = prevItems.find(item => item._id === product._id);
+      // Find item with same _id and model
+      const existingItem = prevItems.find(
+        (item) =>
+          item._id === product._id &&
+          item.model === product.model
+      );
       if (existingItem) {
-        return prevItems.map(item =>
-          item._id === product._id
+        return prevItems.map((item) =>
+          item._id === product._id &&
+          item.model === product.model
             ? { ...item, quantity: item.quantity + (product.quantity || 1) }
             : item
         );
       }
-      return [...prevItems, { ...product, quantity: product.quantity || 1 }];
+      // New item: add a unique cartItemId
+      return [
+        ...prevItems,
+        { ...product, quantity: product.quantity || 1, cartItemId: uuidv4() },
+      ];
     });
   };
 
-  const removeFromCart = (productId) => {
+  // UPDATED: remove by cartItemId
+  const removeFromCart = (cartItemId) => {
     setCartItems((prevItems) =>
-      prevItems.filter(item => item._id !== productId)
+      prevItems.filter((item) => item.cartItemId !== cartItemId)
     );
   };
 
-  const updateQuantity = (productId, quantity) => {
+  // UPDATED: update quantity by cartItemId
+  const updateQuantity = (cartItemId, quantity) => {
     setCartItems((prevItems) =>
-      prevItems.map(item =>
-        item._id === productId
+      prevItems.map((item) =>
+        item.cartItemId === cartItemId
           ? { ...item, quantity: Math.max(1, quantity) }
           : item
       )
     );
   };
 
-  const totalQuantity = cartItems?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
+  // UPDATED: update model by cartItemId
+  const updateModel = (cartItemId, newModel) => {
+    setCartItems((prevItems) =>
+      prevItems.map((item) =>
+        item.cartItemId === cartItemId ? { ...item, model: newModel } : item
+      )
+    );
+  };
+
+  const totalQuantity =
+    cartItems?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
 
   if (!hydrated) {
     return null; // Avoid hydration mismatch on server
@@ -65,8 +88,9 @@ export const CartProvider = ({ children }) => {
         addToCart,
         removeFromCart,
         updateQuantity,
+        updateModel,
         totalQuantity,
-        hydrated,  // <-- Add hydrated here!
+        hydrated,
       }}
     >
       {children}

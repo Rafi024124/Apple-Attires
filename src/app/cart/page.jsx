@@ -5,14 +5,18 @@ import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
 
 export default function CartPage() {
-  const { cartItems, updateQuantity, removeFromCart, totalQuantity, hydrated } = useCart();
+  const {
+    cartItems,
+    updateQuantity,
+    removeFromCart,
+    totalQuantity,
+    hydrated,
+  } = useCart();
 
-  // Wait for hydration before rendering UI that depends on localStorage
   if (!hydrated) {
     return <p className="text-center p-10">Loading cart...</p>;
   }
 
-  // Calculate total price
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
@@ -29,12 +33,14 @@ export default function CartPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8">Your Cart ({totalQuantity} items)</h1>
+      <h1 className="text-3xl font-bold mb-8">
+        Your Cart ({totalQuantity} items)
+      </h1>
 
       <div className="space-y-6">
         {cartItems.map((item) => (
           <div
-            key={item._id}
+            key={item.cartItemId}
             className="flex items-center gap-6 p-4 border rounded-md"
           >
             <Image
@@ -48,9 +54,15 @@ export default function CartPage() {
               <h3 className="text-xl font-semibold">{item.name}</h3>
               <p className="text-red-600 font-semibold">৳{item.price}</p>
 
+              {item.model && (
+                <p className="mt-2 text-gray-700">
+                  <strong>Model:</strong> {item.model}
+                </p>
+              )}
+
               <div className="flex items-center mt-2 gap-2">
                 <button
-                  onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                  onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
                   disabled={item.quantity <= 1}
                   className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
                 >
@@ -60,14 +72,14 @@ export default function CartPage() {
                 <span className="px-3">{item.quantity}</span>
 
                 <button
-                  onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                  onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
                   className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
                 >
                   +
                 </button>
 
                 <button
-                  onClick={() => removeFromCart(item._id)}
+                  onClick={() => removeFromCart(item.cartItemId)}
                   className="ml-6 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                 >
                   Remove
@@ -79,7 +91,9 @@ export default function CartPage() {
       </div>
 
       <div className="mt-10 flex justify-between items-center">
-        <h2 className="text-2xl font-semibold">Total: ৳{totalPrice.toFixed(2)}</h2>
+        <h2 className="text-2xl font-semibold">
+          Total: ৳{totalPrice.toFixed(2)}
+        </h2>
         <button
           onClick={() => alert("Proceed to checkout (implement later)")}
           className="bg-cyan-600 text-white px-6 py-2 rounded hover:bg-cyan-700"
