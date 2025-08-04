@@ -144,13 +144,16 @@ export default function CoverCard({ item, onViewDetails }) {
       <div className="mt-4 flex justify-between items-center z-0">
         <button
           onClick={handleAddToCart}
-          className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-4 py-2 rounded transition"
+          className="bg-orange-500 hover:bg-orange-600 hover:scale-105 cursor-pointer text-white text-sm font-medium px-4 py-2 rounded transition"
         >
           Add To Cart
         </button>
         <button
           onClick={onViewDetails}
-          className="text-orange-500 hover:text-orange-600 text-xl"
+          className="
+          
+          hover:scale-120
+          text-orange-500 hover:text-orange-600 text-2xl cursor-pointer"
           title="View Details"
         >
           <FaSearch />

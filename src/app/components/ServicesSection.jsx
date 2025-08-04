@@ -302,7 +302,7 @@ export default function ServicesSection() {
             <button
               onClick={goPrev}
               disabled={page === 1}
-              className="px-4 py-2 rounded bg-beige text-white  disabled:opacity-50"
+              className="px-4 py-2 rounded bg-orange-500 text-white  hover:bg-orange-600 disabled:opacity-50"
             >
               Prev
             </button>
@@ -312,7 +312,7 @@ export default function ServicesSection() {
             <button
               onClick={goNext}
               disabled={page === totalPages}
-              className="px-4 py-2 rounded bg-[#834F29] text-white hover:bg-cyan-700 disabled:opacity-50"
+              className="px-4 py-2 rounded bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50"
             >
               Next
             </button>

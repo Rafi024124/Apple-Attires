@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
 
 export default function CartPage() {
+  
   const {
     cartItems,
     updateQuantity,
@@ -52,7 +53,7 @@ export default function CartPage() {
             />
             <div className="flex-1">
               <h3 className="text-xl font-semibold">{item.name}</h3>
-              <p className="text-red-600 font-semibold">৳{item.price}</p>
+              <p className="text-orange-600 hover:scale-105 font-semibold ">৳{item.price}</p>
 
               {item.model && (
                 <p className="mt-2 text-gray-700">
@@ -80,7 +81,7 @@ export default function CartPage() {
 
                 <button
                   onClick={() => removeFromCart(item.cartItemId)}
-                  className="ml-6 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                  className="ml-6 px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600"
                 >
                   Remove
                 </button>

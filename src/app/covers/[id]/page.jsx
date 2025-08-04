@@ -4,11 +4,12 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
+import CartDrawer from "@/app/components/cartDrawer/page";
 
 export default function CoverDetails() {
   const params = useParams();
   const { id } = params;
-
+const [showCartDrawer, setShowCartDrawer] = useState(false);
   const [cover, setCover] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -81,6 +82,10 @@ export default function CoverDetails() {
   } = cover;
 
   const imgs = images.length ? images : ["/fallback.jpg"];
+  const onAddToCart = () => {
+   
+    setShowCartDrawer(true); // open drawer
+  };
 
   const handleAddToCart = () => {
     if (!selectedModel) return alert("Please select a model.");
@@ -94,10 +99,12 @@ export default function CoverDetails() {
     });
    
   setQuantity(1);
+  onAddToCart();
   };
 
   return (
     <div className="max-w-5xl mx-auto p-6">
+       <CartDrawer open={showCartDrawer} onClose={() => setShowCartDrawer(false)} />
       <h1 className="text-3xl font-bold mb-6">{name}</h1>
 
       <div className="flex flex-col md:flex-row gap-10">
@@ -197,7 +204,7 @@ export default function CoverDetails() {
 
           <button
             onClick={handleAddToCart}
-            className="mt-4 bg-cyan-600 text-white px-6 py-2 rounded hover:bg-cyan-700"
+            className="mt-4 bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600"
           >
             Add to Cart
           </button>

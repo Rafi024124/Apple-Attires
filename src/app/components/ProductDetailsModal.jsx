@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/app/context/CartContext";
+import CartDrawer from "./cartDrawer/page";
 
 export default function ProductDetailsModal({ product, onClose }) {
   if (!product) return null;
@@ -29,6 +30,7 @@ export default function ProductDetailsModal({ product, onClose }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [selectedModel, setSelectedModel] = useState(models[0] || "");
+  const [showCartDrawer, setShowCartDrawer] = useState(false);
 
   const { addToCart } = useCart();
 
@@ -47,6 +49,10 @@ export default function ProductDetailsModal({ product, onClose }) {
   const increaseQuantity = () => {
     setSelectedQuantity((q) => q + 1);
   };
+    const onAddToCart = () => {
+   
+    setShowCartDrawer(true); // open drawer
+  };
 
   const handleAddToCart = () => {
     addToCart({
@@ -57,7 +63,9 @@ export default function ProductDetailsModal({ product, onClose }) {
       quantity: selectedQuantity,
       model: selectedModel,  // Pass selected model to cart/backend later
     });
-    onClose();
+     
+    onAddToCart();
+
   };
 
   const goToDetailsPage = () => {
@@ -77,6 +85,8 @@ export default function ProductDetailsModal({ product, onClose }) {
       className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 p-4"
       onClick={onClose}
     >
+      <CartDrawer open={showCartDrawer} onClose={() => setShowCartDrawer(false)} />
+
       <div
         className="bg-white dark:bg-gray-900 rounded-xl max-w-5xl w-full max-h-[90vh] overflow-auto shadow-xl p-8 relative"
         onClick={(e) => e.stopPropagation()}
@@ -91,7 +101,7 @@ export default function ProductDetailsModal({ product, onClose }) {
 
         <div className="flex flex-col md:flex-row gap-8 items-start">
           {/* Image carousel */}
-          <div className="relative w-full md:w-[420px] h-[620px] rounded-lg overflow-hidden select-none group shadow-lg">
+          <div className="relative w-full md:w-[420px] h-auto rounded-lg overflow-hidden select-none group shadow-lg">
             <Image
               src={allImages[currentIndex]}
               alt={`${name} image ${currentIndex + 1}`}
@@ -122,7 +132,7 @@ export default function ProductDetailsModal({ product, onClose }) {
 
             <button
               onClick={goToDetailsPage}
-              className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-6 left-1/2 -translate-x-1/2 bg-cyan-600 hover:bg-cyan-700 text-white px-5 py-2 rounded-lg shadow-lg font-semibold"
+              className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-6 left-1/2 -translate-x-1/2 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-lg shadow-lg font-semibold"
             >
               View Details
             </button>
@@ -156,11 +166,11 @@ export default function ProductDetailsModal({ product, onClose }) {
 
             <div className="text-gray-700 dark:text-gray-300 space-y-2 leading-relaxed">
               <p>
-                <strong>Model Compatibility:</strong>
+                <strong>Chose your model:</strong>
               </p>
               {models.length > 0 ? (
                 <select
-                  className="mt-1 w-48 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="mt-1 w-48 rounded border border-gray-300 dark:border-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                   value={selectedModel}
                   onChange={(e) => setSelectedModel(e.target.value)}
                 >
@@ -212,7 +222,7 @@ export default function ProductDetailsModal({ product, onClose }) {
 
               <button
                 onClick={handleAddToCart}
-                className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold rounded-lg py-3 shadow-md transition"
+                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg py-3 shadow-md transition"
               >
                 Add to Cart
               </button>
