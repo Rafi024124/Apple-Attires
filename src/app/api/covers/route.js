@@ -14,13 +14,14 @@ export const GET = async (request) => {
     const sort = url.searchParams.get('sort') || "default";
     const mainCategory = url.searchParams.get('mainCategory') || "";
     const subCategory = url.searchParams.get('subCategory') || "";
+    const brand = url.searchParams.get('brand') || ""; // ✅ NEW
 
     const page = parseInt(url.searchParams.get('page')) || 1;
     const limit = parseInt(url.searchParams.get('limit')) || 6;
     const skip = (page - 1) * limit;
 
     // Create cache key based on all query params
-    const cacheKey = JSON.stringify({ search, coverType, sort, mainCategory, subCategory, page, limit });
+    const cacheKey = JSON.stringify({ search, coverType, sort, mainCategory, subCategory, brand, page, limit });
 
     // Check cache
     if (cache.has(cacheKey)) {
@@ -46,12 +47,22 @@ export const GET = async (request) => {
           { subCategory: { $regex: search, $options: "i" } },
           { mainCategory: { $regex: search, $options: "i" } },
           { models: { $elemMatch: { $regex: search, $options: "i" } } },
+          { brand: { $regex: search, $options: "i" } }, // ✅ include brand in search
         ],
       });
     } else {
-      if (mainCategory) andConditions.push({ mainCategory });
+      
+      if (mainCategory && subCategory) {
+        andConditions.push({ mainCategory });
+        andConditions.push({ subCategory });
+      }else {
+        if (mainCategory) andConditions.push({ mainCategory });
+        if (subCategory) andConditions.push({ subCategory });
+      }
+
       if (coverType) andConditions.push({ type: coverType });
-      if (subCategory) andConditions.push({ subCategory });
+      
+      if (brand) andConditions.push({ brand }); // ✅ brand filter
     }
 
     const query = andConditions.length > 0 ? { $and: andConditions } : {};

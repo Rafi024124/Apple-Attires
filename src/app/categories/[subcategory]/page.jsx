@@ -7,7 +7,7 @@ export default function SubcategoryPage({ params }) {
 export async function generateStaticParams() {
   const subcategories = [
     'iphone',
-    'galaxy',
+    'samsung',
     'airpods',
     'macbook',
     'apple-watch',

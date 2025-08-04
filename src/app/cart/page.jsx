@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
 
 export default function CartPage() {
-  
   const {
     cartItems,
     updateQuantity,
@@ -42,18 +41,23 @@ export default function CartPage() {
         {cartItems.map((item) => (
           <div
             key={item.cartItemId}
-            className="flex items-center gap-6 p-4 border rounded-md"
+            className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 p-4 border rounded-md"
           >
-            <Image
-              src={item.image}
-              alt={item.name}
-              width={100}
-              height={120}
-              className="rounded"
-            />
+            <div className="w-full sm:w-auto flex justify-center">
+              <Image
+                src={item.image}
+                alt={item.name}
+                width={100}
+                height={120}
+                className="rounded"
+              />
+            </div>
+
             <div className="flex-1">
               <h3 className="text-xl font-semibold">{item.name}</h3>
-              <p className="text-orange-600 hover:scale-105 font-semibold ">৳{item.price}</p>
+              <p className="text-orange-600 hover:scale-105 font-semibold">
+                ৳{item.price}
+              </p>
 
               {item.model && (
                 <p className="mt-2 text-gray-700">
@@ -61,9 +65,11 @@ export default function CartPage() {
                 </p>
               )}
 
-              <div className="flex items-center mt-2 gap-2">
+              <div className="flex flex-wrap items-center mt-3 gap-2">
                 <button
-                  onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
+                  onClick={() =>
+                    updateQuantity(item.cartItemId, item.quantity - 1)
+                  }
                   disabled={item.quantity <= 1}
                   className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
                 >
@@ -73,7 +79,9 @@ export default function CartPage() {
                 <span className="px-3">{item.quantity}</span>
 
                 <button
-                  onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
+                  onClick={() =>
+                    updateQuantity(item.cartItemId, item.quantity + 1)
+                  }
                   className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
                 >
                   +
@@ -81,7 +89,7 @@ export default function CartPage() {
 
                 <button
                   onClick={() => removeFromCart(item.cartItemId)}
-                  className="ml-6 px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600"
+                  className="ml-0 sm:ml-6 px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600"
                 >
                   Remove
                 </button>
@@ -91,10 +99,8 @@ export default function CartPage() {
         ))}
       </div>
 
-      <div className="mt-10 flex justify-between items-center">
-        <h2 className="text-2xl font-semibold">
-          Total: ৳{totalPrice.toFixed(2)}
-        </h2>
+      <div className="mt-10 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <h2 className="text-2xl font-semibold">Total: ৳{totalPrice.toFixed(2)}</h2>
         <button
           onClick={() => alert("Proceed to checkout (implement later)")}
           className="bg-cyan-600 text-white px-6 py-2 rounded hover:bg-cyan-700"

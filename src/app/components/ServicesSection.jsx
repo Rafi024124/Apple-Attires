@@ -5,11 +5,11 @@ import CoverCard from "./CoverCard";
 import ProductDetailsModal from "./ProductDetailsModal";
 import Loading from "../categories/[subcategory]/loading";
 import Image from "next/image";
+import SkeletonCoverCard from "./SkeletonCoverCard";
 
-
-export default function ServicesSection() {
-  const [covers, setCovers] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function ServicesSection({ initialCovers = [], initialTotalCount = 0 }) {
+  const [covers, setCovers] = useState(initialCovers);
+  const [loading, setLoading] = useState(false); // false because we have initial data
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
 
@@ -19,7 +19,7 @@ export default function ServicesSection() {
   const [sortOption, setSortOption] = useState("default");
   const [page, setPage] = useState(1);
   const limit = 6;
-  const [totalCount, setTotalCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(initialTotalCount);
   const [mainCategory, setMainCategory] = useState("");
 
   // Debounced versions of filters to reduce fetch frequency
@@ -28,8 +28,8 @@ export default function ServicesSection() {
   const [debouncedSortOption, setDebouncedSortOption] = useState("default");
   const [debouncedMainCategory, setDebouncedMainCategory] = useState("");
 
-  // AbortController ref for cancelling previous fetches
   const abortControllerRef = useRef(null);
+  const initialRender = useRef(true);
 
   // Fetch cover types once on mount
   useEffect(() => {
@@ -46,7 +46,7 @@ export default function ServicesSection() {
     fetchCoverTypes();
   }, []);
 
-  // Debounce searchTerm input (500ms)
+  // Debounce handlers (unchanged)
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
@@ -55,7 +55,6 @@ export default function ServicesSection() {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
-  // Debounce selectedCoverType input (300ms)
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedCoverType(selectedCoverType);
@@ -64,7 +63,6 @@ export default function ServicesSection() {
     return () => clearTimeout(handler);
   }, [selectedCoverType]);
 
-  // Debounce sortOption input (300ms)
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSortOption(sortOption);
@@ -73,7 +71,6 @@ export default function ServicesSection() {
     return () => clearTimeout(handler);
   }, [sortOption]);
 
-  // Debounce mainCategory input (300ms)
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedMainCategory(mainCategory);
@@ -82,15 +79,18 @@ export default function ServicesSection() {
     return () => clearTimeout(handler);
   }, [mainCategory]);
 
-  // Reset type filter immediately when mainCategory changes (no debounce)
   useEffect(() => {
     setSelectedCoverType("");
   }, [mainCategory]);
 
-  // Fetch covers whenever any debounced filter changes or page changes
+  // Fetch covers (unchanged)
   useEffect(() => {
+    if (initialRender.current) {
+      initialRender.current = false;
+      return;
+    }
+
     async function fetchCovers() {
-      // Abort previous fetch if exists
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -128,7 +128,6 @@ export default function ServicesSection() {
     }
     fetchCovers();
 
-    // Cleanup abort on unmount
     return () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -161,8 +160,7 @@ export default function ServicesSection() {
   };
 
   // Button style helper
-  const activeButtonClasses =
-    "scale-110 ";
+  const activeButtonClasses = "scale-110 ";
   const inactiveButtonClasses = " text-black";
 
   const handleTypeChange = (e) => {
@@ -180,45 +178,54 @@ export default function ServicesSection() {
   return (
     <>
       {/* Buttons for mainCategory filter */}
-      <div className="max-w-6xl mx-auto p-4 flex justify-center gap-6 mb-6">
+      <div className="max-w-6xl mx-auto p-4 flex flex-wrap justify-center gap-6 mb-6">
         <div
-          className={`px-6 py-2 rounded font-semibold transition ${
-            mainCategory === "Covers"
-              ? activeButtonClasses
-              : inactiveButtonClasses
+          className={`cursor-pointer px-6 py-2 rounded font-semibold transition ${
+            mainCategory === "Covers" ? activeButtonClasses : inactiveButtonClasses
           } hover:scale-105`}
           onClick={() => handleCategoryClick("Covers")}
         >
-          <Image src='/iphn.jpg' alt={name} width={90} height={80} className="mb-2" 
-                      style={{ aspectRatio: '1 / 1' }} 
-                     />
-                     <p>Phone Cases</p>
+          <Image
+            src="/iphn.jpg"
+            alt="Phone Cases"
+            width={90}
+            height={80}
+            className="mb-2"
+            style={{ aspectRatio: "1 / 1" }}
+          />
+          <p className="text-center">Phone Cases</p>
         </div>
         <div
-          className={`px-6 py-2 rounded font-semibold transition ${
-            mainCategory === "Protectors"
-              ? activeButtonClasses
-              : inactiveButtonClasses
+          className={`cursor-pointer px-6 py-2 rounded font-semibold transition ${
+            mainCategory === "Protectors" ? activeButtonClasses : inactiveButtonClasses
           } hover:scale-105 hover:text-white`}
           onClick={() => handleCategoryClick("Protectors")}
         >
-         <Image src='/protector.png' alt={name} width={90} height={80} className="mb-2" 
-                      style={{ aspectRatio: '1 / 1' }} 
-                     />
-                     <p>Glass Protectors</p>
+          <Image
+            src="/protector.png"
+            alt="Glass Protectors"
+            width={90}
+            height={80}
+            className="mb-2"
+            style={{ aspectRatio: "1 / 1" }}
+          />
+          <p className="text-center">Glass Protectors</p>
         </div>
-         <div
-          className={`px-6 py-2 rounded font-semibold transition ${
-            mainCategory === "Protectors"
-              ? activeButtonClasses
-              : inactiveButtonClasses
+        <div
+          className={`cursor-pointer px-6 py-2 rounded font-semibold transition ${
+            mainCategory === "lense" ? activeButtonClasses : inactiveButtonClasses
           } hover:scale-105 hover:text-white`}
           onClick={() => handleCategoryClick("lense")}
         >
-         <Image src='/lens.jpg' alt={name} width={90} height={80} className="mb-2" 
-                      style={{ aspectRatio: '1 / 1' }} 
-                     />
-                     <p>Lens Protectors</p>
+          <Image
+            src="/lens.jpg"
+            alt="Lens Protectors"
+            width={90}
+            height={80}
+            className="mb-2"
+            style={{ aspectRatio: "1 / 1" }}
+          />
+          <p className="text-center">Lens Protectors</p>
         </div>
         <button
           className={`px-6 py-2 rounded font-semibold transition ${
@@ -231,11 +238,11 @@ export default function ServicesSection() {
       </div>
 
       {/* Search, Filter, Sort */}
-      <div className="max-w-6xl mx-auto p-4 flex flex-col md:flex-row gap-4 items-center">
+      <div className="max-w-6xl mx-auto p-4 flex flex-col gap-4 md:flex-row md:items-center md:gap-4">
         <input
           type="text"
           placeholder="Search covers by name, etc."
-          className="flex-grow p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#834F29]"
+          className="w-full md:flex-grow p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#834F29]"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -247,7 +254,7 @@ export default function ServicesSection() {
               handleTypeChange(e);
               setPage(1);
             }}
-            className="p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#834F29]"
+            className="w-full md:w-auto p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#834F29]"
           >
             <option value="">All Cover Types</option>
             {coverTypes.map((type) => (
@@ -264,7 +271,7 @@ export default function ServicesSection() {
             setSortOption(e.target.value);
             setPage(1);
           }}
-          className="p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#834F29]"
+          className="w-full md:w-auto p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#834F29]"
         >
           <option value="default">Sort By (Default)</option>
           <option value="name_asc">Name (A-Z)</option>
@@ -278,14 +285,12 @@ export default function ServicesSection() {
 
       {/* Products Grid */}
       {loading ? (
-        <Loading></Loading>
+        <SkeletonCoverCard />
       ) : (
         <>
-          <div className="grid grid-cols-12 max-w-6xl mx-auto gap-4 p-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-6xl mx-auto gap-4 p-4">
             {covers.length === 0 ? (
-              <p className="col-span-12 text-center text-gray-500">
-                No covers found.
-              </p>
+              <p className="col-span-12 text-center text-gray-500">No covers found.</p>
             ) : (
               covers.map((item) => (
                 <CoverCard
@@ -321,14 +326,11 @@ export default function ServicesSection() {
       )}
 
       {/* Loading details */}
-      {loadingDetails && <Loading></Loading>}
+      {loadingDetails && <Loading />}
 
       {/* Modal */}
       {selectedProduct && !loadingDetails && (
-        <ProductDetailsModal
-          product={selectedProduct}
-          onClose={() => setSelectedProduct(null)}
-        />
+        <ProductDetailsModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
       )}
     </>
   );

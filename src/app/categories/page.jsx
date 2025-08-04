@@ -4,10 +4,10 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 const categories = [
-  { name: 'iPhone', image: '/iphone.png' },
-  { name: 'Galaxy', image: '/samsung.png' },
+  { name: 'iphone', image: '/iphone.png' },
+  { name: 'samsung', image: '/samsung.png'},
   { name: 'AirPods', image: '/airpods.png' },
-  { name: 'Macbook', image: '/mac.png' },
+  { name: 'Macbook', image: '/mac.png'},
   { name: 'Apple Watch', image: '/watch.png' },
   { name: 'iPad', image: '/ipad.png' },
 ];
@@ -15,17 +15,18 @@ const categories = [
 export default function CategoryPage() {
   const router = useRouter();
 
-  const handleClick = (name) => {
-    const subCategory = name.toLowerCase();
-    router.push(`/categories/${subCategory}`);
-  };
+ const handleClick = (name, mainCategory) => {
+  const subCategory = name.toLowerCase();
+  router.push(`/categories/${subCategory}`);
+};
+
 
   return (
     <div className=" px-4 py-8 max-w-6xl mx-auto text-center">
       <h1 className="text-3xl font-bold mb-8 text-gray-800">Pick Your Device</h1>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6 justify-center mb-10">
-        {categories.map(({ name, image }) => (
+        {categories.map(({ name, image}) => (
           <div
             key={name}
             onClick={() => handleClick(name)}
