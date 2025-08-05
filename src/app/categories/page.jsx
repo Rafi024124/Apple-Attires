@@ -4,18 +4,18 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 const categories = [
-  { name: 'iphone', image: '/iphone.png' },
+  { name: 'iphone', image: '/iphone1.png' },
   { name: 'samsung', image: '/samsung.png'},
-  { name: 'AirPods', image: '/airpods.png' },
-  { name: 'Macbook', image: '/mac.png'},
-  { name: 'Apple Watch', image: '/watch.png' },
-  { name: 'iPad', image: '/ipad.png' },
+  { name: 'airPods', image: '/airpods.png' },
+  { name: 'macbook', image: '/mac.png'},
+  { name: 'apple-watch', image: '/watch.png' },
+  { name: 'ipad', image: '/ipad.png' },
 ];
 
 export default function CategoryPage() {
   const router = useRouter();
 
- const handleClick = (name, mainCategory) => {
+ const handleClick = (name) => {
   const subCategory = name.toLowerCase();
   router.push(`/categories/${subCategory}`);
 };

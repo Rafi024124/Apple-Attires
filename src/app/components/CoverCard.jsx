@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { FaSearch } from 'react-icons/fa';
+import { FaSearch, FaShoppingCart } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/app/context/CartContext';
 import CartDrawer from './cartDrawer/page';
@@ -38,22 +38,6 @@ export default function CoverCard({ item, onViewDetails }) {
     if (!showModelSelector) router.push(`/covers/${_id}`);
   };
 
-  const genderColor =
-    gender === 'Ladies'
-      ? 'bg-pink-200 text-pink-800'
-      : gender === 'Unisex'
-      ? 'bg-blue-100 text-blue-800'
-      : 'bg-gray-200 text-gray-800';
-
-  const typeColor =
-    type === 'Silicon'
-      ? 'bg-green-100 text-green-700'
-      : type === 'AG'
-      ? 'bg-yellow-100 text-yellow-700'
-      : type === 'Transparent'
-      ? 'bg-purple-100 text-purple-700'
-      : 'bg-gray-100 text-gray-700';
-
   const handleAddToCart = () => {
     if (models.length > 0) {
       setShowModelSelector(true);
@@ -73,7 +57,7 @@ export default function CoverCard({ item, onViewDetails }) {
   };
 
   return (
-    <div className="relative group col-span-1 p-3 bg-white rounded-xl shadow-md hover:shadow-lg transition duration-300 ease-in-out cursor-pointer flex flex-col h-[270px]">
+    <div className="relative group col-span-1  bg-white shadow-sm hover:shadow-lg transition duration-300 ease-in-out cursor-pointer flex flex-col h-[290px]">
       <CartDrawer open={showCartDrawer} onClose={() => setShowCartDrawer(false)} />
 
       {showModelSelector && (
@@ -103,7 +87,6 @@ export default function CoverCard({ item, onViewDetails }) {
         </div>
       )}
 
-      {/* Main content */}
       <div
         className={`${showModelSelector ? 'pointer-events-none opacity-30' : ''} flex flex-col flex-grow`}
         onClick={goToDetailsPage}
@@ -123,24 +106,30 @@ export default function CoverCard({ item, onViewDetails }) {
             onError={() => setImageError(true)}
           />
 
-          {/* Floating buttons on image */}
-          <div className="absolute inset-0 flex items-end justify-between p-3 opacity-0 group-hover:opacity-100 bg-gradient-to-t from-white/90 via-white/20 to-transparent transition duration-300 ease-in-out">
+          <div className="absolute  inset-0 flex items-end justify-between p-3 opacity-0 group-hover:opacity-100 bg-gradient-to-t from-white/90 via-white/20 to-transparent transition duration-300 ease-in-out">
+            {/* UPDATED BUTTON */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleAddToCart();
               }}
-              className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-3 py-1.5 rounded shadow transition"
+              className="relative group/button items-center justify-center flex bg-orange-500 hover:scale-110 transition-transform duration-300 ease-in-out text-white text-sm font-medium px-3 py-1.5 rounded shadow min-w-[100px] overflow-hidden"
               aria-label="Add to Cart"
             >
-              Add To Cart
+              {/* Text */}
+              <span className="absolute left-0 right-0 flex justify-center items-center transition-opacity duration-200 ease-in-out group-hover/button:opacity-0">
+                Add To Cart
+              </span>
+              {/* Icon */}
+              <FaShoppingCart className="opacity-0 transition-opacity duration-200 ease-in-out group-hover/button:opacity-100 mx-auto" />
             </button>
+
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onViewDetails();
               }}
-              className="text-orange-500 hover:text-orange-600 text-xl"
+              className="text-orange-500 hover:scale-130 transition-transform duration-300 text-xl"
               title="View Details"
               aria-label="View Details"
             >
@@ -150,7 +139,7 @@ export default function CoverCard({ item, onViewDetails }) {
         </div>
 
         <h3
-          className="font-semibold mt-4 text-xs lg:text-sm text-gray-800 leading-snug"
+          className=" mt-4 text-sm lg:text-base px-3 text-gray-800 leading-tight tracking-wide"
           style={{
             overflow: 'hidden',
             display: '-webkit-box',
@@ -161,13 +150,8 @@ export default function CoverCard({ item, onViewDetails }) {
         >
           {name}
         </h3>
-        <p className="text-red-500 font-semibold text-md">৳{price}</p>
 
-        <div className="flex flex-wrap gap-2 mt-2">
-          {/* Uncomment to show gender badge */}
-          {/* <span className={`px-2 py-1 rounded text-[8px] font-medium ${genderColor}`}>{gender}</span> */}
-          
-        </div>
+        <p className="text-orange-600 font-semibold text-lg mt-1 px-3">৳{price}</p>
       </div>
     </div>
   );

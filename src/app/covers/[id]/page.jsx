@@ -3,24 +3,26 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
+import { FaArrowLeft, FaArrowRight, FaExpand } from "react-icons/fa";
 import { useCart } from "@/app/context/CartContext";
 import CartDrawer from "@/app/components/cartDrawer/page";
+import CoverDetailsSkeleton from "./CoverDetailsSkeleton";
 
 export default function CoverDetails() {
   const params = useParams();
   const { id } = params;
-const [showCartDrawer, setShowCartDrawer] = useState(false);
+
   const [cover, setCover] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [mainIndex, setMainIndex] = useState(0);
   const [selectedModel, setSelectedModel] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [showCartDrawer, setShowCartDrawer] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   const mainImageRef = useRef(null);
   const zoomLensRef = useRef(null);
-
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -31,7 +33,7 @@ const [showCartDrawer, setShowCartDrawer] = useState(false);
         if (!res.ok) throw new Error("Failed to fetch cover details");
         const data = await res.json();
         setCover(data);
-        setSelectedModel(data.models?.[0] || ""); // default model
+        setSelectedModel(data.models?.[0] || "");
       } catch (err) {
         setError(err.message || "Unknown error");
       }
@@ -44,13 +46,12 @@ const [showCartDrawer, setShowCartDrawer] = useState(false);
     if (!mainImageRef.current || !zoomLensRef.current) return;
     const rect = mainImageRef.current.getBoundingClientRect();
     const lens = zoomLensRef.current;
-    const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-    const y = Math.max(0, Math.min(e.clientY - rect.top, rect.height));
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
     const lensX = Math.max(0, Math.min(x - 100, rect.width - 200));
     const lensY = Math.max(0, Math.min(y - 100, rect.height - 200));
     const bgX = (x / rect.width) * 100;
     const bgY = (y / rect.height) * 100;
-
     lens.style.left = `${lensX}px`;
     lens.style.top = `${lensY}px`;
     lens.style.backgroundPosition = `${bgX}% ${bgY}%`;
@@ -59,11 +60,12 @@ const [showCartDrawer, setShowCartDrawer] = useState(false);
   function handleMouseEnter() {
     if (zoomLensRef.current) zoomLensRef.current.style.display = "block";
   }
+
   function handleMouseLeave() {
     if (zoomLensRef.current) zoomLensRef.current.style.display = "none";
   }
 
-  if (loading) return <p className="text-center p-4">Loading cover details...</p>;
+  if (loading) return <CoverDetailsSkeleton />;
   if (error) return <p className="text-center text-red-500">Error: {error}</p>;
   if (!cover) return <p className="text-center">No cover found.</p>;
 
@@ -82,37 +84,56 @@ const [showCartDrawer, setShowCartDrawer] = useState(false);
   } = cover;
 
   const imgs = images.length ? images : ["/fallback.jpg"];
-  const onAddToCart = () => {
-   
-    setShowCartDrawer(true); // open drawer
-  };
+
+  const prevImage = () =>
+    setMainIndex((prev) => (prev === 0 ? imgs.length - 1 : prev - 1));
+
+  const nextImage = () =>
+    setMainIndex((prev) => (prev === imgs.length - 1 ? 0 : prev + 1));
+
+  const onAddToCart = () => setShowCartDrawer(true);
 
   const handleAddToCart = () => {
     if (!selectedModel) return alert("Please select a model.");
     addToCart({
       _id,
       name,
-      image: imgs[0],
+      image: imgs[mainIndex],
       price,
       model: selectedModel,
       quantity,
     });
-   
-  setQuantity(1);
-  onAddToCart();
+    setQuantity(1);
+    onAddToCart();
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-       <CartDrawer open={showCartDrawer} onClose={() => setShowCartDrawer(false)} />
-      <h1 className="text-3xl font-bold mb-6">{name}</h1>
+    <div className="max-w-6xl mx-auto p-6">
+      <CartDrawer open={showCartDrawer} onClose={() => setShowCartDrawer(false)} />
+
+      {showPreview && (
+        <div
+          className="fixed inset-0 z-50 bg-black bg-opacity-90 flex justify-center items-center"
+          onClick={() => setShowPreview(false)}
+        >
+          <Image
+            src={imgs[mainIndex]}
+            alt="Preview"
+            width={800}
+            height={1000}
+            className="rounded-lg object-contain max-h-[90vh]"
+          />
+        </div>
+      )}
+
+      <h1 className="text-3xl font-semibold mb-6 text-center text-gray-800 md:text-left">{name}</h1>
 
       <div className="flex flex-col md:flex-row gap-10">
         {/* Image Section */}
-        <div className="w-full md:w-1/2">
+        <div className="w-full md:w-1/2 flex flex-col items-center">
           <div
             ref={mainImageRef}
-            className="relative w-[400px] h-[400px] border rounded-md overflow-hidden"
+            className="relative w-full aspect-[3/4] max-w-md border rounded overflow-hidden"
             onMouseMove={handleMouseMove}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
@@ -140,7 +161,31 @@ const [showCartDrawer, setShowCartDrawer] = useState(false);
             />
           </div>
 
-          <div className="flex gap-3 mt-4 overflow-x-auto">
+          {/* Controls BELOW image */}
+          <div className="w-full max-w-md mt-4 flex items-center justify-between gap-2">
+            <button
+              onClick={prevImage}
+              className="bg-black text-white p-2 rounded-full hover:bg-opacity-70 transition"
+            >
+              <FaArrowLeft />
+            </button>
+            <button
+              onClick={() => setShowPreview(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-white border rounded hover:scale-105 transition"
+            >
+              <FaExpand className="text-black" />
+              <span className="text-sm font-medium">Preview</span>
+            </button>
+            <button
+              onClick={nextImage}
+              className="bg-black text-white p-2 rounded-full hover:bg-opacity-70 transition"
+            >
+              <FaArrowRight />
+            </button>
+          </div>
+
+          {/* Thumbnails */}
+          <div className="flex gap-3 mt-4 overflow-x-auto w-full max-w-md">
             {imgs.map((src, i) => (
               <button
                 key={i}
@@ -204,12 +249,12 @@ const [showCartDrawer, setShowCartDrawer] = useState(false);
 
           <button
             onClick={handleAddToCart}
-            className="mt-4 bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600"
+            className="mt-4 bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600 transition"
           >
             Add to Cart
           </button>
 
-          <hr />
+          <hr className="my-4" />
 
           <div><strong>Type:</strong> {type || "N/A"}</div>
           <div><strong>Gender:</strong> {gender || "N/A"}</div>

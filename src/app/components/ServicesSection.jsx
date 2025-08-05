@@ -18,7 +18,7 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
   const [coverTypes, setCoverTypes] = useState([]);
   const [sortOption, setSortOption] = useState("default");
   const [page, setPage] = useState(1);
-  const limit = 6;
+  const limit = 8;
   const [totalCount, setTotalCount] = useState(initialTotalCount);
   const [mainCategory, setMainCategory] = useState("");
 
@@ -178,15 +178,15 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
   return (
     <>
       {/* Buttons for mainCategory filter */}
-      <div className="max-w-6xl mx-auto p-4 flex flex-wrap justify-center gap-6 mb-6">
+      <div className="max-w-6xl text-xs mx-auto p-4 flex flex-wrap justify-center gap-6 mb-6">
         <div
-          className={`cursor-pointer px-6 py-2 rounded font-semibold transition ${
+          className={`cursor-pointer px-6 py-2 rounded  transition ${
             mainCategory === "Covers" ? activeButtonClasses : inactiveButtonClasses
-          } hover:scale-105`}
+          } hover:scale-105 hover:text-white`}
           onClick={() => handleCategoryClick("Covers")}
         >
           <Image
-            src="/iphn.jpg"
+            src="/cases1.jpg"
             alt="Phone Cases"
             width={90}
             height={80}
@@ -196,7 +196,7 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
           <p className="text-center">Phone Cases</p>
         </div>
         <div
-          className={`cursor-pointer px-6 py-2 rounded font-semibold transition ${
+          className={`cursor-pointer px-6 py-2 rounded  transition ${
             mainCategory === "Protectors" ? activeButtonClasses : inactiveButtonClasses
           } hover:scale-105 hover:text-white`}
           onClick={() => handleCategoryClick("Protectors")}
@@ -212,13 +212,13 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
           <p className="text-center">Glass Protectors</p>
         </div>
         <div
-          className={`cursor-pointer px-6 py-2 rounded font-semibold transition ${
+          className={`cursor-pointer px-6 py-2 rounded  transition ${
             mainCategory === "lense" ? activeButtonClasses : inactiveButtonClasses
           } hover:scale-105 hover:text-white`}
           onClick={() => handleCategoryClick("lense")}
         >
           <Image
-            src="/lens.jpg"
+            src="/lenss.jpg"
             alt="Lens Protectors"
             width={90}
             height={80}
@@ -288,7 +288,7 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
         <SkeletonCoverCard />
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-6xl mx-auto gap-4 p-4">
+          <div className="grid grid-cols-2 bg-gray-100 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-6xl mx-auto gap-4 p-4">
             {covers.length === 0 ? (
               <p className="col-span-12 text-center text-gray-500">No covers found.</p>
             ) : (

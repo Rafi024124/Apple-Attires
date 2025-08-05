@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import CoverCard from '@/app/components/CoverCard';
 import ProductDetailsModal from '@/app/components/ProductDetailsModal';
 import Loading from './loading';
+import SkeletonCoverCard from '@/app/components/SkeletonCoverCard';
 
 export default function SubcategoryProductsClient({ subcategory }) {
   
@@ -51,13 +52,13 @@ useEffect(() => {
 
 
   return (
-    <div className="min-h-screen  py-8 bg-gray-50 max-w-6xl">
+    <div className="min-h-screen  py-8 bg-gray-50 max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold mb-6 text-gray-800 capitalize">
-  Products for {subcategory?.toUpperCase()}
+  Covers for {subcategory?.toUpperCase()}
 </h1>
 
 
-      {loading && <Loading />}
+      {loading && <SkeletonCoverCard></SkeletonCoverCard>}
 
       {!loading && products.length === 0 && (
         <p className="text-red-500">No products found for this category.</p>
@@ -78,7 +79,7 @@ useEffect(() => {
       {/* ========== NEW SECTION FOR BRAND PROTECTORS ========== */}
       
 
-      {loadingProtectors && <Loading />}
+      {loadingProtectors && <SkeletonCoverCard></SkeletonCoverCard>}
 
       {!loadingProtectors && protectors.length === 0 && (
         <></>
