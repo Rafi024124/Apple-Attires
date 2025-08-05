@@ -1,42 +1,40 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, useRef } from "react";
-import CoverCard from "./CoverCard";
-import ProductDetailsModal from "./ProductDetailsModal";
-import Loading from "../categories/[subcategory]/loading";
-import Image from "next/image";
-import SkeletonCoverCard from "./SkeletonCoverCard";
+import React, { useState, useEffect, useRef } from 'react';
+import CoverCard from './CoverCard';
+import ProductDetailsModal from './ProductDetailsModal';
+import SkeletonCoverCard from './SkeletonCoverCard';
 
 export default function ServicesSection({ initialCovers = [], initialTotalCount = 0 }) {
   const [covers, setCovers] = useState(initialCovers);
-  const [loading, setLoading] = useState(false); // false because we have initial data
+  const [loading, setLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCoverType, setSelectedCoverType] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCoverType, setSelectedCoverType] = useState('');
   const [coverTypes, setCoverTypes] = useState([]);
-  const [sortOption, setSortOption] = useState("default");
+  const [sortOption, setSortOption] = useState('default');
   const [page, setPage] = useState(1);
-  const limit = 8;
+  const [limit, setLimit] = useState(25);
   const [totalCount, setTotalCount] = useState(initialTotalCount);
-  const [mainCategory, setMainCategory] = useState("");
+  const [mainCategory, setMainCategory] = useState('');
 
-  // Debounced versions of filters to reduce fetch frequency
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  const [debouncedCoverType, setDebouncedCoverType] = useState("");
-  const [debouncedSortOption, setDebouncedSortOption] = useState("default");
-  const [debouncedMainCategory, setDebouncedMainCategory] = useState("");
+  const [layoutView, setLayoutView] = useState('grid-3');
+
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [debouncedCoverType, setDebouncedCoverType] = useState('');
+  const [debouncedSortOption, setDebouncedSortOption] = useState('default');
+  const [debouncedMainCategory, setDebouncedMainCategory] = useState('');
 
   const abortControllerRef = useRef(null);
   const initialRender = useRef(true);
 
-  // Fetch cover types once on mount
   useEffect(() => {
     async function fetchCoverTypes() {
       try {
-        const res = await fetch("/api/covers/types");
-        if (!res.ok) throw new Error("Failed to fetch cover types");
+        const res = await fetch('/api/covers/types');
+        if (!res.ok) throw new Error('Failed to fetch cover types');
         const data = await res.json();
         setCoverTypes(data.types || []);
       } catch (error) {
@@ -46,7 +44,6 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
     fetchCoverTypes();
   }, []);
 
-  // Debounce handlers (unchanged)
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
@@ -80,10 +77,9 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
   }, [mainCategory]);
 
   useEffect(() => {
-    setSelectedCoverType("");
+    setSelectedCoverType('');
   }, [mainCategory]);
 
-  // Fetch covers (unchanged)
   useEffect(() => {
     if (initialRender.current) {
       initialRender.current = false;
@@ -100,32 +96,33 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
       setLoading(true);
       try {
         const params = new URLSearchParams();
-        if (debouncedSearchTerm) params.append("search", debouncedSearchTerm);
-        if (debouncedCoverType) params.append("type", debouncedCoverType);
-        if (debouncedSortOption && debouncedSortOption !== "default")
-          params.append("sort", debouncedSortOption);
-        if (debouncedMainCategory) params.append("mainCategory", debouncedMainCategory);
-        params.append("page", page.toString());
-        params.append("limit", limit.toString());
+        if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
+        if (debouncedCoverType) params.append('type', debouncedCoverType);
+        if (debouncedSortOption && debouncedSortOption !== 'default') {
+          params.append('sort', debouncedSortOption);
+        }
+        if (debouncedMainCategory) params.append('mainCategory', debouncedMainCategory);
+        params.append('page', page.toString());
+        params.append('limit', limit.toString());
 
         const res = await fetch(`/api/covers?${params.toString()}`, {
           signal: controller.signal,
         });
 
-        if (!res.ok) throw new Error("Failed to fetch covers");
+        if (!res.ok) throw new Error('Failed to fetch covers');
         const data = await res.json();
-
         setCovers(data.covers);
         setTotalCount(data.totalCount);
       } catch (error) {
-        if (error.name !== "AbortError") {
+        if (error.name !== 'AbortError') {
           console.error(error);
-          alert("Failed to load covers");
+          alert('Failed to load covers');
         }
       } finally {
         setLoading(false);
       }
     }
+
     fetchCovers();
 
     return () => {
@@ -133,18 +130,25 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
         abortControllerRef.current.abort();
       }
     };
-  }, [debouncedSearchTerm, debouncedCoverType, debouncedSortOption, debouncedMainCategory, page]);
+  }, [
+    debouncedSearchTerm,
+    debouncedCoverType,
+    debouncedSortOption,
+    debouncedMainCategory,
+    page,
+    limit,
+  ]);
 
   async function handleViewDetails(id) {
     setLoadingDetails(true);
     try {
       const res = await fetch(`/api/covers/${id}`);
-      if (!res.ok) throw new Error("Failed to fetch details");
+      if (!res.ok) throw new Error('Failed to fetch details');
       const data = await res.json();
       setSelectedProduct(data);
     } catch (error) {
       console.error(error);
-      alert("Failed to load details");
+      alert('Failed to load details');
     }
     setLoadingDetails(false);
   }
@@ -159,178 +163,210 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
     if (page < totalPages) setPage(page + 1);
   };
 
-  // Button style helper
-  const activeButtonClasses = "scale-110 ";
-  const inactiveButtonClasses = " text-black";
+  const activeButtonClasses = 'scale-110 bg-orange-500 text-white shadow-lg';
+  const inactiveButtonClasses = 'bg-gray-100 text-gray-700 hover:bg-orange-100';
 
   const handleTypeChange = (e) => {
     setSelectedCoverType(e.target.value);
-    setSearchTerm("");
+    setSearchTerm('');
   };
 
   const handleCategoryClick = (category) => {
     setMainCategory(category);
-    setSearchTerm("");
-    setSelectedCoverType("");
+    setSearchTerm('');
+    setSelectedCoverType('');
     setPage(1);
   };
 
   return (
     <>
-      {/* Buttons for mainCategory filter */}
-      <div className="max-w-6xl text-xs mx-auto p-4 flex flex-wrap justify-center gap-6 mb-6">
-        <div
-          className={`cursor-pointer px-6 py-2 rounded  transition ${
-            mainCategory === "Covers" ? activeButtonClasses : inactiveButtonClasses
-          } hover:scale-105 hover:text-white`}
-          onClick={() => handleCategoryClick("Covers")}
-        >
-          <Image
-            src="/cases1.jpg"
-            alt="Phone Cases"
-            width={90}
-            height={80}
-            className="mb-2"
-            style={{ aspectRatio: "1 / 1" }}
+      {/* Top Controls */}
+      <div className="max-w-6xl mx-auto px-4 flex flex-wrap items-center gap-3 justify-between mb-4">
+        {/* Left group: Search + filter + sort */}
+        <div className="flex flex-wrap gap-2 items-center flex-grow min-w-[240px]">
+          <input
+            type="text"
+            placeholder="Search covers by name, etc."
+            className="px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 flex-grow min-w-[120px]"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <p className="text-center">Phone Cases</p>
+
+          {mainCategory === 'Covers' && (
+            <select
+              value={selectedCoverType}
+              onChange={handleTypeChange}
+              className="px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="">All Cover Types</option>
+              {coverTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          )}
+
+          <label htmlFor="sortBy" className="text-sm font-semibold ml-2 hidden sm:inline">
+            Sort By:
+          </label>
+          <select
+            id="sortBy"
+            value={sortOption}
+            onChange={(e) => {
+              setSortOption(e.target.value);
+              setPage(1);
+            }}
+            className="px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+          >
+            <option value="default">Default</option>
+            <option value="name_asc">Name (A-Z)</option>
+            <option value="name_desc">Name (Z-A)</option>
+            <option value="price_asc">Price (Low → High)</option>
+            <option value="price_desc">Price (High → Low)</option>
+            <option value="model_asc">Model (A-Z)</option>
+            <option value="model_desc">Model (Z-A)</option>
+          </select>
         </div>
-        <div
-          className={`cursor-pointer px-6 py-2 rounded  transition ${
-            mainCategory === "Protectors" ? activeButtonClasses : inactiveButtonClasses
-          } hover:scale-105 hover:text-white`}
-          onClick={() => handleCategoryClick("Protectors")}
-        >
-          <Image
-            src="/protector.png"
-            alt="Glass Protectors"
-            width={90}
-            height={80}
-            className="mb-2"
-            style={{ aspectRatio: "1 / 1" }}
-          />
-          <p className="text-center">Glass Protectors</p>
+
+        {/* Right group: Layout buttons + limit dropdown */}
+        <div className="flex items-center gap-3 mt-2 sm:mt-0">
+          {/* Desktop Layout Buttons */}
+          <div className="hidden sm:flex items-center gap-1 border border-gray-300 rounded overflow-hidden select-none">
+            {['grid-2', 'grid-3', 'grid-4', 'list'].map((layout, idx) => (
+              <button
+                key={layout}
+                onClick={() => setLayoutView(layout)}
+                className={`px-3 py-1 text-sm ${
+                  layoutView === layout ? activeButtonClasses : inactiveButtonClasses
+                }`}
+                title={layout}
+              >
+                {layout === 'list' ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mx-auto"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                ) : (
+                  layout.split('-')[1]
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Mobile Layout Buttons */}
+          <div className="flex sm:hidden items-center gap-1 border border-gray-300 rounded overflow-hidden select-none">
+            {['grid-1', 'grid-2', 'list'].map((layout) => (
+              <button
+                key={layout}
+                onClick={() => setLayoutView(layout)}
+                className={`px-3 py-1 text-sm ${
+                  layoutView === layout ? activeButtonClasses : inactiveButtonClasses
+                }`}
+                title={layout}
+              >
+                {layout === 'list' ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mx-auto"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                ) : (
+                  layout.split('-')[1]
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Show Limit Dropdown */}
+          <div className="flex items-center gap-1">
+            <label htmlFor="limitSelect" className="text-sm font-semibold mr-1 hidden sm:inline">
+              Show:
+            </label>
+            <select
+              id="limitSelect"
+              value={limit}
+              onChange={(e) => {
+                setLimit(parseInt(e.target.value, 10));
+                setPage(1);
+              }}
+              className="px-2 py-1 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              {[10, 20, 25, 50, 100].map((num) => (
+                <option key={num} value={num}>
+                  {num}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-        <div
-          className={`cursor-pointer px-6 py-2 rounded  transition ${
-            mainCategory === "lense" ? activeButtonClasses : inactiveButtonClasses
-          } hover:scale-105 hover:text-white`}
-          onClick={() => handleCategoryClick("lense")}
-        >
-          <Image
-            src="/lenss.jpg"
-            alt="Lens Protectors"
-            width={90}
-            height={80}
-            className="mb-2"
-            style={{ aspectRatio: "1 / 1" }}
-          />
-          <p className="text-center">Lens Protectors</p>
-        </div>
+      </div>
+
+      {/* Grid/List view */}
+      <div
+        className={`grid gap-4 px-4 max-w-6xl mx-auto ${
+          layoutView.includes('grid')
+            ? layoutView === 'grid-1'
+              ? 'grid-cols-1'
+              : layoutView === 'grid-2'
+              ? 'grid-cols-2'
+              : layoutView === 'grid-3'
+              ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+              : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+            : 'flex flex-col'
+        }`}
+      >
+        {loading
+          ? Array.from({ length: limit }).map((_, i) => <SkeletonCoverCard key={i} />)
+          : covers.map((item) => (
+              <CoverCard key={item._id} item={item} onViewDetails={handleViewDetails} layout={layoutView} />
+            ))}
+        {!loading && covers.length === 0 && (
+          <div className="col-span-full text-center py-8 text-gray-500">
+            No covers found.
+          </div>
+        )}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center items-center gap-3 mt-6">
         <button
-          className={`px-6 py-2 rounded font-semibold transition ${
-            mainCategory === "" ? activeButtonClasses : inactiveButtonClasses
-          }  hover:text-white`}
-          onClick={() => handleCategoryClick("")}
+          onClick={goPrev}
+          disabled={page === 1}
+          className="px-4 py-2 bg-orange-500 text-white rounded disabled:opacity-50"
         >
-          All Products
+          Prev
+        </button>
+        <span className="text-sm font-semibold text-gray-700">
+          Page {page} of {totalPages}
+        </span>
+        <button
+          onClick={goNext}
+          disabled={page === totalPages}
+          className="px-4 py-2 bg-orange-500 text-white rounded disabled:opacity-50"
+        >
+          Next
         </button>
       </div>
 
-      {/* Search, Filter, Sort */}
-      <div className="max-w-6xl mx-auto p-4 flex flex-col gap-4 md:flex-row md:items-center md:gap-4">
-        <input
-          type="text"
-          placeholder="Search covers by name, etc."
-          className="w-full md:flex-grow p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#834F29]"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-
-        {mainCategory === "Covers" && (
-          <select
-            value={selectedCoverType}
-            onChange={(e) => {
-              handleTypeChange(e);
-              setPage(1);
-            }}
-            className="w-full md:w-auto p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#834F29]"
-          >
-            <option value="">All Cover Types</option>
-            {coverTypes.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-        )}
-
-        <select
-          value={sortOption}
-          onChange={(e) => {
-            setSortOption(e.target.value);
-            setPage(1);
-          }}
-          className="w-full md:w-auto p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#834F29]"
-        >
-          <option value="default">Sort By (Default)</option>
-          <option value="name_asc">Name (A-Z)</option>
-          <option value="name_desc">Name (Z-A)</option>
-          <option value="price_asc">Price (Low → High)</option>
-          <option value="price_desc">Price (High → Low)</option>
-          <option value="model_asc">Model (A-Z)</option>
-          <option value="model_desc">Model (Z-A)</option>
-        </select>
-      </div>
-
-      {/* Products Grid */}
-      {loading ? (
-        <SkeletonCoverCard />
-      ) : (
-        <>
-          <div className="grid grid-cols-2 bg-gray-100 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-6xl mx-auto gap-4 p-4">
-            {covers.length === 0 ? (
-              <p className="col-span-12 text-center text-gray-500">No covers found.</p>
-            ) : (
-              covers.map((item) => (
-                <CoverCard
-                  key={item._id}
-                  item={item}
-                  onViewDetails={() => handleViewDetails(item._id)}
-                />
-              ))
-            )}
-          </div>
-
-          {/* Pagination */}
-          <div className="max-w-6xl mx-auto flex justify-center gap-4 mt-6">
-            <button
-              onClick={goPrev}
-              disabled={page === 1}
-              className="px-4 py-2 rounded bg-orange-500 text-white  hover:bg-orange-600 disabled:opacity-50"
-            >
-              Prev
-            </button>
-            <span className="flex items-center px-2">
-              Page {page} of {totalPages}
-            </span>
-            <button
-              onClick={goNext}
-              disabled={page === totalPages}
-              className="px-4 py-2 rounded bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* Loading details */}
-      {loadingDetails && <Loading />}
-
       {/* Modal */}
-      {selectedProduct && !loadingDetails && (
-        <ProductDetailsModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+      {selectedProduct && (
+        <ProductDetailsModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          loading={loadingDetails}
+        />
       )}
     </>
   );

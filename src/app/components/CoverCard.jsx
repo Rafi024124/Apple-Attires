@@ -49,15 +49,16 @@ export default function CoverCard({ item, onViewDetails }) {
 
   const confirmModel = () => {
     if (selectedModel) {
-      addToCart({ ...item, selectedModel, quantity: 1, image: currentImage });
+      addToCart({ ...item, model:selectedModel, quantity: 1, image: currentImage });
       setShowModelSelector(false);
       setSelectedModel('');
       onAddToCart();
     }
   };
-
+ 
+ 
   return (
-    <div className="relative group col-span-1  bg-white shadow-sm hover:shadow-lg transition duration-300 ease-in-out cursor-pointer flex flex-col h-[290px]">
+    <div className="relative group col-span-1 bg-white shadow-sm hover:shadow-lg transition duration-300 ease-in-out cursor-pointer flex flex-col h-[310px]">
       <CartDrawer open={showCartDrawer} onClose={() => setShowCartDrawer(false)} />
 
       {showModelSelector && (
@@ -106,32 +107,30 @@ export default function CoverCard({ item, onViewDetails }) {
             onError={() => setImageError(true)}
           />
 
-          <div className="absolute  inset-0 flex items-end justify-between p-3 opacity-0 group-hover:opacity-100 bg-gradient-to-t from-white/90 via-white/20 to-transparent transition duration-300 ease-in-out">
-            {/* UPDATED BUTTON */}
+          {/* Desktop Hover Action Buttons */}
+          <div className="hidden md:flex absolute inset-0 items-end w-[80%] mx-auto justify-between p-3 opacity-0 group-hover:opacity-100 bg-gradient-to-t from-white/90 via-white/20 to-transparent transition duration-300 ease-in-out">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleAddToCart();
               }}
-              className="relative group/button items-center justify-center flex bg-orange-500 hover:scale-110 transition-transform duration-300 ease-in-out text-white text-sm font-medium px-3 py-1.5 rounded shadow min-w-[100px] overflow-hidden"
+              className="relative group/button flex bg-orange-500 hover:scale-110 transition-transform duration-300 ease-in-out text-white text-sm font-medium px-3 py-1.5 rounded shadow min-w-[100px]"
               aria-label="Add to Cart"
             >
-              {/* Text */}
               <span className="absolute left-0 right-0 flex justify-center items-center transition-opacity duration-200 ease-in-out group-hover/button:opacity-0">
                 Add To Cart
               </span>
-              {/* Icon */}
               <FaShoppingCart className="opacity-0 transition-opacity duration-200 ease-in-out group-hover/button:opacity-100 mx-auto" />
             </button>
 
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onViewDetails();
+                goToDetailsPage();
               }}
               className="text-orange-500 hover:scale-130 transition-transform duration-300 text-xl"
               title="View Details"
-              aria-label="View Details"
+              aria-label="Order Now"
             >
               <FaSearch />
             </button>
@@ -139,7 +138,7 @@ export default function CoverCard({ item, onViewDetails }) {
         </div>
 
         <h3
-          className=" mt-4 text-sm lg:text-base px-3 text-gray-800 leading-tight tracking-wide"
+          className="mt-4 text-sm text-center lg:text-base px-3 text-gray-800 leading-tight tracking-wide"
           style={{
             overflow: 'hidden',
             display: '-webkit-box',
@@ -151,7 +150,29 @@ export default function CoverCard({ item, onViewDetails }) {
           {name}
         </h3>
 
-        <p className="text-orange-600 font-semibold text-lg mt-1 px-3">৳{price}</p>
+        <p className="text-orange-600 font-semibold text-lg mt-1 px-3 text-center">৳{price}</p>
+      </div>
+
+      {/* Mobile Buttons (Always visible) */}
+      <div className="flex md:hidden justify-between px-3 py-2 mt-auto gap-2">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleAddToCart();
+          }}
+          className="flex-1 bg-orange-500 text-white text-sm py-2 rounded shadow"
+        >
+          Add to Cart
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            goToDetailsPage();
+          }}
+          className="flex-1 bg-gray-800 text-white text-sm py-2 rounded shadow"
+        >
+          Order Now
+        </button>
       </div>
     </div>
   );

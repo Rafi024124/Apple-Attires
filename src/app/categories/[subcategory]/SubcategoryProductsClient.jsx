@@ -1,114 +1,126 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
 import CoverCard from '@/app/components/CoverCard';
 import ProductDetailsModal from '@/app/components/ProductDetailsModal';
-import Loading from './loading';
 import SkeletonCoverCard from '@/app/components/SkeletonCoverCard';
 
 export default function SubcategoryProductsClient({ subcategory }) {
-  
-
- 
   const [products, setProducts] = useState([]);
   const [protectors, setProtectors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingProtectors, setLoadingProtectors] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
- useEffect(() => {
-  if (subcategory) {
-    fetch(`/api/covers?mainCategory=Covers&subCategory=${subcategory}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setProducts(data.covers || []);
-      })
-      .catch((err) => console.error('Error fetching covers:', err))
-      .finally(() => setLoading(false));
-  }
-}, [subcategory]);
+  useEffect(() => {
+    if (subcategory) {
+      setLoading(true);
+      fetch(`/api/covers?mainCategory=Covers&subCategory=${subcategory}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setProducts(data.covers || []);
+        })
+        .catch((err) => console.error('Error fetching covers:', err))
+        .finally(() => setLoading(false));
+    }
+  }, [subcategory]);
 
-
-useEffect(() => {
-  if (subcategory) {
-    const query = new URLSearchParams({
-      mainCategory: 'Protectors',
-      subCategory: subcategory, // <-- Capital 'C' is important
-    });
-
-    fetch(`/api/covers?${query.toString()}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setProtectors(data.covers || []);
-      })
-      .catch((err) => console.error('Error fetching protectors:', err))
-      .finally(() => setLoadingProtectors(false));
-  } else {
-    setLoadingProtectors(false);
-  }
-}, [subcategory]);
-
-
+  useEffect(() => {
+    if (subcategory) {
+      setLoadingProtectors(true);
+      const query = new URLSearchParams({
+        mainCategory: 'Protectors',
+        subCategory: subcategory,
+      });
+      fetch(`/api/covers?${query.toString()}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setProtectors(data.covers || []);
+        })
+        .catch((err) => console.error('Error fetching protectors:', err))
+        .finally(() => setLoadingProtectors(false));
+    } else {
+      setLoadingProtectors(false);
+    }
+  }, [subcategory]);
 
   return (
-    <div className="min-h-screen  py-8 bg-gray-50 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800 capitalize">
-  Covers for {subcategory?.toUpperCase()}
-</h1>
-
-
-      {loading && <SkeletonCoverCard></SkeletonCoverCard>}
-
-      {!loading && products.length === 0 && (
-        <p className="text-red-500">No products found for this category.</p>
-      )}
-
-      {!loading && products.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-6xl mx-auto gap-4 p-4">
-          {products.map((item) => (
-            <CoverCard
-              key={item._id}
-              item={item}
-              onViewDetails={() => setSelectedProduct(item)}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* ========== NEW SECTION FOR BRAND PROTECTORS ========== */}
+    <div className="min-h-screen py-12 bg-gradient-to-tr  max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
       
 
-      {loadingProtectors && <SkeletonCoverCard></SkeletonCoverCard>}
+      {/* PRODUCTS GRID */}
+      <section aria-labelledby="covers-heading" className="mb-20">
+        <h2 id="covers-heading" className="text-3xl font-semibold mb-6 border-b-2 border-orange-500 inline-block pb-2 tracking-wide drop-shadow-md">
+          Phone Covers
+        </h2>
 
-      {!loadingProtectors && protectors.length === 0 && (
-        <></>
-      )}
+        {loading && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8">
+            {[...Array(8)].map((_, i) => (
+              <SkeletonCoverCard key={i} />
+            ))}
+          </div>
+        )}
 
-      {!loadingProtectors && protectors.length > 0 && (
-       
-       <>
-        <h2 className="text-2xl font-bold mt-16 mb-6 text-gray-800">
-        Protectors for {subcategory?.toUpperCase()}
-      </h2>
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-6xl mx-auto gap-4 p-4">
-         
-          {protectors.map((item) => (
-            <CoverCard
-              key={item._id}
-              item={item}
-              onViewDetails={() => setSelectedProduct(item)}
-            />
-          ))}
-        </div>
-       </>
-       
-      )}
+        {!loading && products.length === 0 && (
+          <p className="text-center text-orange-400 text-lg font-semibold py-10">
+            No phone covers found for this category.
+          </p>
+        )}
 
+        {!loading && products.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8 bg-gray-100 p-3">
+            {products.map((item) => (
+              <CoverCard
+                key={item._id}
+                item={item}
+                onViewDetails={() => setSelectedProduct(item)}
+                className="transform transition-transform duration-300 hover:scale-[1.05] hover:shadow-lg"
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* PROTECTORS GRID */}
+      <section aria-labelledby="protectors-heading" className="mb-20">
+        {loadingProtectors && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8">
+            {[...Array(6)].map((_, i) => (
+              <SkeletonCoverCard key={i} />
+            ))}
+          </div>
+        )}
+
+        {!loadingProtectors && protectors.length > 0 && (
+          <>
+            <h2
+              id="protectors-heading"
+              className="text-3xl font-semibold mb-6 border-b-2 border-yellow-400 inline-block pb-2 tracking-wide drop-shadow-md"
+            >
+              Screen Protectors
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8 bg-gray-100 p-3">
+              {protectors.map((item) => (
+                <CoverCard
+                  key={item._id}
+                  item={item}
+                  onViewDetails={() => setSelectedProduct(item)}
+                  className="transform transition-transform duration-300 hover:scale-[1.05] hover:shadow-lg"
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </section>
+
+      {/* PRODUCT DETAILS MODAL */}
       {selectedProduct && (
         <ProductDetailsModal
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
+          className="backdrop-blur-sm bg-black/70"
         />
       )}
     </div>

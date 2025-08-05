@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 const categories = [
   { name: 'iphone', image: '/iphone1.png' },
   { name: 'samsung', image: '/samsung.png'},
-  { name: 'airPods', image: '/airpods.png' },
+  { name: 'airpods', image: '/airpods.png' },
   { name: 'macbook', image: '/mac.png'},
   { name: 'apple-watch', image: '/watch.png' },
   { name: 'ipad', image: '/ipad.png' },
@@ -30,12 +30,17 @@ export default function CategoryPage() {
           <div
             key={name}
             onClick={() => handleClick(name)}
-            className="cursor-pointer flex flex-col items-center transition-transform hover:scale-105"
+            className="flex justify-center items-center relative group rounded-3xl p-2 bg-gradient-to-tr from-gray-100 via-gray-50 to-gray-100 backdrop-blur-md
+"
+
           >
-            <Image src={image} alt={name} width={80} height={80} className="mb-2" 
+             <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-orange-600 transition-all duration-500 pointer-events-none"></div> 
+           <div className='flex flex-col gap-2'>
+             <Image src={image} alt={name} width={80} height={80} className="mb-2" 
              style={{ aspectRatio: '1 / 1' }} 
             />
             <p className="font-semibold text-gray-700">{name}</p>
+           </div>
           </div>
         ))}
       </div>
