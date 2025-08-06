@@ -115,3 +115,26 @@ export const GET = async (request) => {
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 };
+
+export async function POST(request) {
+  try {
+    const body = await request.json();
+
+    // Validate the body if needed
+    if (!body.name || !body.images || !Array.isArray(body.images)) {
+      return NextResponse.json({ error: "Invalid data" }, { status: 400 });
+    }
+
+    const coversCollection = await dbConnect(collectionNamesObj.coversCollection);
+
+    const result = await coversCollection.insertOne({
+      ...body,
+      createdAt: new Date(),
+    });
+
+    return NextResponse.json({ insertedId: result.insertedId }, { status: 201 });
+  } catch (error) {
+    console.error("Error inserting cover:", error);
+    return NextResponse.json({ error: "Failed to insert cover" }, { status: 500 });
+  }
+}

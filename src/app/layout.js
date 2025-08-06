@@ -1,20 +1,17 @@
+// app/layout.js or app/layout.tsx
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import NextAuthProvider from "@/Providers/NextAuthProvider";
 import { CartProvider } from "./context/CartContext";
 import { Sora } from 'next/font/google';
+import Script from 'next/script';
 
 const sora = Sora({
   subsets: ['latin'],
-  display: 'swap', // optional
-  weight: ['400', '600', '700'], // choose what you need
+  display: 'swap',
+  weight: ['400', '600', '700'],
 });
-export const metadata = {
-  title: 'Your Website Title',
-  description: 'Best iPhone Covers for Women',
-};
-
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,19 +23,26 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
+export const metadata = {
+  title: 'Your Website Title',
+  description: 'Best iPhone Covers for Women',
+};
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={sora.className}>
-      <body
+      <body>
+        {/* ✅ Cloudinary Widget Script */}
+        <Script
+          src="https://widget.cloudinary.com/v2.0/global/all.js"
+          strategy="beforeInteractive"
+        />
         
-      >
         <CartProvider>
           <NextAuthProvider>
-        <Navbar></Navbar>
-        {children}
-        </NextAuthProvider>
+            <Navbar />
+            {children}
+          </NextAuthProvider>
         </CartProvider>
       </body>
     </html>
