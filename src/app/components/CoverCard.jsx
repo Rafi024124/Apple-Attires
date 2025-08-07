@@ -23,7 +23,7 @@ export default function CoverCard({ item, onViewDetails }) {
 
   // Find image URL for the selected color, fallback to first image if not found
   const selectedImageObj = images.find(img => img.color === selectedColor) || images[0] || {};
-  const currentImage = selectedImageObj.url || '/fallback.jpg';
+  const currentImage = selectedImageObj.url ;
 
   const [showModelSelector, setShowModelSelector] = useState(false);
   const [selectedModel, setSelectedModel] = useState('');
@@ -34,6 +34,8 @@ export default function CoverCard({ item, onViewDetails }) {
 
   const handleSearchClick = (e) => {
     e.stopPropagation();
+    console.log("clicked");
+    
     if (onViewDetails) onViewDetails(_id);
   };
 
@@ -107,18 +109,21 @@ export default function CoverCard({ item, onViewDetails }) {
         onClick={goToDetailsPage}
       >
         <div className="relative w-full h-44 md:h-48 rounded-lg overflow-hidden">
-          <Image
-            src={currentImage}
-            alt={name}
-            fill
-            className="object-contain"
-            unoptimized
-            sizes="(max-width: 768px) 100vw, 314px"
-            onError={() => setImageError(true)}
-          />
+          {currentImage && (
+  <Image
+    src={currentImage}
+    alt={name}
+    fill
+    className="object-contain"
+    unoptimized
+    sizes="(max-width: 768px) 100vw, 314px"
+    onError={() => setImageError(true)}
+  />
+)}
+
 
           {/* Desktop Hover Action Buttons */}
-          <div className="hidden md:flex absolute inset-0 items-end w-[80%] mx-auto justify-between p-3 opacity-100 bg-gradient-to-t from-white/90 via-white/20 to-transparent transition duration-300 ease-in-out">
+          <div className="hidden md:flex absolute inset-0 items-end w-[80%] mx-auto justify-between p-3 opacity-100 bg-transparent transition duration-300 ease-in-out">
             <button
               onClick={(e) => {
                 e.stopPropagation();

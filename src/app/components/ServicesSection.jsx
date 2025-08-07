@@ -151,6 +151,8 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
       alert('Failed to load details');
     }
     setLoadingDetails(false);
+    console.log("selected product", selectedProduct);
+    
   }
 
   const totalPages = Math.ceil(totalCount / limit);
