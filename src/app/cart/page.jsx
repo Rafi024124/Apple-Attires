@@ -17,8 +17,9 @@ export default function CartPage() {
     return <p className="text-center p-10">Loading cart...</p>;
   }
 
+  // Safely parse price as number since your data might have price as string
   const totalPrice = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) => sum + Number(item.price) * (item.quantity || 1),
     0
   );
 
@@ -45,23 +46,30 @@ export default function CartPage() {
           >
             <div className="w-full sm:w-auto flex justify-center">
               <Image
-                src={item.image}
+                src={item.image || "/fallback.jpg"}
                 alt={item.name}
                 width={100}
                 height={120}
-                className="rounded"
+                className="rounded object-contain"
+                unoptimized // if you want to avoid next/image optimization issues with external URLs
               />
             </div>
 
             <div className="flex-1">
               <h3 className="text-xl font-semibold">{item.name}</h3>
               <p className="text-orange-600 hover:scale-105 font-semibold">
-                ৳{item.price}
+                ৳{Number(item.price).toFixed(2)}
               </p>
 
               {item.model && (
                 <p className="mt-2 text-gray-700">
                   <strong>Model:</strong> {item.model}
+                </p>
+              )}
+
+              {item.color && (
+                <p className="text-gray-700">
+                  <strong>Color:</strong> {item.color}
                 </p>
               )}
 

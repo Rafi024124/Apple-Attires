@@ -1,235 +1,249 @@
-'use client';
+"use client";
 
 import Image from "next/image";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
+import { useParams } from "next/navigation";
 import { useCart } from "@/app/context/CartContext";
-import CartDrawer from "./cartDrawer/page";
+import CartDrawer from "@/app/components/cartDrawer/page";
+import CoverDetailsSkeleton from "../covers/[id]/CoverDetailsSkeleton";
 
-export default function ProductDetailsModal({ product, onClose }) {
-  if (!product) return null;
 
-  const router = useRouter();
+export default function CoverDetails() {
+  const params = useParams();
+  const { id } = params;
 
-  const {
-    _id,
-    name,
-    price,
-    images = [],
-    tag,
-    models = [],
-    isAvailable,
-    isFeatured,
-    createdAt,
-    type,
-    gender,
-  } = product;
-
-  const allImages = images.length ? images : ["/fallback.jpg"];
-
+  // Hooks always at the top, unconditional
+  const [cover, setCover] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedQuantity, setSelectedQuantity] = useState(1);
-  const [selectedModel, setSelectedModel] = useState(models[0] || "");
+  const [selectedModel, setSelectedModel] = useState("");
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [quantity, setQuantity] = useState(1);
   const [showCartDrawer, setShowCartDrawer] = useState(false);
 
   const { addToCart } = useCart();
+  const cartDrawerRef = useRef(null);
 
+  // Fetch cover data on mount or when id changes
+  useEffect(() => {
+    async function fetchCover() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`/api/covers/${id}`);
+        if (!res.ok) throw new Error("Failed to fetch cover details");
+        const data = await res.json();
+        setCover(data);
+        setSelectedModel(data.models?.[0] || "");
+        setSelectedColor(data.images?.[0]?.color || null);
+        setCurrentIndex(0);
+      } catch (err) {
+        setError(err.message || "Unknown error");
+      } finally {
+        setLoading(false);
+      }
+    }
+    if (id) fetchCover();
+  }, [id]);
+
+  // Helper: get image URL by selectedColor
+  const findImageByColor = (color) => {
+    if (!cover || !cover.images) return "/fallback.jpg";
+    const imgObj = cover.images.find((img) => img.color === color);
+    return imgObj ? imgObj.url : cover.images[0]?.url || "/fallback.jpg";
+  };
+
+  // Prev / Next image buttons update currentIndex and selectedColor
   const prevImage = () => {
-    setCurrentIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
+    if (!cover?.images?.length) return;
+    const len = cover.images.length;
+    const newIndex = currentIndex === 0 ? len - 1 : currentIndex - 1;
+    setCurrentIndex(newIndex);
+    setSelectedColor(cover.images[newIndex]?.color || null);
   };
 
   const nextImage = () => {
-    setCurrentIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
+    if (!cover?.images?.length) return;
+    const len = cover.images.length;
+    const newIndex = currentIndex === len - 1 ? 0 : currentIndex + 1;
+    setCurrentIndex(newIndex);
+    setSelectedColor(cover.images[newIndex]?.color || null);
   };
 
-  const decreaseQuantity = () => {
-    setSelectedQuantity((q) => (q > 1 ? q - 1 : 1));
-  };
+  const decreaseQuantity = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
+  const increaseQuantity = () => setQuantity((q) => q + 1);
 
-  const increaseQuantity = () => {
-    setSelectedQuantity((q) => q + 1);
-  };
-    const onAddToCart = () => {
-   
-    setShowCartDrawer(true); // open drawer
-  };
+  const onAddToCart = () => setShowCartDrawer(true);
 
   const handleAddToCart = () => {
+    if (!selectedModel) return alert("Please select a model.");
     addToCart({
-      _id,
-      name,
-      price,
-      image: allImages[currentIndex],
-      quantity: selectedQuantity,
-      model: selectedModel,  // Pass selected model to cart/backend later
+      _id: cover._id,
+      name: cover.name,
+      price: cover.price,
+      image: findImageByColor(selectedColor),
+      quantity,
+      model: selectedModel,
+      color: selectedColor,
     });
-     
+    setQuantity(1);
     onAddToCart();
-
   };
 
-  const goToDetailsPage = () => {
-    onClose();
-    router.push(`/covers/${_id}`);
+  const handleOverlayClick = (e) => {
+    if (cartDrawerRef.current && cartDrawerRef.current.contains(e.target)) return;
+    // No overlay to close on detail page, so no action here
   };
 
-  const genderColor =
-    gender === "Ladies"
-      ? "bg-pink-200 text-pink-800"
-      : gender === "Unisex"
-      ? "bg-blue-100 text-blue-800"
-      : "bg-gray-200 text-gray-800";
+  if(loading) <CoverDetailsSkeleton></CoverDetailsSkeleton>
 
   return (
-    <div
-      className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 p-4"
-      onClick={onClose}
-    >
-      <CartDrawer open={showCartDrawer} onClose={() => setShowCartDrawer(false)} />
+    <div className="max-w-6xl mx-auto p-6" onClick={handleOverlayClick}>
+      <CartDrawer open={showCartDrawer} onClose={() => setShowCartDrawer(false)} ref={cartDrawerRef} />
 
-      <div
-        className="bg-white dark:bg-gray-900 rounded-xl max-w-5xl w-full max-h-[90vh] overflow-auto shadow-xl p-8 relative"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white text-3xl font-bold leading-none"
-          aria-label="Close modal"
-        >
-          &times;
-        </button>
+      {loading && <CoverDetailsSkeleton />}
+      {error && <p className="text-center text-red-500">Error: {error}</p>}
 
-        <div className="flex flex-col md:flex-row gap-8 items-start">
-          {/* Image carousel */}
-          <div className="relative w-full md:w-[420px] h-auto rounded-lg overflow-hidden select-none group shadow-lg">
-            <Image
-              src={allImages[currentIndex]}
-              alt={`${name} image ${currentIndex + 1}`}
-              width={420}
-              height={620}
-              className="object-cover rounded-lg"
-              unoptimized
-            />
+      {!loading && !error && cover && (
+        <>
+          <h1 className="text-3xl font-semibold mb-6 text-center text-gray-800 md:text-left">{cover.name}</h1>
 
-            {allImages.length > 1 && (
-              <>
+          <div className="flex flex-col md:flex-row gap-10">
+            {/* Image Section */}
+            <div className="w-full md:w-1/2 flex flex-col items-center">
+              <div className="relative w-full aspect-[3/4] max-w-md border rounded overflow-hidden select-none shadow-lg">
+                <Image
+                  src={findImageByColor(selectedColor)}
+                  alt={cover.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 400px"
+                  className="object-cover"
+                  unoptimized
+                />
+              </div>
+
+              {/* Controls BELOW image */}
+              <div className="w-full max-w-md mt-4 flex items-center justify-between gap-2">
                 <button
                   onClick={prevImage}
-                  className="absolute top-1/2 left-3 -translate-y-1/2 bg-black bg-opacity-40 text-white p-3 rounded-full hover:bg-opacity-70 transition"
+                  className="bg-black text-white p-2 rounded-full hover:bg-opacity-70 transition"
                   aria-label="Previous image"
                 >
                   ‹
                 </button>
                 <button
                   onClick={nextImage}
-                  className="absolute top-1/2 right-3 -translate-y-1/2 bg-black bg-opacity-40 text-white p-3 rounded-full hover:bg-opacity-70 transition"
+                  className="bg-black text-white p-2 rounded-full hover:bg-opacity-70 transition"
                   aria-label="Next image"
                 >
                   ›
                 </button>
-              </>
-            )}
+              </div>
 
-            <button
-              onClick={goToDetailsPage}
-              className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-6 left-1/2 -translate-x-1/2 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-lg shadow-lg font-semibold"
-            >
-              View Details
-            </button>
-          </div>
-
-          {/* Details and controls */}
-          <div className="flex-1 flex flex-col space-y-6">
-            <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white">{name}</h1>
-            <p className="text-2xl text-red-600 font-semibold">৳{price}</p>
-
-            {tag && (
-              <span className="inline-block bg-yellow-400 text-black px-4 py-1 rounded-full text-base font-semibold tracking-wide">
-                {tag}
-              </span>
-            )}
-
-            <div className="flex flex-wrap gap-3 mt-1">
-              {gender && (
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-semibold ${genderColor} border border-transparent`}
-                >
-                  {gender}
-                </span>
-              )}
-              {type && (
-                <span className="px-3 py-1 rounded-full text-sm font-semibold bg-gray-100 text-gray-800 border border-gray-300">
-                  {type}
-                </span>
-              )}
+              {/* Thumbnails */}
+              <div className="flex gap-3 mt-4 overflow-x-auto w-full max-w-md">
+                {cover.images.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      setCurrentIndex(i);
+                      setSelectedColor(img.color);
+                    }}
+                    className={`w-20 h-28 rounded overflow-hidden border-2 ${
+                      currentIndex === i ? "border-cyan-500" : "border-transparent"
+                    }`}
+                  >
+                    <Image
+                      src={img.url}
+                      alt={`${cover.name} thumbnail ${i + 1}`}
+                      width={80}
+                      height={112}
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <div className="text-gray-700 dark:text-gray-300 space-y-2 leading-relaxed">
-              <p>
-                <strong>Chose your model:</strong>
-              </p>
-              {models.length > 0 ? (
+            {/* Product Info */}
+            <div className="flex-1 space-y-4">
+              <p className="text-xl font-semibold text-red-600">৳{cover.price}</p>
+
+              {cover.tag && <p className="bg-yellow-200 px-2 py-1 inline-block rounded">{cover.tag}</p>}
+
+              <div>
+                <strong>Model:</strong>{" "}
                 <select
-                  className="mt-1 w-48 rounded border border-gray-300 dark:border-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                   value={selectedModel}
                   onChange={(e) => setSelectedModel(e.target.value)}
+                  className="border rounded px-2 py-1 ml-2"
                 >
-                  {models.map((m) => (
-                    <option key={m} value={m}>
+                  {cover.models.map((m, i) => (
+                    <option key={i} value={m}>
                       {m}
                     </option>
                   ))}
                 </select>
-                
-              ) : (
-                <p className="italic text-sm text-gray-500 dark:text-gray-400">No models available</p>
-              )}
-            </div>
+              </div>
 
-            <div className="text-gray-600 dark:text-gray-400 space-y-1 text-sm">
-              <p>
-                <strong>Status:</strong> {isAvailable ? "Available" : "Out of Stock"}
-              </p>
-              <p>
-                <strong>Featured:</strong> {isFeatured ? "Yes" : "No"}
-              </p>
-              <p>
-                <strong>Created At:</strong> {new Date(createdAt).toLocaleDateString()}
-              </p>
-            </div>
+              <div>
+                <strong>Quantity:</strong>{" "}
+                <div className="inline-flex items-center gap-2 ml-2">
+                  <button onClick={decreaseQuantity} className="px-2 py-1 bg-gray-200 rounded">
+                    -
+                  </button>
+                  <span>{quantity}</span>
+                  <button onClick={increaseQuantity} className="px-2 py-1 bg-gray-200 rounded">
+                    +
+                  </button>
+                </div>
+              </div>
 
-            {/* Quantity selector and add to cart */}
-            <div className="flex items-center space-x-5 mt-6">
-              <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden select-none">
-                <button
-                  onClick={decreaseQuantity}
-                  className="px-5 py-2 bg-gray-200 dark:bg-gray-700 text-lg font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-                  aria-label="Decrease quantity"
-                >
-                  -
-                </button>
-                <span className="px-8 py-2 border-x border-gray-300 dark:border-gray-600 font-semibold text-lg select-text">
-                  {selectedQuantity}
-                </span>
-                <button
-                  onClick={increaseQuantity}
-                  className="px-5 py-2 bg-gray-200 dark:bg-gray-700 text-lg font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-                  aria-label="Increase quantity"
-                >
-                  +
-                </button>
+              {/* Color Selection */}
+              <div>
+                <strong>Color:</strong>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {cover.images.map(({ color }) => (
+                    <button
+                      key={color || "default"}
+                      onClick={() => {
+                        setSelectedColor(color);
+                        const idx = cover.images.findIndex((img) => img.color === color);
+                        if (idx >= 0) setCurrentIndex(idx);
+                      }}
+                      className={`px-4 py-1 rounded-full border-2 font-semibold ${
+                        selectedColor === color
+                          ? "border-orange-500 bg-orange-100 dark:bg-orange-700 text-orange-800 dark:text-white"
+                          : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      }`}
+                      style={{ textTransform: "capitalize" }}
+                    >
+                      {color || "Default"}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <button
                 onClick={handleAddToCart}
-                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg py-3 shadow-md transition"
+                className="mt-4 bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600 transition"
               >
                 Add to Cart
               </button>
+
+              <hr className="my-4" />
+
+              <div><strong>Type:</strong> {cover.type || "N/A"}</div>
+              <div><strong>Gender:</strong> {cover.gender || "N/A"}</div>
+              <div><strong>Status:</strong> {cover.isAvailable ? "Available" : "Out of Stock"}</div>
+              <div><strong>Featured:</strong> {cover.isFeatured ? "Yes" : "No"}</div>
+              <div><strong>Created At:</strong> {new Date(cover.createdAt).toLocaleDateString()}</div>
             </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 }

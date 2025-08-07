@@ -47,17 +47,8 @@ export default function CartDrawer({ open, onClose }) {
                 <p className="text-sm text-gray-600">Price: ৳{item.price}</p>
                 <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                 <p className="text-sm text-gray-600">Model: {item.model || 'N/A'}</p>
+                <p className="text-sm text-gray-600">Color: {item.color || 'N/A'}</p>
 
-                {/* Optional: Quantity controls */}
-                {/* 
-                <div className="flex items-center mt-1 space-x-2">
-                  <button onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}>-</button>
-                  <span>{item.quantity}</span>
-                  <button onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}>+</button>
-                </div> 
-                */}
-
-                {/* Remove button */}
                 <button
                   onClick={() => removeFromCart(item.cartItemId)}
                   className="text-sm text-red-600 hover:underline mt-1"
@@ -73,8 +64,7 @@ export default function CartDrawer({ open, onClose }) {
       <div className="p-4 border-t flex flex-col gap-2">
         <button
           onClick={() => {
-            // Navigate to cart page and close drawer
-            window.location.href = '/cart'; // or use next/router push if inside a component with router
+            window.location.href = '/cart';
             onClose();
           }}
           className="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded"

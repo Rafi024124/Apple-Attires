@@ -15,7 +15,7 @@ export default function SubcategoryProductsClient({ subcategory }) {
   useEffect(() => {
     if (subcategory) {
       setLoading(true);
-      fetch(`/api/covers?mainCategory=Covers&subCategory=${subcategory}`)
+      fetch(`/api/covers?mainCategory=covers&subCategory=${subcategory}`)
         .then((res) => res.json())
         .then((data) => {
           setProducts(data.covers || []);
@@ -24,12 +24,13 @@ export default function SubcategoryProductsClient({ subcategory }) {
         .finally(() => setLoading(false));
     }
   }, [subcategory]);
-
+ console.log(subcategory);
+ 
   useEffect(() => {
     if (subcategory) {
       setLoadingProtectors(true);
       const query = new URLSearchParams({
-        mainCategory: 'Protectors',
+        mainCategory: 'protectors',
         subCategory: subcategory,
       });
       fetch(`/api/covers?${query.toString()}`)

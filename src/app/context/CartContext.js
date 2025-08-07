@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid"; // install uuid package with: npm install uuid
+import { v4 as uuidv4 } from "uuid";
 
 const CartContext = createContext();
 
@@ -25,36 +25,40 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = (product) => {
     setCartItems((prevItems) => {
-      // Find item with same _id and model
       const existingItem = prevItems.find(
         (item) =>
           item._id === product._id &&
-          item.model === product.model
+          item.model === product.model &&
+          item.color === product.color
       );
+
       if (existingItem) {
         return prevItems.map((item) =>
           item._id === product._id &&
-          item.model === product.model
+          item.model === product.model &&
+          item.color === product.color
             ? { ...item, quantity: item.quantity + (product.quantity || 1) }
             : item
         );
       }
-      // New item: add a unique cartItemId
+
       return [
         ...prevItems,
-        { ...product, quantity: product.quantity || 1, cartItemId: uuidv4() },
+        {
+          ...product,
+          quantity: product.quantity || 1,
+          cartItemId: uuidv4(),
+        },
       ];
     });
   };
 
-  // UPDATED: remove by cartItemId
   const removeFromCart = (cartItemId) => {
     setCartItems((prevItems) =>
       prevItems.filter((item) => item.cartItemId !== cartItemId)
     );
   };
 
-  // UPDATED: update quantity by cartItemId
   const updateQuantity = (cartItemId, quantity) => {
     setCartItems((prevItems) =>
       prevItems.map((item) =>
@@ -65,7 +69,6 @@ export const CartProvider = ({ children }) => {
     );
   };
 
-  // UPDATED: update model by cartItemId
   const updateModel = (cartItemId, newModel) => {
     setCartItems((prevItems) =>
       prevItems.map((item) =>
@@ -74,11 +77,19 @@ export const CartProvider = ({ children }) => {
     );
   };
 
+  const updateColor = (cartItemId, newColor) => {
+    setCartItems((prevItems) =>
+      prevItems.map((item) =>
+        item.cartItemId === cartItemId ? { ...item, color: newColor } : item
+      )
+    );
+  };
+
   const totalQuantity =
     cartItems?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
 
   if (!hydrated) {
-    return null; // Avoid hydration mismatch on server
+    return null;
   }
 
   return (
@@ -89,6 +100,7 @@ export const CartProvider = ({ children }) => {
         removeFromCart,
         updateQuantity,
         updateModel,
+        updateColor,
         totalQuantity,
         hydrated,
       }}

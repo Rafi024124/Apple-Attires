@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FaSearch, FaShoppingCart } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
@@ -12,27 +12,30 @@ export default function CoverCard({ item, onViewDetails }) {
   const { _id, name, images = [], price, gender, type, models = [] } = item;
   const { addToCart } = useCart();
 
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // Extract unique colors from images (filter out null/undefined)
+  const imageColors = Array.from(
+    new Set(images.map(img => img.color).filter(c => c))
+  );
+
+  // Initial selected color (first available color or fallback to first image color or null)
+  const initialColor = imageColors[0] || (images[0] && images[0].color) || null;
+  const [selectedColor, setSelectedColor] = useState(initialColor);
+
+  // Find image URL for the selected color, fallback to first image if not found
+  const selectedImageObj = images.find(img => img.color === selectedColor) || images[0] || {};
+  const currentImage = selectedImageObj.url || '/fallback.jpg';
+
   const [showModelSelector, setShowModelSelector] = useState(false);
   const [selectedModel, setSelectedModel] = useState('');
   const [showCartDrawer, setShowCartDrawer] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  const safeImages = images.filter((img) => typeof img === 'string' && img.trim() !== '');
-  const clampedIndex = Math.min(Math.max(currentIndex, 0), safeImages.length - 1);
-  const currentImage = !imageError && safeImages.length > 0 ? safeImages[clampedIndex] : '/fallback.jpg';
-
   const onAddToCart = () => setShowCartDrawer(true);
 
-  const handleMouseMove = (e) => {
-    if (safeImages.length <= 1) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const index = Math.floor((x / rect.width) * safeImages.length);
-    setCurrentIndex(Math.min(Math.max(index, 0), safeImages.length - 1));
+  const handleSearchClick = (e) => {
+    e.stopPropagation();
+    if (onViewDetails) onViewDetails(_id);
   };
-
-  const handleMouseLeave = () => setCurrentIndex(0);
 
   const goToDetailsPage = () => {
     if (!showModelSelector) router.push(`/covers/${_id}`);
@@ -42,21 +45,32 @@ export default function CoverCard({ item, onViewDetails }) {
     if (models.length > 0) {
       setShowModelSelector(true);
     } else {
-      addToCart({ ...item, selectedModel: '', quantity: 1, image: currentImage });
+      addToCart({
+        ...item,
+        color: selectedColor || 'N/A',
+        model: '',
+        quantity: 1,
+        image: currentImage,
+      });
       onAddToCart();
     }
   };
 
   const confirmModel = () => {
     if (selectedModel) {
-      addToCart({ ...item, model:selectedModel, quantity: 1, image: currentImage });
+      addToCart({
+        ...item,
+        color: selectedColor || 'N/A',
+        model: selectedModel,
+        quantity: 1,
+        image: currentImage,
+      });
       setShowModelSelector(false);
       setSelectedModel('');
       onAddToCart();
     }
   };
- 
- 
+
   return (
     <div className="relative group col-span-1 bg-white shadow-sm hover:shadow-lg transition duration-300 ease-in-out cursor-pointer flex flex-col h-[310px]">
       <CartDrawer open={showCartDrawer} onClose={() => setShowCartDrawer(false)} />
@@ -89,14 +103,10 @@ export default function CoverCard({ item, onViewDetails }) {
       )}
 
       <div
-        className={`${showModelSelector ? 'pointer-events-none opacity-30' : ''} flex flex-col flex-grow`}
+        className={`flex flex-col flex-grow ${showModelSelector ? 'pointer-events-none opacity-30' : ''}`}
         onClick={goToDetailsPage}
       >
-        <div
-          className="relative w-full h-44 md:h-48 rounded-lg overflow-hidden"
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-        >
+        <div className="relative w-full h-44 md:h-48 rounded-lg overflow-hidden">
           <Image
             src={currentImage}
             alt={name}
@@ -108,7 +118,7 @@ export default function CoverCard({ item, onViewDetails }) {
           />
 
           {/* Desktop Hover Action Buttons */}
-          <div className="hidden md:flex absolute inset-0 items-end w-[80%] mx-auto justify-between p-3 opacity-0 group-hover:opacity-100 bg-gradient-to-t from-white/90 via-white/20 to-transparent transition duration-300 ease-in-out">
+          <div className="hidden md:flex absolute inset-0 items-end w-[80%] mx-auto justify-between p-3 opacity-100 bg-gradient-to-t from-white/90 via-white/20 to-transparent transition duration-300 ease-in-out">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -124,10 +134,7 @@ export default function CoverCard({ item, onViewDetails }) {
             </button>
 
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                goToDetailsPage();
-              }}
+              onClick={handleSearchClick}
               className="text-orange-500 hover:scale-130 transition-transform duration-300 text-xl"
               title="View Details"
               aria-label="Order Now"
@@ -136,6 +143,27 @@ export default function CoverCard({ item, onViewDetails }) {
             </button>
           </div>
         </div>
+
+        {/* Color palette */}
+        {imageColors.length > 0 && (
+          <div className="flex justify-center items-center gap-2 mt-3">
+            {imageColors.map((color) => (
+              <button
+                key={color}
+                className={`w-6 h-6 rounded-full border-2 ${
+                  selectedColor === color ? 'border-orange-500' : 'border-gray-300'
+                }`}
+                style={{ backgroundColor: color }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedColor(color);
+                  setImageError(false);
+                }}
+                aria-label={`Select color ${color}`}
+              />
+            ))}
+          </div>
+        )}
 
         <h3
           className="mt-4 text-sm text-center lg:text-base px-3 text-gray-800 leading-tight tracking-wide"
@@ -153,7 +181,7 @@ export default function CoverCard({ item, onViewDetails }) {
         <p className="text-orange-600 font-semibold text-lg mt-1 px-3 text-center">৳{price}</p>
       </div>
 
-      {/* Mobile Buttons (Always visible) */}
+      {/* Mobile Buttons */}
       <div className="flex md:hidden justify-between px-3 py-2 mt-auto gap-2">
         <button
           onClick={(e) => {

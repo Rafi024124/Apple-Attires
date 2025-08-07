@@ -17,6 +17,7 @@ export default function CoverDetails() {
   const [error, setError] = useState(null);
   const [mainIndex, setMainIndex] = useState(0);
   const [selectedModel, setSelectedModel] = useState("");
+  const [selectedColor, setSelectedColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [showCartDrawer, setShowCartDrawer] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -25,15 +26,23 @@ export default function CoverDetails() {
   const zoomLensRef = useRef(null);
   const { addToCart } = useCart();
 
+  // Images array (objects with color & url)
+  const images = cover?.images || [];
+
+  // Fetch product details
   useEffect(() => {
     async function fetchCover() {
       setLoading(true);
+      setError(null);
       try {
         const res = await fetch(`/api/covers/${id}`);
         if (!res.ok) throw new Error("Failed to fetch cover details");
         const data = await res.json();
         setCover(data);
         setSelectedModel(data.models?.[0] || "");
+        setSelectedColor(data.images?.[0]?.color || null);
+        setMainIndex(0);
+        setQuantity(1);
       } catch (err) {
         setError(err.message || "Unknown error");
       }
@@ -42,6 +51,52 @@ export default function CoverDetails() {
     if (id) fetchCover();
   }, [id]);
 
+  // Get image URL by selected color
+  const findImageByColor = (color) => {
+    if (!images.length) return "/fallback.jpg";
+    const imgObj = images.find((img) => img.color === color);
+    return imgObj ? imgObj.url : images[0]?.url || "/fallback.jpg";
+  };
+
+  // Prev/Next image handlers update index and selectedColor
+  const prevImage = () => {
+    if (!images.length) return;
+    const len = images.length;
+    const newIndex = mainIndex === 0 ? len - 1 : mainIndex - 1;
+    setMainIndex(newIndex);
+    setSelectedColor(images[newIndex]?.color || null);
+  };
+
+  const nextImage = () => {
+    if (!images.length) return;
+    const len = images.length;
+    const newIndex = mainIndex === len - 1 ? 0 : mainIndex + 1;
+    setMainIndex(newIndex);
+    setSelectedColor(images[newIndex]?.color || null);
+  };
+
+  // Quantity controls
+  const decreaseQuantity = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
+  const increaseQuantity = () => setQuantity((q) => q + 1);
+
+  const onAddToCart = () => setShowCartDrawer(true);
+
+  const handleAddToCart = () => {
+    if (!selectedModel) return alert("Please select a model.");
+    addToCart({
+      _id: cover._id,
+      name: cover.name,
+      price: cover.price,
+      image: findImageByColor(selectedColor),
+      quantity,
+      model: selectedModel,
+      color: selectedColor,
+    });
+    setQuantity(1);
+    onAddToCart();
+  };
+
+  // Zoom handlers (optional, keep your existing ones)
   function handleMouseMove(e) {
     if (!mainImageRef.current || !zoomLensRef.current) return;
     const rect = mainImageRef.current.getBoundingClientRect();
@@ -72,7 +127,6 @@ export default function CoverDetails() {
   const {
     name,
     price,
-    images = [],
     tag,
     models = [],
     isAvailable,
@@ -82,30 +136,6 @@ export default function CoverDetails() {
     gender,
     _id,
   } = cover;
-
-  const imgs = images.length ? images : ["/fallback.jpg"];
-
-  const prevImage = () =>
-    setMainIndex((prev) => (prev === 0 ? imgs.length - 1 : prev - 1));
-
-  const nextImage = () =>
-    setMainIndex((prev) => (prev === imgs.length - 1 ? 0 : prev + 1));
-
-  const onAddToCart = () => setShowCartDrawer(true);
-
-  const handleAddToCart = () => {
-    if (!selectedModel) return alert("Please select a model.");
-    addToCart({
-      _id,
-      name,
-      image: imgs[mainIndex],
-      price,
-      model: selectedModel,
-      quantity,
-    });
-    setQuantity(1);
-    onAddToCart();
-  };
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -117,7 +147,7 @@ export default function CoverDetails() {
           onClick={() => setShowPreview(false)}
         >
           <Image
-            src={imgs[mainIndex]}
+            src={findImageByColor(selectedColor)}
             alt="Preview"
             width={800}
             height={1000}
@@ -139,7 +169,7 @@ export default function CoverDetails() {
             onMouseLeave={handleMouseLeave}
           >
             <Image
-              src={imgs[mainIndex]}
+              src={findImageByColor(selectedColor)}
               alt="Main"
               fill
               sizes="(max-width: 768px) 100vw, 400px"
@@ -153,7 +183,7 @@ export default function CoverDetails() {
                 display: "none",
                 width: "200px",
                 height: "200px",
-                backgroundImage: `url(${imgs[mainIndex]})`,
+                backgroundImage: `url(${findImageByColor(selectedColor)})`,
                 backgroundRepeat: "no-repeat",
                 backgroundSize: "500% 500%",
                 zIndex: 10,
@@ -166,6 +196,7 @@ export default function CoverDetails() {
             <button
               onClick={prevImage}
               className="bg-black text-white p-2 rounded-full hover:bg-opacity-70 transition"
+              aria-label="Previous image"
             >
               <FaArrowLeft />
             </button>
@@ -179,6 +210,7 @@ export default function CoverDetails() {
             <button
               onClick={nextImage}
               className="bg-black text-white p-2 rounded-full hover:bg-opacity-70 transition"
+              aria-label="Next image"
             >
               <FaArrowRight />
             </button>
@@ -186,16 +218,19 @@ export default function CoverDetails() {
 
           {/* Thumbnails */}
           <div className="flex gap-3 mt-4 overflow-x-auto w-full max-w-md">
-            {imgs.map((src, i) => (
+            {images.map(({ url, color }, i) => (
               <button
                 key={i}
-                onClick={() => setMainIndex(i)}
+                onClick={() => {
+                  setMainIndex(i);
+                  setSelectedColor(color);
+                }}
                 className={`w-20 h-28 rounded overflow-hidden border-2 ${
                   mainIndex === i ? "border-cyan-500" : "border-transparent"
                 }`}
               >
                 <Image
-                  src={src}
+                  src={url}
                   alt={`Thumbnail ${i + 1}`}
                   width={80}
                   height={112}
@@ -232,18 +267,43 @@ export default function CoverDetails() {
             <strong>Quantity:</strong>{" "}
             <div className="inline-flex items-center gap-2 ml-2">
               <button
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                onClick={decreaseQuantity}
                 className="px-2 py-1 bg-gray-200 rounded"
               >
                 -
               </button>
               <span>{quantity}</span>
               <button
-                onClick={() => setQuantity((q) => q + 1)}
+                onClick={increaseQuantity}
                 className="px-2 py-1 bg-gray-200 rounded"
               >
                 +
               </button>
+            </div>
+          </div>
+
+          {/* Color Selection */}
+          <div>
+            <strong>Color:</strong>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {images.map(({ color }) => (
+                <button
+                  key={color || "default"}
+                  onClick={() => {
+                    setSelectedColor(color);
+                    const idx = images.findIndex((img) => img.color === color);
+                    if (idx >= 0) setMainIndex(idx);
+                  }}
+                  className={`px-4 py-1 rounded-full border-2 font-semibold ${
+                    selectedColor === color
+                      ? "border-orange-500 bg-orange-100 dark:bg-orange-700 text-orange-800 dark:text-white"
+                      : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  }`}
+                  style={{ textTransform: "capitalize" }}
+                >
+                  {color || "Default"}
+                </button>
+              ))}
             </div>
           </div>
 
