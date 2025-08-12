@@ -85,6 +85,11 @@ export const CartProvider = ({ children }) => {
     );
   };
 
+  // NEW clearCart function to empty the whole cart
+  const clearCart = () => {
+    setCartItems([]);
+  };
+
   const totalQuantity =
     cartItems?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
 
@@ -101,6 +106,7 @@ export const CartProvider = ({ children }) => {
         updateQuantity,
         updateModel,
         updateColor,
+        clearCart, // <-- added here
         totalQuantity,
         hydrated,
       }}

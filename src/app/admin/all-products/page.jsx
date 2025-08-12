@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import ProductDetailsModal from "./ProductDetailsModal";
 import EditProductModal from "./EditProductModal";
-
+import Swal from "sweetalert2";
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -36,24 +36,49 @@ export default function AdminProductsPage() {
 
   const totalPages = Math.ceil(totalCount / limit);
 
-  const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
-    try {
-      const res = await fetch(`/api/covers/${id}`, {
-        method: "DELETE",
-      });
-      if (res.ok) {
-        alert("Product deleted");
-        fetchProducts();
-      } else {
-        const data = await res.json();
-        alert(data.error || "Failed to delete product");
-      }
-    } catch (err) {
-      alert("Failed to delete product");
-      console.error(err);
+ const handleDelete = async (id) => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#FFB74D",
+    cancelButtonColor: "#888",
+    confirmButtonText: "Yes, delete it!",
+    background: "#000",
+    color: "#FFB74D",
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const res = await fetch(`/api/covers/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || "Failed to delete product");
     }
-  };
+    // Remove deleted product immediately from UI
+    setProducts((prev) => prev.filter((p) => p._id !== id));
+
+    Swal.fire({
+      icon: "success",
+      title: "Deleted!",
+      text: "Product was deleted successfully.",
+      timer: 2000,
+      showConfirmButton: false,
+      background: "#000",
+      color: "#FFB74D",
+    });
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: err.message || "Failed to delete product.",
+      background: "#000",
+      color: "#FFB74D",
+    });
+  }
+};
 
   return (
     <div className="max-w-7xl mx-auto p-6">

@@ -12,18 +12,38 @@ export default function CoverCard({ item, onViewDetails }) {
   const { _id, name, images = [], price, gender, type, models = [] } = item;
   const { addToCart } = useCart();
 
-  // Extract unique colors from images (filter out null/undefined)
-  const imageColors = Array.from(
-    new Set(images.map(img => img.color).filter(c => c))
+  // Extract unique colors from images (filter out null/undefined/empty)
+  const uniqueColorsSet = new Set(
+    images
+      .map((img) => (img.color ? img.color.toLowerCase() : null))
+      .filter((c) => c)
   );
 
-  // Initial selected color (first available color or fallback to first image color or null)
-  const initialColor = imageColors[0] || (images[0] && images[0].color) || null;
+  // Check if any image has no color (default)
+  const hasDefaultColor = images.some((img) => !img.color || img.color.trim() === '');
+
+  // Compose the color options list with "default" at start if needed
+  const colorOptions = hasDefaultColor ? ['default', ...uniqueColorsSet] : [...uniqueColorsSet];
+
+  // Initial selected color (first color option or null)
+  // Use null for default color internally
+  const initialColor =
+    colorOptions.length > 0
+      ? colorOptions[0] === 'default'
+        ? null
+        : colorOptions[0]
+      : null;
+
   const [selectedColor, setSelectedColor] = useState(initialColor);
 
   // Find image URL for the selected color, fallback to first image if not found
-  const selectedImageObj = images.find(img => img.color === selectedColor) || images[0] || {};
-  const currentImage = selectedImageObj.url ;
+  // For 'default' (null), find first image without color
+  const selectedImageObj =
+    selectedColor === null
+      ? images.find((img) => !img.color || img.color.trim() === '') || images[0] || {}
+      : images.find((img) => img.color?.toLowerCase() === selectedColor) || images[0] || {};
+
+  const currentImage = selectedImageObj.url;
 
   const [showModelSelector, setShowModelSelector] = useState(false);
   const [selectedModel, setSelectedModel] = useState('');
@@ -34,8 +54,7 @@ export default function CoverCard({ item, onViewDetails }) {
 
   const handleSearchClick = (e) => {
     e.stopPropagation();
-    console.log("clicked");
-    
+
     if (onViewDetails) onViewDetails(_id);
   };
 
@@ -49,7 +68,7 @@ export default function CoverCard({ item, onViewDetails }) {
     } else {
       addToCart({
         ...item,
-        color: selectedColor || 'N/A',
+        color: selectedColor || 'default',
         model: '',
         quantity: 1,
         image: currentImage,
@@ -62,7 +81,7 @@ export default function CoverCard({ item, onViewDetails }) {
     if (selectedModel) {
       addToCart({
         ...item,
-        color: selectedColor || 'N/A',
+        color: selectedColor || 'default',
         model: selectedModel,
         quantity: 1,
         image: currentImage,
@@ -110,17 +129,16 @@ export default function CoverCard({ item, onViewDetails }) {
       >
         <div className="relative w-full h-44 md:h-48 rounded-lg overflow-hidden">
           {currentImage && (
-  <Image
-    src={currentImage}
-    alt={name}
-    fill
-    className="object-contain"
-    unoptimized
-    sizes="(max-width: 768px) 100vw, 314px"
-    onError={() => setImageError(true)}
-  />
-)}
-
+            <Image
+              src={currentImage}
+              alt={name}
+              fill
+              className="object-contain"
+              unoptimized
+              sizes="(max-width: 768px) 100vw, 314px"
+              onError={() => setImageError(true)}
+            />
+          )}
 
           {/* Desktop Hover Action Buttons */}
           <div className="hidden md:flex absolute inset-0 items-end w-[80%] mx-auto justify-between p-3 opacity-100 bg-transparent transition duration-300 ease-in-out">
@@ -150,23 +168,30 @@ export default function CoverCard({ item, onViewDetails }) {
         </div>
 
         {/* Color palette */}
-        {imageColors.length > 0 && (
+        {colorOptions.length > 0 && (
           <div className="flex justify-center items-center gap-2 mt-3">
-            {imageColors.map((color) => (
-              <button
-                key={color}
-                className={`w-6 h-6 rounded-full border-2 ${
-                  selectedColor === color ? 'border-orange-500' : 'border-gray-300'
-                }`}
-                style={{ backgroundColor: color }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedColor(color);
-                  setImageError(false);
-                }}
-                aria-label={`Select color ${color}`}
-              />
-            ))}
+            {colorOptions.map((color) => {
+              const isSelected = selectedColor === (color === 'default' ? null : color);
+              // For 'default', show a gray circle or special style:
+              const bgColor = color === 'default' ? '#999999' : color;
+
+              return (
+                <button
+                  key={color}
+                  className={`w-6 h-6 rounded-full border-2 ${
+                    isSelected ? 'border-orange-500' : 'border-gray-300'
+                  }`}
+                  style={{ backgroundColor: bgColor }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedColor(color === 'default' ? null : color);
+                    setImageError(false);
+                  }}
+                  aria-label={`Select color ${color === 'default' ? 'Default' : color}`}
+                  title={color === 'default' ? 'Default' : color}
+                />
+              );
+            })}
           </div>
         )}
 

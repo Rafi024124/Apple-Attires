@@ -29,6 +29,25 @@ export default function CoverDetails() {
   // Images array (objects with color & url)
   const images = cover?.images || [];
 
+  // Extract unique colors with grouping default (no color)
+  const uniqueColors = React.useMemo(() => {
+    const colorsSet = new Set();
+    let hasDefault = false;
+
+    images.forEach(({ color }) => {
+      if (color) {
+        colorsSet.add(color);
+      } else {
+        hasDefault = true;
+      }
+    });
+
+    const colorsArray = [...colorsSet];
+    if (hasDefault) colorsArray.unshift("default"); // "default" group first
+
+    return colorsArray;
+  }, [images]);
+
   // Fetch product details
   useEffect(() => {
     async function fetchCover() {
@@ -40,7 +59,10 @@ export default function CoverDetails() {
         const data = await res.json();
         setCover(data);
         setSelectedModel(data.models?.[0] || "");
-        setSelectedColor(data.images?.[0]?.color || null);
+        // Set selectedColor to first image's color or null if no color
+        setSelectedColor(
+          data.images?.[0]?.color || (data.images?.[0] ? null : null)
+        );
         setMainIndex(0);
         setQuantity(1);
       } catch (err) {
@@ -54,6 +76,10 @@ export default function CoverDetails() {
   // Get image URL by selected color
   const findImageByColor = (color) => {
     if (!images.length) return "/fallback.jpg";
+    if (!color || color === "default") {
+      const imgObj = images.find((img) => !img.color);
+      return imgObj ? imgObj.url : images[0]?.url || "/fallback.jpg";
+    }
     const imgObj = images.find((img) => img.color === color);
     return imgObj ? imgObj.url : images[0]?.url || "/fallback.jpg";
   };
@@ -96,7 +122,7 @@ export default function CoverDetails() {
     onAddToCart();
   };
 
-  // Zoom handlers (optional, keep your existing ones)
+  // Zoom handlers (optional)
   function handleMouseMove(e) {
     if (!mainImageRef.current || !zoomLensRef.current) return;
     const rect = mainImageRef.current.getBoundingClientRect();
@@ -223,7 +249,7 @@ export default function CoverDetails() {
                 key={i}
                 onClick={() => {
                   setMainIndex(i);
-                  setSelectedColor(color);
+                  setSelectedColor(color || null);
                 }}
                 className={`w-20 h-28 rounded overflow-hidden border-2 ${
                   mainIndex === i ? "border-cyan-500" : "border-transparent"
@@ -286,22 +312,26 @@ export default function CoverDetails() {
           <div>
             <strong>Color:</strong>
             <div className="flex flex-wrap gap-2 mt-2">
-              {images.map(({ color }) => (
+              {uniqueColors.map((color) => (
                 <button
-                  key={color || "default"}
+                  key={color}
                   onClick={() => {
-                    setSelectedColor(color);
-                    const idx = images.findIndex((img) => img.color === color);
+                    setSelectedColor(color === "default" ? null : color);
+                    const idx = images.findIndex(
+                      (img) =>
+                        color === "default" ? !img.color : img.color === color
+                    );
                     if (idx >= 0) setMainIndex(idx);
                   }}
                   className={`px-4 py-1 rounded-full border-2 font-semibold ${
-                    selectedColor === color
+                    (selectedColor === color) ||
+                    (color === "default" && selectedColor === null)
                       ? "border-orange-500 bg-orange-100 dark:bg-orange-700 text-orange-800 dark:text-white"
                       : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                   }`}
                   style={{ textTransform: "capitalize" }}
                 >
-                  {color || "Default"}
+                  {color === "default" ? "Default" : color}
                 </button>
               ))}
             </div>
@@ -315,11 +345,21 @@ export default function CoverDetails() {
 
           <hr className="my-4" />
 
-          <div><strong>Type:</strong> {type || "N/A"}</div>
-          <div><strong>Gender:</strong> {gender || "N/A"}</div>
-          <div><strong>Status:</strong> {isAvailable ? "Available" : "Out of Stock"}</div>
-          <div><strong>Featured:</strong> {isFeatured ? "Yes" : "No"}</div>
-          <div><strong>Created At:</strong> {new Date(createdAt).toLocaleDateString()}</div>
+          <div>
+            <strong>Type:</strong> {type || "N/A"}
+          </div>
+          <div>
+            <strong>Gender:</strong> {gender || "N/A"}
+          </div>
+          <div>
+            <strong>Status:</strong> {isAvailable ? "Available" : "Out of Stock"}
+          </div>
+          <div>
+            <strong>Featured:</strong> {isFeatured ? "Yes" : "No"}
+          </div>
+          <div>
+            <strong>Created At:</strong> {new Date(createdAt).toLocaleDateString()}
+          </div>
         </div>
       </div>
     </div>

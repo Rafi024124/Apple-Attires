@@ -1,14 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '@/app/context/CartContext';
 
 export default function ProductDetailsModal({ product, onClose, loading }) {
   const { addToCart } = useCart();
-
-  const [selectedModel, setSelectedModel] = useState(product.models?.[0] || '');
-  const [selectedColor, setSelectedColor] = useState(product.images?.[0]?.color || '');
-  const [quantity, setQuantity] = useState(1);
 
   if (loading) {
     return (
@@ -22,8 +18,36 @@ export default function ProductDetailsModal({ product, onClose, loading }) {
 
   const images = product.images || [];
 
+  // Extract unique colors, filter out empty/null
+  const uniqueColorsSet = new Set(
+    images
+      .map((img) => (img.color ? img.color.toLowerCase() : null))
+      .filter((c) => c)
+  );
+
+  // Check if any image has no color (default)
+  const hasDefaultColor = images.some((img) => !img.color || img.color.trim() === '');
+
+  // Compose color options with 'default' at start if needed
+  const colorOptions = hasDefaultColor ? ['default', ...uniqueColorsSet] : [...uniqueColorsSet];
+
+  // State: selectedColor — null means 'default'
+  // Initialize selectedColor to first option or '' if none
+  const [selectedColor, setSelectedColor] = useState(() => {
+    if (colorOptions.length === 0) return '';
+    return colorOptions[0] === 'default' ? null : colorOptions[0];
+  });
+
+  const [selectedModel, setSelectedModel] = useState(product.models?.[0] || '');
+  const [quantity, setQuantity] = useState(1);
+
   const findImageByColor = (color) => {
-    const imgObj = images.find((img) => img.color === color);
+    if (color === null) {
+      // Default color: find first image without color
+      const imgObj = images.find((img) => !img.color || img.color.trim() === '');
+      return imgObj ? imgObj.url : images[0]?.url || '/fallback.jpg';
+    }
+    const imgObj = images.find((img) => img.color?.toLowerCase() === color);
     return imgObj ? imgObj.url : images[0]?.url || '/fallback.jpg';
   };
 
@@ -39,7 +63,7 @@ export default function ProductDetailsModal({ product, onClose, loading }) {
       image: findImageByColor(selectedColor),
       quantity,
       model: selectedModel,
-      color: selectedColor,
+      color: selectedColor === null ? 'default' : selectedColor,
     });
     alert('Added to cart!');
     onClose();
@@ -92,17 +116,21 @@ export default function ProductDetailsModal({ product, onClose, loading }) {
         <div className="mb-4">
           <label className="block font-semibold mb-1">Color:</label>
           <div className="flex flex-wrap gap-2">
-            {images.map(({ color }) => (
+            {colorOptions.map((color) => (
               <button
                 key={color}
                 className={`px-3 py-1 rounded border ${
-                  selectedColor === color
+                  selectedColor === (color === 'default' ? null : color)
                     ? 'border-orange-500 bg-orange-100'
                     : 'border-gray-300 hover:bg-gray-100'
                 }`}
-                onClick={() => setSelectedColor(color)}
+                onClick={() =>
+                  setSelectedColor(color === 'default' ? null : color)
+                }
+                aria-label={`Select color ${color === 'default' ? 'Default' : color}`}
+                title={color === 'default' ? 'Default' : color}
               >
-                {color || 'Default'}
+                {color === 'default' ? 'Default' : color}
               </button>
             ))}
           </div>
