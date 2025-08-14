@@ -86,6 +86,8 @@ export default function AdminOrdersPage() {
         background: "#000",
         color: "#FFB74D",
       });
+
+      fetchOrders(); // Refresh orders to show consignmentId
     } catch (err) {
       Swal.fire({
         icon: "error",
@@ -111,6 +113,22 @@ export default function AdminOrdersPage() {
       Swal.fire("Error", err.message, "error");
     }
   };
+
+  // Fetch consignment status from Steadfast API
+  const fetchConsignmentStatus = async (order) => {
+  if (!order.consignmentId) return null;
+
+  try {
+    const res = await fetch(`/api/order-status?orderId=${order._id}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to fetch status");
+    return data;
+  } catch (err) {
+    console.error("Error fetching consignment status:", err);
+    return null;
+  }
+};
+
 
   console.log(orders);
 
@@ -237,6 +255,7 @@ export default function AdminOrdersPage() {
         </select>
       </div>
 
+      {/* Orders Table */}
       <div className="overflow-x-auto bg-white shadow rounded-lg">
         <table className="w-full text-sm">
           <thead className="bg-gray-100 border-b">
@@ -246,6 +265,7 @@ export default function AdminOrdersPage() {
               <th className="p-3 text-left">Phone</th>
               <th className="p-3 text-left">Total</th>
               <th className="p-3 text-left">Status</th>
+              <th className="p-3 text-left">Consignment</th>
               <th className="p-3 text-left">Date</th>
               <th className="p-3 text-left">Actions</th>
             </tr>
@@ -253,91 +273,20 @@ export default function AdminOrdersPage() {
           <tbody>
             {paginatedOrders.length > 0 ? (
               paginatedOrders.map((order) => (
-                <tr key={order._id} className="border-b">
-                  <td className="p-3">{order._id}</td>
-                  <td className="p-3">{order.name}</td>
-                  <td className="p-3 flex items-center gap-2">
-                    {order.phone}
-                    {/* Badge for previous orders count */}
-                    {order.previousOrdersCount > 0 && (
-                      <span
-                        title={`${order.previousOrdersCount} previous order${
-                          order.previousOrdersCount > 1 ? "s" : ""
-                        }`}
-                        className="ml-2 inline-block bg-blue-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full"
-                      >
-                        {order.previousOrdersCount}
-                      </span>
-                    )}
-                  </td>
-                  <td className="p-3">৳{order.totalPrice}</td>
-                  <td className="p-3">
-                    <select
-                      value={order.status || "Pending"}
-                      onChange={(e) =>
-                        handleStatusChange(order._id, e.target.value)
-                      }
-                      className="border rounded px-2 py-1"
-                    >
-                      <option value="Pending">Pending</option>
-                      <option value="Processing">Processing</option>
-                      <option value="Shipped">Shipped</option>
-                      <option value="Delivered">Delivered</option>
-                      <option value="Cancelled">Cancelled</option>
-                    </select>
-                  </td>
-                  <td className="p-3">
-                    {new Date(order.createdAt).toLocaleString()}
-                  </td>
-                  <td className="p-3 flex flex-wrap gap-2">
-                    <button
-                      onClick={() => {
-                        setSelectedOrder(order);
-                        setShowModal(true);
-                      }}
-                      className="bg-blue-500 text-white px-3 py-1 rounded"
-                    >
-                      View
-                    </button>
-                    <a
-                      href={`tel:${order.phone}`}
-                      className="bg-green-500 text-white px-3 py-1 rounded"
-                    >
-                      Call
-                    </a>
-                    <a
-                      href={`https://wa.me/880${order.phone.slice(1)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="bg-green-600 text-white px-3 py-1 rounded"
-                    >
-                      WhatsApp
-                    </a>
-                    <button
-                      onClick={() => handlePrintInvoice(order)}
-                      className="bg-yellow-500 text-white px-3 py-1 rounded"
-                    >
-                      Print
-                    </button>
-                    <button
-                      onClick={() => handleDelete(order._id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded"
-                    >
-                      Delete
-                    </button>
-                    <button
-                      onClick={() => handleCreateConsignment(order)}
-                      className="text-orange-600 hover:underline"
-                      title="Create Consignment"
-                    >
-                      📦
-                    </button>
-                  </td>
-                </tr>
+                <OrderRow
+                  key={order._id}
+                  order={order}
+                  handleStatusChange={handleStatusChange}
+                  handlePrintInvoice={handlePrintInvoice}
+                  handleDelete={handleDelete}
+                  handleCreateConsignment={handleCreateConsignment}
+                  setSelectedOrder={setSelectedOrder}
+                  setShowModal={setShowModal}
+                />
               ))
             ) : (
               <tr>
-                <td colSpan={7} className="p-6 text-center text-gray-500">
+                <td colSpan={8} className="p-6 text-center text-gray-500">
                   No orders found.
                 </td>
               </tr>
@@ -357,7 +306,6 @@ export default function AdminOrdersPage() {
             Prev
           </button>
 
-          {/* Page numbers */}
           {Array.from({ length: totalPages }, (_, i) => i + 1).map(
             (pageNum) => (
               <button
@@ -386,104 +334,272 @@ export default function AdminOrdersPage() {
 
       {/* Order Details Modal */}
       {showModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full relative">
-            <h2 className="text-xl font-bold mb-4">Order Details</h2>
-
-            <p className="flex items-center gap-2">
-              <b>Customer:</b> {selectedOrder.name}
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(selectedOrder.name);
-                  alert("Name copied!");
-                }}
-                className="ml-2 px-2 py-1 bg-cyan-600 text-white rounded hover:bg-cyan-700 text-sm"
-                type="button"
-                aria-label="Copy name"
-              >
-                Copy
-              </button>
-            </p>
-
-            <p className="flex items-center gap-2">
-              <b>Phone:</b> {selectedOrder.phone}
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(selectedOrder.phone);
-                  alert("Phone number copied!");
-                }}
-                className="ml-2 px-2 py-1 bg-cyan-600 text-white rounded hover:bg-cyan-700 text-sm"
-                type="button"
-                aria-label="Copy phone number"
-              >
-                Copy
-              </button>
-            </p>
-
-            <p className="flex items-center gap-2">
-              <b>Address:</b> {selectedOrder.address}
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(selectedOrder.address);
-                  alert("Address copied!");
-                }}
-                className="ml-2 px-2 py-1 bg-cyan-600 text-white rounded hover:bg-cyan-700 text-sm"
-                type="button"
-                aria-label="Copy address"
-              >
-                Copy
-              </button>
-            </p>
-
-            <p>
-              <b>Date:</b> {new Date(selectedOrder.createdAt).toLocaleString()}
-            </p>
-
-            <hr className="my-3" />
-
-            <h3 className="font-semibold mb-2">Items:</h3>
-            <ul className="space-y-2">
-              {selectedOrder.cartItems.map((item) => (
-                <li key={item.cartItemId} className="flex gap-3 items-center">
-                  {item.image && (
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-16 h-16 object-cover rounded border"
-                    />
-                  )}
-                  <div>
-                    <p>
-                      {item.name} - {item.model || ""} ({item.color || ""})
-                    </p>
-                    <p>
-                      Qty: {item.quantity} — ৳{item.price}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-
-            <hr className="my-3" />
-
-            <p>
-              <b>Delivery Charge:</b> ৳{selectedOrder.deliveryCharge}
-            </p>
-            <p>
-              <b>Total:</b> ৳{selectedOrder.totalPrice}
-            </p>
-
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={() => setShowModal(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+        <OrderDetailsModal
+          order={selectedOrder}
+          setShowModal={setShowModal}
+          fetchConsignmentStatus={fetchConsignmentStatus}
+        />
       )}
+    </div>
+  );
+}
+
+// -------------------------
+// OrderRow component
+function OrderRow({
+  order,
+  handleStatusChange,
+  handlePrintInvoice,
+  handleDelete,
+  handleCreateConsignment,
+  setSelectedOrder,
+  setShowModal,
+}) {
+  const [consignmentStatus, setConsignmentStatus] = useState(null);
+
+useEffect(() => {
+  const loadStatus = async () => {
+    if (!order.consignmentId) return;
+    try {
+      const res = await fetch(`/api/order-status?orderId=${order._id}`);
+      if (!res.ok) {
+        const text = await res.text(); // log raw HTML if error
+        console.error("Error fetching consignment status:", text);
+        setConsignmentStatus({ status: "Error" });
+        return;
+      }
+      const data = await res.json();
+      setConsignmentStatus(data);
+    } catch (err) {
+      console.error(err);
+      setConsignmentStatus({ status: "Error" });
+    }
+  };
+  loadStatus();
+}, [order]);
+
+
+
+  return (
+    <tr className="border-b">
+      <td className="p-3">{order._id}</td>
+      <td className="p-3">{order.name}</td>
+      <td className="p-3 flex items-center gap-2">
+        {order.phone}
+        {order.previousOrdersCount > 0 && (
+          <span
+            title={`${order.previousOrdersCount} previous order${
+              order.previousOrdersCount > 1 ? "s" : ""
+            }`}
+            className="ml-2 inline-block bg-blue-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full"
+          >
+            {order.previousOrdersCount}
+          </span>
+        )}
+      </td>
+      <td className="p-3">৳{order.totalPrice}</td>
+      <td className="p-3">
+        <select
+          value={order.status || "Pending"}
+          onChange={(e) => handleStatusChange(order._id, e.target.value)}
+          className="border rounded px-2 py-1"
+        >
+          <option value="Pending">Pending</option>
+          <option value="Processing">Processing</option>
+          <option value="Shipped">Shipped</option>
+          <option value="Delivered">Delivered</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </td>
+      <td className="p-3">
+        {order.consignmentId ? (
+          <span title={`Tracking: ${consignmentStatus?.tracking_code || "..."}`}>
+            {consignmentStatus?.delivery_status || "Loading..."}
+          </span>
+        ) : (
+          "Not Consigned"
+        )}
+      </td>
+      <td className="p-3">{new Date(order.createdAt).toLocaleString()}</td>
+      <td className="p-3 flex flex-wrap gap-2">
+        <button
+          onClick={() => {
+            setSelectedOrder(order);
+            setShowModal(true);
+          }}
+          className="bg-blue-500 text-white px-3 py-1 rounded"
+        >
+          View
+        </button>
+        <a
+          href={`tel:${order.phone}`}
+          className="bg-green-500 text-white px-3 py-1 rounded"
+        >
+          Call
+        </a>
+        <a
+          href={`https://wa.me/880${order.phone.slice(1)}`}
+          target="_blank"
+          rel="noreferrer"
+          className="bg-green-600 text-white px-3 py-1 rounded"
+        >
+          WhatsApp
+        </a>
+        <button
+          onClick={() => handlePrintInvoice(order)}
+          className="bg-yellow-500 text-white px-3 py-1 rounded"
+        >
+          Print
+        </button>
+        <button
+          onClick={() => handleDelete(order._id)}
+          className="bg-red-500 text-white px-3 py-1 rounded"
+        >
+          Delete
+        </button>
+        <button
+          onClick={() => handleCreateConsignment(order)}
+          className="text-orange-600 hover:underline"
+          title="Create Consignment"
+          disabled={!!order.consignmentId}
+        >
+          📦
+        </button>
+      </td>
+    </tr>
+  );
+}
+
+// -------------------------
+// OrderDetailsModal component
+function OrderDetailsModal({ order, setShowModal, fetchConsignmentStatus }) {
+  const [consignment, setConsignment] = useState(null);
+  const [loadingConsignment, setLoadingConsignment] = useState(false);
+
+  const loadConsignment = async () => {
+    if (!order.consignmentId) return;
+    setLoadingConsignment(true);
+    const data = await fetchConsignmentStatus(order);
+    setConsignment(data);
+    setLoadingConsignment(false);
+  };
+
+  useEffect(() => {
+    loadConsignment();
+  }, []);
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full relative">
+        <h2 className="text-xl font-bold mb-4">Order Details</h2>
+
+        <p className="flex items-center gap-2">
+          <b>Customer:</b> {order.name}
+          <button
+            onClick={() => navigator.clipboard.writeText(order.name)}
+            className="ml-2 px-2 py-1 bg-cyan-600 text-white rounded hover:bg-cyan-700 text-sm"
+          >
+            Copy
+          </button>
+        </p>
+
+        <p className="flex items-center gap-2">
+          <b>Phone:</b> {order.phone}
+          <button
+            onClick={() => navigator.clipboard.writeText(order.phone)}
+            className="ml-2 px-2 py-1 bg-cyan-600 text-white rounded hover:bg-cyan-700 text-sm"
+          >
+            Copy
+          </button>
+        </p>
+
+        <p className="flex items-center gap-2">
+          <b>Address:</b> {order.address}
+          <button
+            onClick={() => navigator.clipboard.writeText(order.address)}
+            className="ml-2 px-2 py-1 bg-cyan-600 text-white rounded hover:bg-cyan-700 text-sm"
+          >
+            Copy
+          </button>
+        </p>
+
+        <p>
+          <b>Date:</b> {new Date(order.createdAt).toLocaleString()}
+        </p>
+
+        <hr className="my-3" />
+
+        <h3 className="font-semibold mb-2">Items:</h3>
+        <ul className="space-y-2">
+          {order.cartItems.map((item) => (
+            <li key={item.cartItemId} className="flex gap-3 items-center">
+              {item.image && (
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-16 h-16 object-cover rounded border"
+                />
+              )}
+              <div>
+                <p>
+                  {item.name} - {item.model || ""} ({item.color || ""})
+                </p>
+                <p>
+                  Qty: {item.quantity} — ৳{item.price}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <hr className="my-3" />
+
+        <p>
+          <b>Delivery Charge:</b> ৳{order.deliveryCharge}
+        </p>
+        <p>
+          <b>Total:</b> ৳{order.totalPrice}
+        </p>
+
+        <hr className="my-3" />
+
+        <h3 className="font-semibold mb-2">Consignment Status:</h3>
+        {!order.consignmentId && <p>Not Consigned</p>}
+        {order.consignmentId && loadingConsignment && <p>Loading...</p>}
+        {order.consignmentId && consignment && (
+          <div>
+            <p>
+              <b>Tracking Code:</b> {consignment.tracking_code}
+            </p>
+            <p>
+              <b>Status:</b> {consignment.delivery_status}
+            </p>
+            <p>
+              <b>Destination:</b> {consignment.destination || "N/A"}
+            </p>
+            <p>
+              <b>Estimated Delivery:</b> {consignment.estimated_delivery || "N/A"}
+            </p>
+          </div>
+        )}
+        {order.consignmentId && (
+          <button
+            onClick={loadConsignment}
+            className="mt-2 px-3 py-1 bg-blue-500 text-white rounded"
+          >
+            Refresh Status
+          </button>
+        )}
+
+        <div className="mt-4 flex justify-end">
+          <button
+            onClick={() => setShowModal(false)}
+            className="bg-gray-500 text-white px-4 py-2 rounded"
+          >
+            Close
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

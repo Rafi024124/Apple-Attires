@@ -2,12 +2,28 @@
 
 import { NextResponse } from "next/server";
 import axios from "axios";
+import dbConnect, { collectionNamesObj } from "@/lib/dbConnect";
+import { ObjectId } from "mongodb";
 
 export async function POST(req) {
   try {
     // Receive order data from frontend
     const body = await req.json();
+   
 
+     const ordersCollection = await dbConnect(collectionNamesObj.ordersCollection || "orders");
+
+    // 1️⃣ Check if order is already consigned
+    const existingOrder = await ordersCollection.findOne({ _id: new ObjectId(body._id) });
+    if (!existingOrder) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+    if (existingOrder.consignmentId) {
+      return NextResponse.json(
+        { error: "This order has already been consigned", consignmentId: existingOrder.consignmentId },
+        { status: 400 }
+      );
+    }
     // Construct payload exactly as Packzy expects
     const orderData = {
       invoice: `INV-${body._id}`, // unique invoice
@@ -33,6 +49,20 @@ export async function POST(req) {
         },
         timeout: 10000, // optional, 10s timeout
       }
+    );
+    console.log("Consignment API response:", response.data);
+
+   const consignmentId = response.data?.consignment?.consignment_id || null;
+
+    
+// Save to your MongoDB order
+ // 2️⃣ Connect to orders collection
+    
+
+    // 3️⃣ Update order with consignmentId
+    await ordersCollection.updateOne(
+      { _id: new ObjectId(body._id) },
+      { $set: { consignmentId } }
     );
 
     return NextResponse.json(response.data, { status: response.status });
