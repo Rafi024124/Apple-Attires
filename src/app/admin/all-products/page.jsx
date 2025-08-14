@@ -23,7 +23,14 @@ export default function AdminProductsPage() {
       setProducts(data.covers || []);
       setTotalCount(data.totalCount || 0);
     } catch (err) {
-      alert("Failed to load products");
+     Swal.fire({
+  icon: "error",
+  title: "Error",
+  text: "Failed to load products",
+  background: "#000",
+  color: "#FFB74D",
+});
+
       console.error(err);
     } finally {
       setLoading(false);
@@ -48,6 +55,46 @@ export default function AdminProductsPage() {
     background: "#000",
     color: "#FFB74D",
   });
+
+  const handleCreateConsignment = async (order) => {
+  try {
+    const res = await fetch("/api/create-consignment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        invoice: `INV-${order._id}`,
+        recipient_name: order.name,
+        recipient_phone: order.phone,
+        recipient_address: order.address,
+        cod_amount: order.totalPrice,
+        note: `Order placed on ${new Date(order.orderDate).toLocaleDateString()}`,
+        delivery_area: order.insideDhaka ? "Inside Dhaka" : "Outside Dhaka",
+        delivery_charge: order.deliveryCharge
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.error || "Failed to create consignment");
+
+    Swal.fire({
+      icon: "success",
+      title: "Consignment Created!",
+      text: `Tracking: ${data.tracking_code || "Check dashboard"}`,
+      background: "#000",
+      color: "#FFB74D",
+    });
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: err.message,
+      background: "#000",
+      color: "#FFB74D",
+    });
+  }
+};
+
 
   if (!result.isConfirmed) return;
 

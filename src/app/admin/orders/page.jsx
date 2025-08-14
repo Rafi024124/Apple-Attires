@@ -66,6 +66,37 @@ export default function AdminOrdersPage() {
     }
   };
 
+  const handleCreateConsignment = async (order) => {
+    try {
+      const res = await fetch("/api/steadfast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(order),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok)
+        throw new Error(data.error || "Failed to create consignment");
+
+      Swal.fire({
+        icon: "success",
+        title: "Consignment Created!",
+        text: `Tracking: ${data.tracking_code || "Check dashboard"}`,
+        background: "#000",
+        color: "#FFB74D",
+      });
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err.message,
+        background: "#000",
+        color: "#FFB74D",
+      });
+    }
+  };
+
   // Update status
   const handleStatusChange = async (id, newStatus) => {
     try {
@@ -81,9 +112,7 @@ export default function AdminOrdersPage() {
     }
   };
 
- 
   console.log(orders);
-  
 
   // Print invoice
   const handlePrintInvoice = (order) => {
@@ -111,9 +140,9 @@ export default function AdminOrdersPage() {
             ${order.cartItems
               .map(
                 (item) =>
-                  `<li>${item.name} - ${item.model || ""} (${item.color || ""}) x ${
-                    item.quantity
-                  } — ৳${item.price}</li>`
+                  `<li>${item.name} - ${item.model || ""} (${
+                    item.color || ""
+                  }) x ${item.quantity} — ৳${item.price}</li>`
               )
               .join("")}
           </ul>
@@ -230,12 +259,14 @@ export default function AdminOrdersPage() {
                   <td className="p-3 flex items-center gap-2">
                     {order.phone}
                     {/* Badge for previous orders count */}
-                    {order.orderCount > 0 && (
+                    {order.previousOrdersCount > 0 && (
                       <span
-                        title={`${order.orderCount} previous order${order.orderCount > 1 ? 's' : ''}`}
+                        title={`${order.previousOrdersCount} previous order${
+                          order.previousOrdersCount > 1 ? "s" : ""
+                        }`}
                         className="ml-2 inline-block bg-blue-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full"
                       >
-                        {order.orderCount}
+                        {order.previousOrdersCount}
                       </span>
                     )}
                   </td>
@@ -294,6 +325,13 @@ export default function AdminOrdersPage() {
                     >
                       Delete
                     </button>
+                    <button
+                      onClick={() => handleCreateConsignment(order)}
+                      className="text-orange-600 hover:underline"
+                      title="Create Consignment"
+                    >
+                      📦
+                    </button>
                   </td>
                 </tr>
               ))
@@ -320,19 +358,21 @@ export default function AdminOrdersPage() {
           </button>
 
           {/* Page numbers */}
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-            <button
-              key={pageNum}
-              onClick={() => changePage(pageNum)}
-              className={`px-3 py-1 rounded border ${
-                pageNum === currentPage
-                  ? "bg-cyan-600 text-white border-cyan-600"
-                  : "hover:bg-gray-100"
-              }`}
-            >
-              {pageNum}
-            </button>
-          ))}
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+            (pageNum) => (
+              <button
+                key={pageNum}
+                onClick={() => changePage(pageNum)}
+                className={`px-3 py-1 rounded border ${
+                  pageNum === currentPage
+                    ? "bg-cyan-600 text-white border-cyan-600"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                {pageNum}
+              </button>
+            )
+          )}
 
           <button
             onClick={() => changePage(currentPage + 1)}
