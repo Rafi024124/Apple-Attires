@@ -422,50 +422,60 @@ useEffect(() => {
       </td>
       <td className="p-3">{new Date(order.createdAt).toLocaleString()}</td>
       <td className="p-3 flex flex-wrap gap-2">
-        <button
-          onClick={() => {
-            setSelectedOrder(order);
-            setShowModal(true);
-          }}
-          className="bg-blue-500 text-white px-3 py-1 rounded"
-        >
-          View
-        </button>
-        <a
-          href={`tel:${order.phone}`}
-          className="bg-green-500 text-white px-3 py-1 rounded"
-        >
-          Call
-        </a>
-        <a
-          href={`https://wa.me/880${order.phone.slice(1)}`}
-          target="_blank"
-          rel="noreferrer"
-          className="bg-green-600 text-white px-3 py-1 rounded"
-        >
-          WhatsApp
-        </a>
-        <button
-          onClick={() => handlePrintInvoice(order)}
-          className="bg-yellow-500 text-white px-3 py-1 rounded"
-        >
-          Print
-        </button>
-        <button
-          onClick={() => handleDelete(order._id)}
-          className="bg-red-500 text-white px-3 py-1 rounded"
-        >
-          Delete
-        </button>
-        <button
-          onClick={() => handleCreateConsignment(order)}
-          className="text-orange-600 hover:underline"
-          title="Create Consignment"
-          disabled={!!order.consignmentId}
-        >
-          📦
-        </button>
-      </td>
+  <button
+    onClick={() => {
+      setSelectedOrder(order);
+      setShowModal(true);
+    }}
+    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors"
+  >
+    View
+  </button>
+
+  <a
+    href={`tel:${order.phone}`}
+    className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition-colors"
+  >
+    Call
+  </a>
+
+  <a
+    href={`https://wa.me/880${order.phone.slice(1)}`}
+    target="_blank"
+    rel="noreferrer"
+    className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition-colors"
+  >
+    WhatsApp
+  </a>
+
+  <button
+    onClick={() => handlePrintInvoice(order)}
+    className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition-colors"
+  >
+    Print
+  </button>
+
+  <button
+    onClick={() => handleDelete(order._id)}
+    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors"
+  >
+    Delete
+  </button>
+
+  <button
+    onClick={() => handleCreateConsignment(order)}
+    className={`px-3 py-1 rounded ${
+      order.consignmentId
+        ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+        : "text-orange-600 hover:underline hover:text-orange-800"
+    } transition-colors`}
+    title="Add Consignment"
+    disabled={!!order.consignmentId}
+  >
+    {order.consignmentId ? "Consignment Created" : "Add Consignment"}
+  </button>
+</td>
+
     </tr>
   );
 }
@@ -569,7 +579,7 @@ function OrderDetailsModal({ order, setShowModal, fetchConsignmentStatus }) {
         {order.consignmentId && consignment && (
           <div>
             <p>
-              <b>Tracking Code:</b> {consignment.tracking_code}
+              <b>Tracking Code:</b> {order.consignmentId}
             </p>
             <p>
               <b>Status:</b> {consignment.delivery_status}

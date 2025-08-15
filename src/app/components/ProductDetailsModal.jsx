@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useCart } from '@/app/context/CartContext';
+import { FaTimes } from "react-icons/fa";
 
 export default function ProductDetailsModal({ product, onClose, loading }) {
   const { addToCart } = useCart();
@@ -9,7 +10,7 @@ export default function ProductDetailsModal({ product, onClose, loading }) {
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-        <div className="bg-white p-4 rounded">Loading...</div>
+        <div className="bg-white p-4 rounded shadow-lg">Loading...</div>
       </div>
     );
   }
@@ -17,33 +18,23 @@ export default function ProductDetailsModal({ product, onClose, loading }) {
   if (!product) return null;
 
   const images = product.images || [];
-
-  // Extract unique colors, filter out empty/null
   const uniqueColorsSet = new Set(
     images
       .map((img) => (img.color ? img.color.toLowerCase() : null))
-      .filter((c) => c)
+      .filter(Boolean)
   );
-
-  // Check if any image has no color (default)
   const hasDefaultColor = images.some((img) => !img.color || img.color.trim() === '');
-
-  // Compose color options with 'default' at start if needed
   const colorOptions = hasDefaultColor ? ['default', ...uniqueColorsSet] : [...uniqueColorsSet];
 
-  // State: selectedColor — null means 'default'
-  // Initialize selectedColor to first option or '' if none
   const [selectedColor, setSelectedColor] = useState(() => {
     if (colorOptions.length === 0) return '';
     return colorOptions[0] === 'default' ? null : colorOptions[0];
   });
-
   const [selectedModel, setSelectedModel] = useState(product.models?.[0] || '');
   const [quantity, setQuantity] = useState(1);
 
   const findImageByColor = (color) => {
     if (color === null) {
-      // Default color: find first image without color
       const imgObj = images.find((img) => !img.color || img.color.trim() === '');
       return imgObj ? imgObj.url : images[0]?.url || '/fallback.jpg';
     }
@@ -71,37 +62,40 @@ export default function ProductDetailsModal({ product, onClose, loading }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black bg-opacity-70 flex justify-center items-center"
+      className="fixed inset-0 z-50 bg-black bg-opacity-70 flex justify-center items-center p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg max-w-lg w-full p-6 relative"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden relative flex flex-col md:flex-row"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-700 hover:text-gray-900"
+          className="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full p-2 shadow-md transition"
           aria-label="Close modal"
         >
-          ×
+          <FaTimes></FaTimes>
         </button>
-        <h2 className="text-xl font-semibold mb-4">{product.name}</h2>
 
-        <img
-          src={findImageByColor(selectedColor)}
-          alt={product.name}
-          className="w-full h-64 object-cover rounded mb-4"
-        />
+        {/* Left Side - Image */}
+        <div className="md:w-1/2 bg-gray-50 flex items-center justify-center p-4">
+          <img
+            src={findImageByColor(selectedColor)}
+            alt={product.name}
+            className="max-h-[400px] object-contain rounded-lg"
+          />
+        </div>
 
-        <p className="mb-4 font-semibold text-lg">Price: ৳{product.price}</p>
+        {/* Right Side - Details */}
+        <div className="md:w-1/2 p-6 flex flex-col">
+          <h2 className="text-2xl font-bold mb-3">{product.name}</h2>
+          <p className="text-xl font-semibold text-orange-600 mb-4">৳{product.price}</p>
 
-        <div className="mb-4">
-          <label className="block font-semibold mb-1" htmlFor="model-select">
-            Model:
-          </label>
+          {/* Model Selector */}
+          <label className="block font-semibold mb-1">Model</label>
           <select
-            id="model-select"
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded-lg px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-400"
             value={selectedModel}
             onChange={(e) => setSelectedModel(e.target.value)}
           >
@@ -111,56 +105,55 @@ export default function ProductDetailsModal({ product, onClose, loading }) {
               </option>
             ))}
           </select>
-        </div>
 
-        <div className="mb-4">
-          <label className="block font-semibold mb-1">Color:</label>
-          <div className="flex flex-wrap gap-2">
-            {colorOptions.map((color) => (
-              <button
-                key={color}
-                className={`px-3 py-1 rounded border ${
-                  selectedColor === (color === 'default' ? null : color)
-                    ? 'border-orange-500 bg-orange-100'
-                    : 'border-gray-300 hover:bg-gray-100'
-                }`}
-                onClick={() =>
-                  setSelectedColor(color === 'default' ? null : color)
-                }
-                aria-label={`Select color ${color === 'default' ? 'Default' : color}`}
-                title={color === 'default' ? 'Default' : color}
-              >
-                {color === 'default' ? 'Default' : color}
-              </button>
-            ))}
+          {/* Color Selector */}
+          <label className="block font-semibold mb-1">Color</label>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {colorOptions.map((color) => {
+              const isSelected = selectedColor === (color === 'default' ? null : color);
+              return (
+                <button
+                  key={color}
+                  className={`w-10 h-10 rounded-full border-2 transition ${
+                    isSelected ? 'border-orange-500 ring-2 ring-orange-300' : 'border-gray-300 hover:border-orange-400'
+                  }`}
+                  style={{
+                    background:
+                      color === 'default' ? '#f5f5f5' : color,
+                  }}
+                  onClick={() => setSelectedColor(color === 'default' ? null : color)}
+                  title={color === 'default' ? 'Default' : color}
+                />
+              );
+            })}
           </div>
-        </div>
 
-        <div className="mb-6">
-          <label className="block font-semibold mb-1">Quantity:</label>
-          <div className="flex items-center gap-2">
+          {/* Quantity Selector */}
+          <label className="block font-semibold mb-1">Quantity</label>
+          <div className="flex items-center gap-3 mb-6">
             <button
               onClick={() => setQuantity((q) => (q > 1 ? q - 1 : 1))}
-              className="px-3 py-1 border rounded"
+              className="px-3 py-1 border rounded-lg hover:bg-gray-100"
             >
-              -
+              −
             </button>
-            <span>{quantity}</span>
+            <span className="text-lg">{quantity}</span>
             <button
               onClick={() => setQuantity((q) => q + 1)}
-              className="px-3 py-1 border rounded"
+              className="px-3 py-1 border rounded-lg hover:bg-gray-100"
             >
               +
             </button>
           </div>
-        </div>
 
-        <button
-          onClick={handleAddToCartClick}
-          className="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition"
-        >
-          Add to Cart
-        </button>
+          {/* Add to Cart Button */}
+          <button
+            onClick={handleAddToCartClick}
+            className="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition"
+          >
+            Add to Cart
+          </button>
+        </div>
       </div>
     </div>
   );

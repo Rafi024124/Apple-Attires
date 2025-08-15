@@ -173,7 +173,7 @@ export default function CoverDetails() {
           onClick={() => setShowPreview(false)}
         >
           <Image
-            src={findImageByColor(selectedColor)}
+             src={images[mainIndex]?.url || "/fallback.jpg"}
             alt="Preview"
             width={800}
             height={1000}
@@ -195,7 +195,7 @@ export default function CoverDetails() {
             onMouseLeave={handleMouseLeave}
           >
             <Image
-              src={findImageByColor(selectedColor)}
+              src={images[mainIndex]?.url || "/fallback.jpg"}
               alt="Main"
               fill
               sizes="(max-width: 768px) 100vw, 400px"

@@ -182,6 +182,22 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
 
   return (
     <>
+    {/* Category Buttons */}
+<div className="max-w-6xl mx-auto px-4 flex flex-wrap gap-2 mb-4">
+  {['All Products', 'covers', 'protectors', 'accessories'].map((category) => (
+    <button
+      key={category}
+      onClick={() => handleCategoryClick(category === 'All Products' ? '' : category)}
+      className={`px-3 py-2 rounded border text-sm font-semibold
+        ${mainCategory === category || (category === 'All Products' && mainCategory === '')
+          ? 'bg-orange-500 text-white'
+          : 'bg-gray-100 text-gray-700 hover:bg-orange-100'
+        }`}
+    >
+      {category}
+    </button>
+  ))}
+</div>
       {/* Top Controls */}
       <div className="max-w-6xl mx-auto px-4 flex flex-wrap items-center gap-3 justify-between mb-4">
         {/* Left group: Search + filter + sort */}

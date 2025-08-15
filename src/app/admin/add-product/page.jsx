@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Select from "react-select";
 
 const iphoneModels = [
+  "iPhone 16 Pro Max", "iPhone 16 Pro", "iPhone 16 Plus", "iPhone 16",
   "iPhone 15 Pro Max", "iPhone 15 Pro", "iPhone 15 Plus", "iPhone 15",
   "iPhone 14 Pro Max", "iPhone 14 Pro", "iPhone 14 Plus", "iPhone 14",
   "iPhone 13 Pro Max", "iPhone 13 Pro", "iPhone 13 Mini", "iPhone 13",
@@ -17,6 +18,7 @@ const iphoneModels = [
 }));
 
 const samsungModels = [
+  "Galaxy S25 Ultra","Galaxy S25+","Galaxy S25",
   "Galaxy S24 Ultra", "Galaxy S24+", "Galaxy S24",
   "Galaxy S23 Ultra", "Galaxy S23+", "Galaxy S23",
   "Galaxy S22 Ultra", "Galaxy S22+", "Galaxy S22",
