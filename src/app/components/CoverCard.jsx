@@ -12,7 +12,8 @@ export default function CoverCard({ item, onViewDetails }) {
   const { _id, name, images = [], price, gender, type, models = [] } = item;
   const { addToCart } = useCart();
 
-  // Extract unique colors from images (filter out null/undefined/empty)
+const [hoverIndex, setHoverIndex] = useState(0);
+const [isHovering, setIsHovering] = useState(false);
   const uniqueColorsSet = new Set(
     images
       .map((img) => (img.color ? img.color.toLowerCase() : null))
@@ -35,6 +36,8 @@ export default function CoverCard({ item, onViewDetails }) {
       : null;
 
   const [selectedColor, setSelectedColor] = useState(initialColor);
+
+  
 
   // Find image URL for the selected color, fallback to first image if not found
   // For 'default' (null), find first image without color
@@ -91,6 +94,28 @@ export default function CoverCard({ item, onViewDetails }) {
       onAddToCart();
     }
   };
+ const hoverImages = images
+  .filter((img) => {
+    if (selectedColor === null) return !img.color || img.color.trim() === '';
+    return img.color?.toLowerCase() === selectedColor;
+  })
+  .filter((img) => img.url && img.url !== currentImage);
+
+  useEffect(() => {
+  let interval;
+  if (hoverImages.length > 1 && isHovering) {
+    interval = setInterval(() => {
+      setHoverIndex(prev => (prev + 1) % hoverImages.length);
+    }, 800); // change image every 800ms
+  } else {
+    setHoverIndex(0); // reset when not hovering
+  }
+  return () => clearInterval(interval);
+}, [hoverImages, isHovering]);
+
+
+   
+ 
 
   return (
     <div className="relative group col-span-1 bg-white shadow-sm hover:shadow-lg transition duration-300 ease-in-out cursor-pointer flex flex-col h-[310px]">
@@ -127,19 +152,26 @@ export default function CoverCard({ item, onViewDetails }) {
         className={`flex flex-col flex-grow ${showModelSelector ? 'pointer-events-none opacity-30' : ''}`}
         onClick={goToDetailsPage}
       >
-        <div className="relative w-full h-44 md:h-48 rounded-lg overflow-hidden">
-          {currentImage && (
-            <Image
-              src={currentImage}
-              alt={name}
-              fill
-              className="object-contain"
-              unoptimized
-              sizes="(max-width: 768px) 100vw, 314px"
-              onError={() => setImageError(true)}
-            />
-          )}
+        <div className="relative w-full h-44 md:h-48 rounded-lg overflow-hidden"
+       
 
+   onMouseEnter={() => setIsHovering(true)}
+  onMouseLeave={() => setIsHovering(false)}
+>
+  {currentImage && (
+    <Image
+      src={isHovering && hoverImages.length > 0 ? hoverImages[hoverIndex].url : currentImage}
+      alt={name}
+      fill
+      className="object-contain"
+      unoptimized
+      sizes="(max-width: 768px) 100vw, 314px"
+      onError={() => setImageError(true)}
+    />
+  )}
+
+           {/* Hover thumbnails: Add this here */}
+ 
           {/* Desktop Hover Action Buttons */}
           <div className="hidden md:flex absolute inset-0 items-end w-[80%] mx-auto justify-between p-3 opacity-100 bg-transparent transition duration-300 ease-in-out">
             <button
