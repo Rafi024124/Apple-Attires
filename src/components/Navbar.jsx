@@ -90,7 +90,7 @@ const Navbar = () => {
           <div className="relative w-10 h-10 sm:w-14 sm:h-14 md:w-20 md:h-20 cursor-pointer">
             <Link href="/">
               <Image
-                src="/appleAttiresLogo.jpg"
+                src="/appleAttiresLogo1.jpg"
                 alt="Logo"
                 fill
                 className="rounded-full object-cover"

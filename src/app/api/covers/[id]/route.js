@@ -7,8 +7,13 @@ export const GET = async (req, {params}) =>{
     const coversCollection = await dbConnect(collectionNamesObj.coversCollection);
 
   const data = await coversCollection.findOne({ _id: new ObjectId(p.id) });
-
+    
+   await coversCollection.updateOne(
+      { _id: new ObjectId(p.id) },
+      { $inc: { views: 1 } }
+    );
   return NextResponse.json(data);
+  
 }
 
 export async function DELETE(req, { params }) {
