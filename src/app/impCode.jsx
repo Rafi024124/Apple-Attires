@@ -41,20 +41,6 @@ const basicColors = [
   { value: "yellow", label: "Yellow" },
 ];
 
-// ✅ Predefined Tags for Accessories Store
-const predefinedTags = [
-  { value: "new-arrival", label: "New Arrival" },
-  { value: "best-seller", label: "Best Seller" },
-  { value: "limited-edition", label: "Limited Edition" },
-  { value: "trending", label: "Trending" },
-  { value: "hot-deal", label: "Hot Deal" },
-  { value: "premium", label: "Premium" },
-  { value: "budget-friendly", label: "Budget Friendly" },
-  { value: "shockproof", label: "Shockproof" },
-  { value: "waterproof", label: "Waterproof" },
-  { value: "magsafe-compatible", label: "Magsafe Compatible" },
-];
-
 export default function Page() {
   const [form, setForm] = useState({
     name: "",
@@ -68,18 +54,21 @@ export default function Page() {
     gender: "Unisex",
     images: [],
     description: "",
-    stock: "", // ✅ simple stock
+    colors: "",
     tag: "",
     isFeatured: false,
     isAvailable: true,
     slug: "",
   });
 
+  const [modelColorStocks, setModelColorStocks] = useState({}); // per-model per-color stock
   const [colorForImage, setColorForImage] = useState(null);
 
   const handleImageUpload = async () => {
     if (!window.cloudinary) {
-      alert("Cloudinary widget script not loaded yet. Please try again in a moment.");
+      alert(
+        "Cloudinary widget script not loaded yet. Please try again in a moment."
+      );
       return;
     }
     const widget = window.cloudinary.createUploadWidget(
@@ -130,7 +119,10 @@ export default function Page() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formData = { ...form };
+    const formData = {
+      ...form,
+      modelColorStocks, // include per-model per-color stock
+    };
 
     const res = await fetch("/api/covers", {
       method: "POST",
@@ -320,26 +312,71 @@ export default function Page() {
           className="input h-24 w-full"
         />
 
-        {/* ✅ STOCK */}
+        {/* COLORS */}
         <input
-          type="number"
-          name="stock"
-          placeholder="Overall Stock"
-          value={form.stock}
+          type="text"
+          name="colors"
+          placeholder="Colors (comma-separated)"
+          value={form.colors}
           onChange={handleChange}
           className="input w-full"
-          required
         />
 
-        {/* ✅ TAGS (Predefined Options) */}
-        <Select
-          options={predefinedTags}
-          value={predefinedTags.find((opt) => opt.value === form.tag) || null}
-          onChange={(selected) =>
-            setForm((prev) => ({ ...prev, tag: selected?.value || "" }))
-          }
-          className="w-full"
-          placeholder="Select a Tag"
+        {/* STOCK PER MODEL & COLOR */}
+        {form.models.length > 0 && (
+          <div className="space-y-2">
+            <h3 className="font-semibold">Stock per Model & Color</h3>
+            {form.models.map((modelValue) => {
+              const modelLabel =
+                [...iphoneModels, ...samsungModels].find(
+                  (opt) => opt.value === modelValue
+                )?.label || modelValue;
+
+              // Determine colors (from images) for this model
+              const colorsForModel = [
+                ...new Set(
+                  form.images.map((img) => img.color || "default")
+                ),
+              ];
+
+              return (
+                <div key={modelValue} className="space-y-1">
+                  <span className="font-medium">{modelLabel}</span>
+                  {colorsForModel.map((color) => (
+                    <div key={color} className="flex items-center gap-2">
+                      <span className="w-40">{color}</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={modelColorStocks[modelValue]?.[color] || ""}
+                        onChange={(e) =>
+                          setModelColorStocks((prev) => ({
+                            ...prev,
+                            [modelValue]: {
+                              ...prev[modelValue],
+                              [color]: Number(e.target.value),
+                            },
+                          }))
+                        }
+                        placeholder="Stock"
+                        className="input w-full"
+                      />
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* TAG */}
+        <input
+          type="text"
+          name="tag"
+          placeholder="Tag (e.g. Limited Edition)"
+          value={form.tag}
+          onChange={handleChange}
+          className="input w-full"
         />
 
         {/* CHECKBOXES */}

@@ -69,16 +69,6 @@ export default function CoverDetails() {
     if (id) fetchCover();
   }, [id]);
 
-  const findImageByColor = (color) => {
-    if (!images.length) return "/fallback.jpg";
-    if (!color || color === "default") {
-      const imgObj = images.find((img) => !img.color);
-      return imgObj ? imgObj.url : images[0]?.url || "/fallback.jpg";
-    }
-    const imgObj = images.find((img) => img.color === color);
-    return imgObj ? imgObj.url : images[0]?.url || "/fallback.jpg";
-  };
-
   // Update zoom lens whenever main image changes
   useEffect(() => {
     if (zoomLensRef.current) {
@@ -109,16 +99,15 @@ export default function CoverDetails() {
   const handleAddToCart = () => {
     if (!selectedModel) return alert("Please select a model.");
 
-    const stock =
-      cover.modelColorStocks?.[selectedModel]?.[selectedColor || "default"] || 0;
+    const stock = cover.stock || 0; // ✅ overall stock
 
     const cartQuantity = cartItems
-      .filter(item => item._id === cover._id && item.model === selectedModel && item.color === selectedColor)
+      .filter(item => item._id === cover._id)
       .reduce((sum, item) => sum + item.quantity, 0);
 
     const availableStock = stock - cartQuantity;
 
-    if (availableStock <= 0) return alert("Selected model/color is out of stock.");
+    if (availableStock <= 0) return alert("This product is out of stock.");
     if (quantity > availableStock) return alert(`Only ${availableStock} item(s) available.`);
 
     addToCart({
@@ -162,13 +151,12 @@ export default function CoverDetails() {
   if (error) return <p className="text-center text-red-500">Error: {error}</p>;
   if (!cover) return <p className="text-center">No cover found.</p>;
 
-  const { name, price, tag, models = [], isAvailable, isFeatured, createdAt, type, gender } = cover;
+  const { name, price, tag, models = [], isAvailable, isFeatured, createdAt, type, gender, stock } = cover;
 
-  const stock = cover.modelColorStocks?.[selectedModel]?.[selectedColor || "default"] || 0;
   const cartQuantity = cartItems
-    .filter(item => item._id === cover._id && item.model === selectedModel && item.color === selectedColor)
+    .filter(item => item._id === cover._id)
     .reduce((sum, item) => sum + item.quantity, 0);
-  const availableStock = stock - cartQuantity;
+  const availableStock = (stock || 0) - cartQuantity;
   const isOutOfStock = availableStock <= 0;
   const isQuantityTooHigh = quantity > availableStock;
 
@@ -288,26 +276,25 @@ export default function CoverDetails() {
             <strong>Color:</strong>
             <div className="flex flex-wrap gap-2 mt-2">
               {uniqueColors.map((color) => {
-  const idx = images.findIndex(img => color === "default" ? !img.color : img.color === color);
-  return (
-    <button
-      key={color}
-      onClick={() => {
-        setSelectedColor(color === "default" ? null : color);
-        if (idx >= 0) setMainIndex(idx);
-      }}
-      className={`px-4 py-1 rounded-full border-2 font-semibold ${
-        (selectedColor === color) || (color === "default" && selectedColor === null)
-          ? "border-orange-500 bg-orange-100 dark:bg-orange-700 text-orange-800 dark:text-white"
-          : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-      }`}
-      style={{ textTransform: "capitalize" }}
-    >
-      {color === "default" ? "Default" : color}
-    </button>
-  );
-})}
-
+                const idx = images.findIndex(img => color === "default" ? !img.color : img.color === color);
+                return (
+                  <button
+                    key={color}
+                    onClick={() => {
+                      setSelectedColor(color === "default" ? null : color);
+                      if (idx >= 0) setMainIndex(idx);
+                    }}
+                    className={`px-4 py-1 rounded-full border-2 font-semibold ${
+                      (selectedColor === color) || (color === "default" && selectedColor === null)
+                        ? "border-orange-500 bg-orange-100 dark:bg-orange-700 text-orange-800 dark:text-white"
+                        : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    }`}
+                    style={{ textTransform: "capitalize" }}
+                  >
+                    {color === "default" ? "Default" : color}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -340,6 +327,7 @@ export default function CoverDetails() {
           <div><strong>Status:</strong> {isAvailable ? "Available" : "Out of Stock"}</div>
           <div><strong>Featured:</strong> {isFeatured ? "Yes" : "No"}</div>
           <div><strong>Created At:</strong> {new Date(createdAt).toLocaleDateString()}</div>
+          <div><strong>Stock:</strong> {stock || 0}</div>
         </div>
       </div>
 
