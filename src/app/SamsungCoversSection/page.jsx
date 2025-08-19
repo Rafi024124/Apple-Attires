@@ -18,7 +18,7 @@ export default function SamsungCoversSection() {
   }, []);
 
   return (
-    <section className="min-h-screen py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="min-h-screen py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-2">
       <h2 className="text-3xl font-semibold mb-6 border-b-2 border-blue-500 inline-block pb-2 tracking-wide drop-shadow-md">
         Samsung Covers
       </h2>

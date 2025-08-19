@@ -28,7 +28,7 @@ export default function NewArrivalsSection() {
   }, []);
 
   return (
-    <section className="py-8 bg-gray-50">
+    <section className="py-8 bg-gray-50 max-w-7xl mx-auto">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="flex justify-between items-center mb-6">

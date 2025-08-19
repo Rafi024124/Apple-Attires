@@ -15,7 +15,7 @@ export default function MostViewedSection() {
   }, []);
 
   return (
-    <section className="my-10">
+    <section className="my-10 max-w-7xl mx-auto">
       <h2 className="text-xl font-bold mb-4">Most Viewed Products</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {products.map((item) => (

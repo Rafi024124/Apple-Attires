@@ -22,9 +22,11 @@ const Navbar = () => {
 
   const navLinks = [
     { href: "/", label: "Home" },
-    { href: "/trainers", label: "All Trainers" },
-    { href: "/allClasses", label: "All Classes" },
-    { href: "/forums", label: "Community" },
+    { href: "/IphoneCases", label: "Iphone Cases" },
+    { href: "/samsungCases", label: "Samsung Cases" },
+    { href: "/admin/add-product", label: "Add Products" },
+    { href: "/admin/all-products", label: "All Products" },
+    { href: "/admin/orders", label: "Orders" },
   ];
 
   const navItems = navLinks.map(({ href, label }) => {
@@ -36,7 +38,9 @@ const Navbar = () => {
           href={href}
           className={`
             relative inline-block px-2 py-1 transition duration-300 
-            ${isActive ? "text-orange-500 font-bold after:w-full" : "text-[#E9DCCF] group"} 
+            ${isActive 
+              ? "text-orange-500 font-bold after:w-full" 
+              : "text-orange-300 group"}  /* default text is now orange */
             after:absolute after:left-0 after:-bottom-[2px] after:h-[2px] after:w-0 
             after:bg-orange-500 after:transition-all after:duration-300 
             group-hover:after:w-full
@@ -49,7 +53,7 @@ const Navbar = () => {
   });
 
   return (
-    <div className="navbar bg-transparent text-white shadow-md px-6 max-w-7xl mx-auto rounded-full">
+    <div className="navbar bg-white text-white shadow-md px-6 max-w-7xl mx-auto rounded-full sticky top-0 z-10 mb-4">
       <div className="navbar-start">
         <div className="dropdown relative">
           <div

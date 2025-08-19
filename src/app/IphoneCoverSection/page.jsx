@@ -19,8 +19,8 @@ export default function IphoneCoversSection() {
   }, []);
 
   return (
-    <section className="min-h-screen py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h2 className="text-3xl font-semibold mb-6 border-b-2 border-orange-500 inline-block pb-2 tracking-wide drop-shadow-md">
+    <section className=" py-12 max-w-7xl mx-auto px-2 sm:px-6 lg:px-2 bg-gray-50">
+      <h2 className="text-3xl font-semibold  border-b-2 border-orange-500 inline-block pb-2 tracking-wide drop-shadow-md">
         iPhone Covers
       </h2>
 

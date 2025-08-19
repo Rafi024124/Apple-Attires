@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import CoverCard from './CoverCard';
 import ProductDetailsModal from './ProductDetailsModal';
 import SkeletonCoverCard from './SkeletonCoverCard';
+import CartDrawer from './cartDrawer/page';
 
 export default function ServicesSection({ initialCovers = [], initialTotalCount = 0 }) {
   const [covers, setCovers] = useState(initialCovers);
@@ -26,6 +27,13 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
   const [debouncedCoverType, setDebouncedCoverType] = useState('');
   const [debouncedSortOption, setDebouncedSortOption] = useState('default');
   const [debouncedMainCategory, setDebouncedMainCategory] = useState('');
+  const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
+const [cartItem, setCartItem] = useState(null);
+
+const handleAddToCart = (item) => {
+  setCartItem(item);
+  setCartDrawerOpen(true);
+};
 
   const abortControllerRef = useRef(null);
   const initialRender = useRef(true);
@@ -184,6 +192,13 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
     <>
     {/* Category Buttons */}
 <div className="max-w-6xl mx-auto px-4 flex flex-wrap gap-2 mb-4">
+ <CartDrawer
+  open={cartDrawerOpen}
+  item={cartItem}
+  onClose={() => setCartDrawerOpen(false)}
+/>
+
+
   {['All Products', 'covers', 'protectors', 'accessories'].map((category) => (
     <button
       key={category}
@@ -348,7 +363,9 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
         {loading
           ? Array.from({ length: limit }).map((_, i) => <SkeletonCoverCard key={i} />)
           : covers.map((item) => (
-              <CoverCard key={item._id} item={item} onViewDetails={handleViewDetails} layout={layoutView} />
+              <CoverCard key={item._id} 
+              onAddToCart={() => handleAddToCart(item)}
+              item={item} onViewDetails={handleViewDetails} layout={layoutView} />
             ))}
         {!loading && covers.length === 0 && (
           <div className="col-span-full text-center py-8 text-gray-500">

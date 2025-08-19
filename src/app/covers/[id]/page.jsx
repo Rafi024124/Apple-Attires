@@ -1,18 +1,21 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { FaArrowLeft, FaArrowRight, FaExpand } from "react-icons/fa";
 import { useCart } from "@/app/context/CartContext";
 import CartDrawer from "@/app/components/cartDrawer/page";
 import CoverDetailsSkeleton from "./CoverDetailsSkeleton";
+import CoverCard from "@/app/components/CoverCard";
 
 export default function CoverDetails() {
   const params = useParams();
   const { id } = params;
+  const router = useRouter();
 
   const [cover, setCover] = useState(null);
+  const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [mainIndex, setMainIndex] = useState(0);
@@ -24,27 +27,20 @@ export default function CoverDetails() {
 
   const mainImageRef = useRef(null);
   const zoomLensRef = useRef(null);
-  const { addToCart } = useCart();
+  const { addToCart, cartItems } = useCart();
 
-  // Images array (objects with color & url)
   const images = cover?.images || [];
 
-  // Extract unique colors with grouping default (no color)
+  // Extract unique colors
   const uniqueColors = React.useMemo(() => {
     const colorsSet = new Set();
     let hasDefault = false;
-
     images.forEach(({ color }) => {
-      if (color) {
-        colorsSet.add(color);
-      } else {
-        hasDefault = true;
-      }
+      if (color) colorsSet.add(color);
+      else hasDefault = true;
     });
-
     const colorsArray = [...colorsSet];
-    if (hasDefault) colorsArray.unshift("default"); // "default" group first
-
+    if (hasDefault) colorsArray.unshift("default");
     return colorsArray;
   }, [images]);
 
@@ -56,24 +52,23 @@ export default function CoverDetails() {
       try {
         const res = await fetch(`/api/covers/${id}`);
         if (!res.ok) throw new Error("Failed to fetch cover details");
+
         const data = await res.json();
         setCover(data);
+        setRelated(data.related || []);
         setSelectedModel(data.models?.[0] || "");
-        // Set selectedColor to first image's color or null if no color
-        setSelectedColor(
-          data.images?.[0]?.color || (data.images?.[0] ? null : null)
-        );
+        setSelectedColor(data.images?.[0]?.color || (data.images?.[0] ? null : null));
         setMainIndex(0);
         setQuantity(1);
       } catch (err) {
         setError(err.message || "Unknown error");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     if (id) fetchCover();
   }, [id]);
 
-  // Get image URL by selected color
   const findImageByColor = (color) => {
     if (!images.length) return "/fallback.jpg";
     if (!color || color === "default") {
@@ -84,7 +79,14 @@ export default function CoverDetails() {
     return imgObj ? imgObj.url : images[0]?.url || "/fallback.jpg";
   };
 
-  // Prev/Next image handlers update index and selectedColor
+  // Update zoom lens whenever main image changes
+  useEffect(() => {
+    if (zoomLensRef.current) {
+      zoomLensRef.current.style.backgroundImage = `url(${images[mainIndex]?.url || "/fallback.jpg"})`;
+      zoomLensRef.current.style.backgroundPosition = `50% 50%`;
+    }
+  }, [mainIndex, images]);
+
   const prevImage = () => {
     if (!images.length) return;
     const len = images.length;
@@ -101,28 +103,38 @@ export default function CoverDetails() {
     setSelectedColor(images[newIndex]?.color || null);
   };
 
-  // Quantity controls
   const decreaseQuantity = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
   const increaseQuantity = () => setQuantity((q) => q + 1);
 
-  const onAddToCart = () => setShowCartDrawer(true);
-
   const handleAddToCart = () => {
     if (!selectedModel) return alert("Please select a model.");
+
+    const stock =
+      cover.modelColorStocks?.[selectedModel]?.[selectedColor || "default"] || 0;
+
+    const cartQuantity = cartItems
+      .filter(item => item._id === cover._id && item.model === selectedModel && item.color === selectedColor)
+      .reduce((sum, item) => sum + item.quantity, 0);
+
+    const availableStock = stock - cartQuantity;
+
+    if (availableStock <= 0) return alert("Selected model/color is out of stock.");
+    if (quantity > availableStock) return alert(`Only ${availableStock} item(s) available.`);
+
     addToCart({
       _id: cover._id,
       name: cover.name,
       price: cover.price,
-      image: findImageByColor(selectedColor),
+      image: images[mainIndex]?.url || "/fallback.jpg",
       quantity,
       model: selectedModel,
       color: selectedColor,
     });
+
     setQuantity(1);
-    onAddToCart();
+    setShowCartDrawer(true);
   };
 
-  // Zoom handlers (optional)
   function handleMouseMove(e) {
     if (!mainImageRef.current || !zoomLensRef.current) return;
     const rect = mainImageRef.current.getBoundingClientRect();
@@ -150,18 +162,15 @@ export default function CoverDetails() {
   if (error) return <p className="text-center text-red-500">Error: {error}</p>;
   if (!cover) return <p className="text-center">No cover found.</p>;
 
-  const {
-    name,
-    price,
-    tag,
-    models = [],
-    isAvailable,
-    isFeatured,
-    createdAt,
-    type,
-    gender,
-    _id,
-  } = cover;
+  const { name, price, tag, models = [], isAvailable, isFeatured, createdAt, type, gender } = cover;
+
+  const stock = cover.modelColorStocks?.[selectedModel]?.[selectedColor || "default"] || 0;
+  const cartQuantity = cartItems
+    .filter(item => item._id === cover._id && item.model === selectedModel && item.color === selectedColor)
+    .reduce((sum, item) => sum + item.quantity, 0);
+  const availableStock = stock - cartQuantity;
+  const isOutOfStock = availableStock <= 0;
+  const isQuantityTooHigh = quantity > availableStock;
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -173,7 +182,7 @@ export default function CoverDetails() {
           onClick={() => setShowPreview(false)}
         >
           <Image
-             src={images[mainIndex]?.url || "/fallback.jpg"}
+            src={images[mainIndex]?.url || "/fallback.jpg"}
             alt="Preview"
             width={800}
             height={1000}
@@ -189,7 +198,7 @@ export default function CoverDetails() {
         <div className="w-full md:w-1/2 flex flex-col items-center">
           <div
             ref={mainImageRef}
-            className="relative w-full aspect-[3/4] max-w-md border rounded overflow-hidden"
+            className="relative w-full aspect-[3.9/4] max-w-md border rounded overflow-hidden"
             onMouseMove={handleMouseMove}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
@@ -199,7 +208,7 @@ export default function CoverDetails() {
               alt="Main"
               fill
               sizes="(max-width: 768px) 100vw, 400px"
-              className="object-cover"
+              className="object-contain"
               unoptimized
             />
             <div
@@ -209,7 +218,6 @@ export default function CoverDetails() {
                 display: "none",
                 width: "200px",
                 height: "200px",
-                backgroundImage: `url(${findImageByColor(selectedColor)})`,
                 backgroundRepeat: "no-repeat",
                 backgroundSize: "500% 500%",
                 zIndex: 10,
@@ -217,13 +225,9 @@ export default function CoverDetails() {
             />
           </div>
 
-          {/* Controls BELOW image */}
+          {/* Controls */}
           <div className="w-full max-w-md mt-4 flex items-center justify-between gap-2">
-            <button
-              onClick={prevImage}
-              className="bg-black text-white p-2 rounded-full hover:bg-opacity-70 transition"
-              aria-label="Previous image"
-            >
+            <button onClick={prevImage} className="bg-black text-white p-2 rounded-full hover:bg-opacity-70 transition">
               <FaArrowLeft />
             </button>
             <button
@@ -233,11 +237,7 @@ export default function CoverDetails() {
               <FaExpand className="text-black" />
               <span className="text-sm font-medium">Preview</span>
             </button>
-            <button
-              onClick={nextImage}
-              className="bg-black text-white p-2 rounded-full hover:bg-opacity-70 transition"
-              aria-label="Next image"
-            >
+            <button onClick={nextImage} className="bg-black text-white p-2 rounded-full hover:bg-opacity-70 transition">
               <FaArrowRight />
             </button>
           </div>
@@ -251,18 +251,9 @@ export default function CoverDetails() {
                   setMainIndex(i);
                   setSelectedColor(color || null);
                 }}
-                className={`w-20 h-28 rounded overflow-hidden border-2 ${
-                  mainIndex === i ? "border-cyan-500" : "border-transparent"
-                }`}
+                className={`w-20 h-28 rounded overflow-hidden border-2 ${mainIndex === i ? "border-cyan-500" : "border-transparent"}`}
               >
-                <Image
-                  src={url}
-                  alt={`Thumbnail ${i + 1}`}
-                  width={80}
-                  height={112}
-                  className="object-cover"
-                  unoptimized
-                />
+                <Image src={url} alt={`Thumbnail ${i + 1}`} width={80} height={112} className="object-cover" unoptimized />
               </button>
             ))}
           </div>
@@ -271,7 +262,6 @@ export default function CoverDetails() {
         {/* Product Info */}
         <div className="flex-1 space-y-4">
           <p className="text-xl font-semibold text-red-600">৳{price}</p>
-
           {tag && <p className="bg-yellow-200 px-2 py-1 inline-block rounded">{tag}</p>}
 
           <div>
@@ -281,87 +271,93 @@ export default function CoverDetails() {
               onChange={(e) => setSelectedModel(e.target.value)}
               className="border rounded px-2 py-1 ml-2"
             >
-              {models.map((m, i) => (
-                <option key={i} value={m}>
-                  {m}
-                </option>
-              ))}
+              {models.map((m, i) => <option key={i} value={m}>{m}</option>)}
             </select>
           </div>
 
           <div>
             <strong>Quantity:</strong>{" "}
             <div className="inline-flex items-center gap-2 ml-2">
-              <button
-                onClick={decreaseQuantity}
-                className="px-2 py-1 bg-gray-200 rounded"
-              >
-                -
-              </button>
+              <button onClick={decreaseQuantity} className="px-2 py-1 bg-gray-200 rounded">-</button>
               <span>{quantity}</span>
-              <button
-                onClick={increaseQuantity}
-                className="px-2 py-1 bg-gray-200 rounded"
-              >
-                +
-              </button>
+              <button onClick={increaseQuantity} className="px-2 py-1 bg-gray-200 rounded">+</button>
             </div>
           </div>
 
-          {/* Color Selection */}
           <div>
             <strong>Color:</strong>
             <div className="flex flex-wrap gap-2 mt-2">
-              {uniqueColors.map((color) => (
-                <button
-                  key={color}
-                  onClick={() => {
-                    setSelectedColor(color === "default" ? null : color);
-                    const idx = images.findIndex(
-                      (img) =>
-                        color === "default" ? !img.color : img.color === color
-                    );
-                    if (idx >= 0) setMainIndex(idx);
-                  }}
-                  className={`px-4 py-1 rounded-full border-2 font-semibold ${
-                    (selectedColor === color) ||
-                    (color === "default" && selectedColor === null)
-                      ? "border-orange-500 bg-orange-100 dark:bg-orange-700 text-orange-800 dark:text-white"
-                      : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  }`}
-                  style={{ textTransform: "capitalize" }}
-                >
-                  {color === "default" ? "Default" : color}
-                </button>
-              ))}
+              {uniqueColors.map((color) => {
+  const idx = images.findIndex(img => color === "default" ? !img.color : img.color === color);
+  return (
+    <button
+      key={color}
+      onClick={() => {
+        setSelectedColor(color === "default" ? null : color);
+        if (idx >= 0) setMainIndex(idx);
+      }}
+      className={`px-4 py-1 rounded-full border-2 font-semibold ${
+        (selectedColor === color) || (color === "default" && selectedColor === null)
+          ? "border-orange-500 bg-orange-100 dark:bg-orange-700 text-orange-800 dark:text-white"
+          : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+      }`}
+      style={{ textTransform: "capitalize" }}
+    >
+      {color === "default" ? "Default" : color}
+    </button>
+  );
+})}
+
             </div>
           </div>
+
+          {cover.description && (
+            <div className="mt-4">
+              <strong>Description:</strong>
+              <p className="mt-1 text-gray-700">{cover.description}</p>
+            </div>
+          )}
+
           <button
             onClick={handleAddToCart}
-            className="mt-4 bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600 transition"
+            disabled={isOutOfStock || isQuantityTooHigh}
+            className={`mt-4 px-6 py-2 rounded ${
+              isOutOfStock || isQuantityTooHigh
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-orange-500 hover:bg-orange-600 text-white"
+            }`}
           >
-            Add to Cart
+            {isOutOfStock
+              ? "Out of Stock"
+              : isQuantityTooHigh
+              ? `Only ${availableStock} available`
+              : "Add to Cart"}
           </button>
 
           <hr className="my-4" />
-
-          <div>
-            <strong>Type:</strong> {type || "N/A"}
-          </div>
-          <div>
-            <strong>Gender:</strong> {gender || "N/A"}
-          </div>
-          <div>
-            <strong>Status:</strong> {isAvailable ? "Available" : "Out of Stock"}
-          </div>
-          <div>
-            <strong>Featured:</strong> {isFeatured ? "Yes" : "No"}
-          </div>
-          <div>
-            <strong>Created At:</strong> {new Date(createdAt).toLocaleDateString()}
-          </div>
+          <div><strong>Type:</strong> {type || "N/A"}</div>
+          <div><strong>Gender:</strong> {gender || "N/A"}</div>
+          <div><strong>Status:</strong> {isAvailable ? "Available" : "Out of Stock"}</div>
+          <div><strong>Featured:</strong> {isFeatured ? "Yes" : "No"}</div>
+          <div><strong>Created At:</strong> {new Date(createdAt).toLocaleDateString()}</div>
         </div>
       </div>
+
+      {/* Related Products */}
+      {related.length > 0 && (
+        <div className="mt-12">
+          <h2 className="text-2xl font-semibold mb-6 text-gray-800">Related Products</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {related.map((item) => (
+              <CoverCard
+                key={item._id}
+                item={item}
+                onViewDetails={(id) => router.push(`/covers/${id}`)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

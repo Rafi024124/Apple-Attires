@@ -2,19 +2,48 @@ import dbConnect, { collectionNamesObj } from "@/lib/dbConnect";
 import { ObjectId } from "mongodb";
 import { NextResponse } from "next/server";
 
-export const GET = async (req, {params}) =>{
-    const p = await params;
+export const GET = async (req, { params }) => {
+  try {
+    const { id } = await params;
+    if (!id) return NextResponse.json({ error: "Missing ID" }, { status: 400 });
+
     const coversCollection = await dbConnect(collectionNamesObj.coversCollection);
 
-  const data = await coversCollection.findOne({ _id: new ObjectId(p.id) });
-    
-   await coversCollection.updateOne(
-      { _id: new ObjectId(p.id) },
+    // Find the main cover
+    const cover = await coversCollection.findOne({ _id: new ObjectId(id) });
+    if (!cover) return NextResponse.json({ error: "Cover not found" }, { status: 404 });
+
+    // Increment views
+    await coversCollection.updateOne(
+      { _id: new ObjectId(id) },
       { $inc: { views: 1 } }
     );
-  return NextResponse.json(data);
-  
-}
+
+    
+    
+
+    // Fetch related products (same subCategory & mainCat, exclude current)
+    let related = [];
+    if (cover.subCategory && cover.mainCategory) {
+      related = await coversCollection
+  .find({
+    subCategory: { $regex: `^${cover.subCategory}$`, $options: "i" },
+    mainCategory: { $regex: `^${cover.mainCategory}$`, $options: "i" },
+    _id: { $ne: new ObjectId(id) },
+  })
+  .limit(8)
+  .toArray();
+    }
+    console.log(related);
+    
+
+    // Return main cover + related products
+    return NextResponse.json({ ...cover, related });
+  } catch (error) {
+    console.error("GET /covers/[id] error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+};
 
 export async function DELETE(req, { params }) {
   try {

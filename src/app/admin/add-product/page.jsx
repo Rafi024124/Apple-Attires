@@ -32,7 +32,6 @@ const samsungModels = [
   label: model,
 }));
 
-// Basic color options for image color selection dropdown
 const basicColors = [
   { value: "red", label: "Red" },
   { value: "green", label: "Green" },
@@ -56,14 +55,13 @@ export default function Page() {
     images: [],
     description: "",
     colors: "",
-    stockCount: "",
     tag: "",
     isFeatured: false,
     isAvailable: true,
     slug: "",
   });
 
-  // Store selected color object for new image upload (or null)
+  const [modelColorStocks, setModelColorStocks] = useState({}); // per-model per-color stock
   const [colorForImage, setColorForImage] = useState(null);
 
   const handleImageUpload = async () => {
@@ -81,7 +79,7 @@ export default function Page() {
       (error, result) => {
         if (!error && result && result.event === "success") {
           const newImage = {
-            color: colorForImage ? colorForImage.value : null,
+            color: colorForImage ? colorForImage.value : "default",
             url: result.info.secure_url,
           };
           setForm((prev) => ({
@@ -120,10 +118,16 @@ export default function Page() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const formData = {
+      ...form,
+      modelColorStocks, // include per-model per-color stock
+    };
+
     const res = await fetch("/api/covers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify(formData),
     });
 
     const data = await res.json();
@@ -318,15 +322,52 @@ export default function Page() {
           className="input w-full"
         />
 
-        {/* STOCK COUNT */}
-        <input
-          type="number"
-          name="stockCount"
-          placeholder="Stock Count"
-          value={form.stockCount}
-          onChange={handleChange}
-          className="input w-full"
-        />
+        {/* STOCK PER MODEL & COLOR */}
+        {form.models.length > 0 && (
+          <div className="space-y-2">
+            <h3 className="font-semibold">Stock per Model & Color</h3>
+            {form.models.map((modelValue) => {
+              const modelLabel =
+                [...iphoneModels, ...samsungModels].find(
+                  (opt) => opt.value === modelValue
+                )?.label || modelValue;
+
+              // Determine colors (from images) for this model
+              const colorsForModel = [
+                ...new Set(
+                  form.images.map((img) => img.color || "default")
+                ),
+              ];
+
+              return (
+                <div key={modelValue} className="space-y-1">
+                  <span className="font-medium">{modelLabel}</span>
+                  {colorsForModel.map((color) => (
+                    <div key={color} className="flex items-center gap-2">
+                      <span className="w-40">{color}</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={modelColorStocks[modelValue]?.[color] || ""}
+                        onChange={(e) =>
+                          setModelColorStocks((prev) => ({
+                            ...prev,
+                            [modelValue]: {
+                              ...prev[modelValue],
+                              [color]: Number(e.target.value),
+                            },
+                          }))
+                        }
+                        placeholder="Stock"
+                        className="input w-full"
+                      />
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* TAG */}
         <input
