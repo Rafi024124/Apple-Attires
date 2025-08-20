@@ -33,7 +33,7 @@ export async function PATCH(req, { params }) {
     }
 
     const { status } = await req.json();
-    const validStatuses = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
+    const validStatuses = ["Pending", "Delivered", "Hold"];
 
     if (!status || !validStatuses.includes(status)) {
       return NextResponse.json({ error: "Invalid status value" }, { status: 400 });

@@ -16,7 +16,7 @@ export async function GET(req) {
     const ordersCollection = await dbConnect(collectionNamesObj.ordersCollection || "orders");
 
     const order = await ordersCollection.findOne({ _id: new ObjectId(orderId) });
-  console.log(order);
+  
   
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
@@ -38,7 +38,7 @@ export async function GET(req) {
   }
 );
 
-    console.log("Packzy API response:", response.data);
+    
 
 
     return NextResponse.json(response.data, { status: response.status });
