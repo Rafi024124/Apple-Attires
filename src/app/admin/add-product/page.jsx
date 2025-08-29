@@ -1,4 +1,5 @@
 "use client";
+import ProtectedRoute from "@/app/components/protectedRoute/page";
 import React, { useState } from "react";
 import Select from "react-select";
 
@@ -148,7 +149,8 @@ export default function Page() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto py-12 px-6">
+   <ProtectedRoute>
+     <div className="max-w-3xl mx-auto py-12 px-6">
       <h1 className="text-3xl font-bold mb-6">Add New Product</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* NAME */}
@@ -382,5 +384,6 @@ export default function Page() {
         </button>
       </form>
     </div>
+   </ProtectedRoute>
   );
 }

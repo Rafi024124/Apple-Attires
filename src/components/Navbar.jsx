@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { HiOutlineMenu } from "react-icons/hi";
 import { FiShoppingCart } from "react-icons/fi";
 import { motion as Motion, AnimatePresence } from "framer-motion";
-import NetflixButton from "@/app/components/NetflixButton/NetflixButton";
+
 import { signOut, useSession } from "next-auth/react";
 import { useCart } from "@/app/context/CartContext";
 
@@ -20,14 +20,22 @@ const Navbar = () => {
 
   const user = session?.user || null;
 
-  const navLinks = [
+  // always-visible links
+  const publicLinks = [
     { href: "/", label: "Home" },
     { href: "/IphoneCases", label: "Iphone Cases" },
     { href: "/samsungCases", label: "Samsung Cases" },
+  ];
+
+  // admin / protected links (only if logged in)
+  const privateLinks = [
     { href: "/admin/add-product", label: "Add Products" },
     { href: "/admin/all-products", label: "All Products" },
     { href: "/admin/orders", label: "Orders" },
   ];
+
+  // combine based on login
+  const navLinks = session ? [...publicLinks, ...privateLinks] : publicLinks;
 
   const navItems = navLinks.map(({ href, label }) => {
     const isActive = pathname === href;
@@ -40,7 +48,7 @@ const Navbar = () => {
             relative inline-block px-2 py-1 transition duration-300 
             ${isActive 
               ? "text-orange-500 font-bold after:w-full" 
-              : "text-orange-300 group"}  /* default text is now orange */
+              : "text-orange-300 group"}
             after:absolute after:left-0 after:-bottom-[2px] after:h-[2px] after:w-0 
             after:bg-orange-500 after:transition-all after:duration-300 
             group-hover:after:w-full

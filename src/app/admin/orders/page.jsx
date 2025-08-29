@@ -3,6 +3,8 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Swal from "sweetalert2";
 import { FaTruck, FaEye, FaFileCsv } from "react-icons/fa";
+import OrdersSkeleton from "./OrdersSkeleton"
+import ProtectedRoute from "@/app/components/protectedRoute/page";
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -240,10 +242,12 @@ const handleBatchPrint = (ids) => {
   };
   useEffect(() => setCurrentPage(1), [searchQuery, statusFilter, itemsPerPage]);
 
-  if (loading) return <p className="text-center p-10">Loading orders...</p>;
+ if (loading) return <OrdersSkeleton className="max-w-7 mx-auto" rows={10} />;
+
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+   <ProtectedRoute>
+     <div className="max-w-7xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">All Orders</h1>
 
       {/* Batch Actions */}
@@ -412,6 +416,7 @@ const handleBatchPrint = (ids) => {
   />
 )}
     </div>
+   </ProtectedRoute>
   );
 }
 
