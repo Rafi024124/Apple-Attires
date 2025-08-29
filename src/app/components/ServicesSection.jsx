@@ -30,10 +30,28 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
 const [cartItem, setCartItem] = useState(null);
 
-const handleAddToCart = (item) => {
-  setCartItem(item);
-  setCartDrawerOpen(true);
+const handleAddToCart = async (item) => {
+  try {
+    // 1️⃣ Fetch the updated item from the server
+    const res = await fetch(`/api/covers/${item._id}`);
+    if (!res.ok) throw new Error('Failed to fetch updated cover');
+    const updatedItem = await res.json();
+
+    // 2️⃣ Update your covers array in the grid
+    setCovers((prev) =>
+      prev.map((c) => (c._id === updatedItem._id ? updatedItem : c))
+    );
+
+    // 3️⃣ Then open the cart with the updated item
+    setCartItem(updatedItem);
+    setCartDrawerOpen(true);
+  } catch (err) {
+    console.error(err);
+    alert('Failed to add to cart');
+  }
 };
+
+
 
   const abortControllerRef = useRef(null);
   const initialRender = useRef(true);
@@ -181,6 +199,16 @@ const handleAddToCart = (item) => {
     setSearchTerm('');
   };
 
+  const handleStockUpdate = async (id) => {
+  try {
+    const res = await fetch(`/api/covers/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch cover');
+    const updatedCover = await res.json();
+    setCovers((prev) => prev.map((c) => (c._id === id ? updatedCover : c)));
+  } catch (err) {
+    console.error(err);
+  }
+};
   const handleCategoryClick = (category) => {
     setMainCategory(category);
     setSearchTerm('');

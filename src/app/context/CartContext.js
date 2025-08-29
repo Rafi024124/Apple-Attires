@@ -9,6 +9,7 @@ export const CartProvider = ({ children }) => {
   const [hydrated, setHydrated] = useState(false);
   const [cartItems, setCartItems] = useState([]);
 
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       setHydrated(true);

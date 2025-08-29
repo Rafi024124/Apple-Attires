@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Select from "react-select";
 
 // Simple modal component inside this file for convenience
-function SimpleModal({ open, onClose, children, title }) {
+function SimpleModal({ open, onClose, children, title  }) {
   if (!open) return null;
 
   return (
@@ -72,7 +72,7 @@ const samsungModels = [
   label: model,
 }));
 
-export default function EditProductModal({ open, onClose, product }) {
+export default function EditProductModal({ open, onClose, product ,onUpdated}) {
   // form state
   const [form, setForm] = useState({
     name: "",
@@ -87,7 +87,7 @@ export default function EditProductModal({ open, onClose, product }) {
     images: [],
     description: "",
     colors: "",
-    stockCount: "",
+    stock: "",
     tag: "",
     isFeatured: false,
     isAvailable: true,
@@ -116,7 +116,7 @@ export default function EditProductModal({ open, onClose, product }) {
         images: product.images || [],
         description: product.description || "",
         colors: product.colors || "",
-        stockCount: product.stockCount || "",
+        stock: product.stock || "",
         tag: product.tag || "",
         isFeatured: product.isFeatured || false,
         isAvailable: product.isAvailable ?? true,
@@ -221,25 +221,27 @@ export default function EditProductModal({ open, onClose, product }) {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch(`/api/covers/${product._id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        alert("Product updated successfully!");
-        onClose();
-      } else {
-        alert(data.error || "Failed to update product.");
-      }
-    } catch (err) {
-      alert("Failed to update product.");
-      console.error(err);
+  e.preventDefault();
+  try {
+    const res = await fetch(`/api/covers/${product._id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+
+    const updatedProduct = await res.json(); // read only once
+
+    if (res.ok) {
+      if (onUpdated) onUpdated(updatedProduct); // notify parent to refetch
+      onClose();
+    } else {
+      alert(updatedProduct.error || "Failed to update product.");
     }
-  };
+  } catch (err) {
+    alert("Failed to update product.");
+    console.error(err);
+  }
+};
 
   return (
     <SimpleModal open={open} onClose={handleCancel} title="Edit Product">
@@ -425,9 +427,9 @@ export default function EditProductModal({ open, onClose, product }) {
         {/* STOCK COUNT */}
         <input
           type="number"
-          name="stockCount"
-          placeholder="Stock Count"
-          value={form.stockCount}
+          name="stock"
+          placeholder="Overall Stock"
+          value={form.stock}
           onChange={handleChange}
           className="input w-full"
         />

@@ -190,7 +190,7 @@ export default function AdminProductsPage() {
                 Price
               </th>
               <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
-                Stock Count
+                Overall Stock
               </th>
               <th className="px-4 py-2 text-center text-sm font-medium text-gray-700">
                 Actions
@@ -230,7 +230,7 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="px-4 py-2 text-sm font-semibold">{prod.name}</td>
                     <td className="px-4 py-2 text-sm">${prod.price}</td>
-                    <td className="px-4 py-2 text-sm">{prod.stockCount}</td>
+                    <td className="px-4 py-2 text-sm">{prod.stock}</td>
                     <td className="px-4 py-2 text-center space-x-2">
                       <button
                         onClick={() => setViewingProduct(prod)}
@@ -276,8 +276,12 @@ export default function AdminProductsPage() {
           product={editingProduct}
           onClose={() => {
             setEditingProduct(null);
-            fetchProducts(); // refresh list after update
-          }}
+             // refresh list after update
+          }
+        }
+        onUpdated={() => {
+      fetchProducts(); // re-fetch all products from DB
+    }}
         />
       )}
     </div>

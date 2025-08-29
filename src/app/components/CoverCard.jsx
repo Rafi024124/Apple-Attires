@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { FaSearch, FaShoppingCart, FaTimes, FaPlus, FaMinus } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
@@ -8,7 +8,7 @@ import { useCart } from '@/app/context/CartContext';
 
 export default function CoverCard({ item, onViewDetails, onAddToCart }) {
   const router = useRouter();
-  const { _id, name, images = [], price, discount = 0, models = [], stock = 0 } = item;
+  const { _id, name, images = [], price, discount = 0, models = [], stock  } = item;
   const { addToCart, cartItems } = useCart();
 
   const [hoverIndex, setHoverIndex] = useState(0);
@@ -18,7 +18,10 @@ export default function CoverCard({ item, onViewDetails, onAddToCart }) {
   const [selectedColor, setSelectedColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [imageError, setImageError] = useState(false);
+ 
 
+  console.log("stock",stock);
+  
   // Extract colors
   const uniqueColorsSet = new Set(
     images.map((img) => (img.color ? img.color.toLowerCase() : null)).filter((c) => c)
@@ -53,23 +56,31 @@ export default function CoverCard({ item, onViewDetails, onAddToCart }) {
   const discountedPrice = discount > 0 ? price - price * (discount / 100) : price;
 
   // ✅ Overall stock logic
-  const cartQuantityForItem = cartItems
-    .filter((ci) => ci._id === _id)
-    .reduce((sum, ci) => sum + ci.quantity, 0);
+const cartQuantityForItem = useMemo(
+  () => cartItems.filter((ci) => ci._id === _id).reduce((sum, ci) => sum + ci.quantity, 0),
+  [cartItems, _id]
+);
 
-  const availableStock = Math.max((stock || 0) - cartQuantityForItem, 0);
-  const isOutOfStock = availableStock <= 0;
-  const isQuantityTooHigh = quantity > availableStock;
+const availablestock = useMemo(() => Math.max((stock || 0) - cartQuantityForItem, 0), [stock, cartQuantityForItem]);
+
+const isOutOfstock = availablestock <= 0;
+const isQuantityTooHigh = quantity > availablestock;
+  useEffect(() => {
+  // If available stock changes, adjust quantity
+  if (quantity > availablestock) {
+    setQuantity(availablestock > 0 ? 1 : 0);
+  }
+}, [availablestock, quantity]);
 
   const handleAdd = () => {
     if (models.length > 0 && !selectedModel) {
       setShowModelSelector(true);
       return;
     }
-    if (isOutOfStock) return;
+    if (isOutOfstock) return;
     if (isQuantityTooHigh) {
-      alert(`Only ${availableStock} item(s) available.`);
-      setQuantity(availableStock);
+      alert(`Only ${availablestock} item(s) available.`);
+      setQuantity(availablestock);
       return;
     }
 
@@ -123,7 +134,7 @@ export default function CoverCard({ item, onViewDetails, onAddToCart }) {
             </button>
             <span className="font-medium text-sm">{quantity}</span>
             <button
-              onClick={() => setQuantity((q) => Math.min(availableStock, q + 1))}
+              onClick={() => setQuantity((q) => Math.min(availablestock, q + 1))}
               className="px-2 py-1 border rounded"
             >
               <FaPlus />
@@ -132,12 +143,12 @@ export default function CoverCard({ item, onViewDetails, onAddToCart }) {
 
           <button
             onClick={confirmModel}
-            disabled={!selectedModel || isOutOfStock}
+            disabled={!selectedModel || isOutOfstock}
             className={`px-5 py-2 rounded text-white text-sm font-medium w-full ${
-              !selectedModel || isOutOfStock ? 'bg-gray-400 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'
+              !selectedModel || isOutOfstock ? 'bg-gray-400 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'
             }`}
           >
-            {isOutOfStock ? 'Out of Stock' : 'Confirm'}
+            {isOutOfstock ? 'Out of stock' : 'Confirm'}
           </button>
         </div>
       )}
@@ -163,11 +174,7 @@ export default function CoverCard({ item, onViewDetails, onAddToCart }) {
             />
           )}
 
-          {stock <= 0 && (
-            <span className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 text-white text-xs px-3 py-1 rounded">
-              Out of Stock
-            </span>
-          )}
+          
 
           <div className="hidden md:flex absolute inset-0 items-end w-[85%] mx-auto justify-between p-3">
             <button
@@ -175,15 +182,15 @@ export default function CoverCard({ item, onViewDetails, onAddToCart }) {
                 e.stopPropagation();
                 handleAdd();
               }}
-              disabled={isOutOfStock || isQuantityTooHigh}
+              disabled={isOutOfstock || isQuantityTooHigh}
               className={`flex justify-center items-center text-white text-sm font-medium px-2 py-1 rounded shadow min-w-[120px] transition-transform duration-300 ease-in-out ${
-                !isOutOfStock && !isQuantityTooHigh
+                !isOutOfstock && !isQuantityTooHigh
                   ? 'bg-orange-500 hover:scale-105 hover:bg-orange-600'
                   : 'bg-gray-400 cursor-not-allowed'
               }`}
             >
               <FaShoppingCart className="mr-2" />
-              {isOutOfStock ? 'Out of Stock' : isQuantityTooHigh ? `Only ${availableStock} available` : 'Add To Cart'}
+              {isOutOfstock ? 'Out of stock' : isQuantityTooHigh ? `Only ${availablestock} available` : 'Add To Cart'}
             </button>
 
             <button
@@ -246,12 +253,12 @@ export default function CoverCard({ item, onViewDetails, onAddToCart }) {
             e.stopPropagation();
             handleAdd();
           }}
-          disabled={isOutOfStock || isQuantityTooHigh}
+          disabled={isOutOfstock || isQuantityTooHigh}
           className={`flex-1 text-white text-sm py-2 rounded shadow ${
-            !isOutOfStock && !isQuantityTooHigh ? 'bg-orange-500' : 'bg-gray-400 cursor-not-allowed'
+            !isOutOfstock && !isQuantityTooHigh ? 'bg-orange-500' : 'bg-gray-400 cursor-not-allowed'
           }`}
         >
-          {isOutOfStock ? 'Out of Stock' : isQuantityTooHigh ? `Only ${availableStock} available` : 'Add to Cart'}
+          {isOutOfstock ? 'Out of stock' : isQuantityTooHigh ? `Only ${availablestock} available` : 'Add to Cart'}
         </button>
         <button
           onClick={(e) => {

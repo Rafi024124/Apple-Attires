@@ -68,6 +68,30 @@ export default function CoverDetails() {
     }
     if (id) fetchCover();
   }, [id]);
+  console.log(cover);
+  
+
+  useEffect(() => {
+  async function fetchRelated() {
+    if (!cover?.mainCategory || !cover?.subCategory) return;
+    try {
+      const res = await fetch(
+        `/api/covers?mainCategory=${cover.mainCategory}&subCategory=${cover.subCategory}&limit=4`
+      );
+      if (!res.ok) throw new Error("Failed to fetch related covers");
+
+      const data = await res.json();
+      const relatedCovers = data.covers.filter((c) => c._id !== cover._id); // exclude self
+      setRelated(relatedCovers);
+    } catch (err) {
+      console.error("Error fetching related:", err);
+    }
+  }
+  fetchRelated();
+}, [cover]);
+
+
+
 
   // Update zoom lens whenever main image changes
   useEffect(() => {
@@ -346,6 +370,10 @@ export default function CoverDetails() {
           </div>
         </div>
       )}
+
+      
+
+
     </div>
   );
 }

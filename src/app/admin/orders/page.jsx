@@ -129,13 +129,29 @@ export default function AdminOrdersPage() {
   };
 
   // Batch print
-  const handleBatchPrint = (ids = selectedOrders) => {
-    if (ids.length === 0) return;
-    const ordersToPrint = orders.filter((o) => ids.includes(o._id));
-    const invoiceWindow = window.open("", "PRINT", "width=800,height=600");
-    invoiceWindow.document.write(`<html><head><title>Invoices</title></head><body>`);
-    ordersToPrint.forEach((order) => {
-      invoiceWindow.document.write(`
+const handleBatchPrint = (ids) => {
+  // Use selectedOrders if no ids provided
+  ids = ids && ids.length ? ids : selectedOrders;
+
+  if (!ids || ids.length === 0) {
+    Swal.fire("No orders selected", "Please select orders to print.", "info");
+    return;
+  }
+
+  // Filter orders that exist in current loaded orders
+  const ordersToPrint = orders.filter((o) => ids.includes(o._id));
+  if (ordersToPrint.length === 0) {
+    Swal.fire("Nothing to print", "Selected orders not found.", "error");
+    return;
+  }
+
+  // Open print window
+  const invoiceWindow = window.open("", "PRINT", "width=800,height=600");
+  invoiceWindow.document.write(`<html><head><title>Invoices</title></head><body>`);
+
+  ordersToPrint.forEach((order) => {
+    invoiceWindow.document.write(`
+      <div style="page-break-after: always;">
         <h1>Invoice - ${order._id}</h1>
         <p><b>Customer:</b> ${order.name}</p>
         <p><b>Phone:</b> ${order.phone}</p>
@@ -152,14 +168,18 @@ export default function AdminOrdersPage() {
         </ul>
         <p><b>Delivery Charge:</b> ৳${order.deliveryCharge}</p>
         <p><b>Total:</b> ৳${order.totalPrice}</p>
-        <hr/><br/>
-      `);
-    });
-    invoiceWindow.document.write(`</body></html>`);
-    invoiceWindow.document.close();
-    invoiceWindow.focus();
-    invoiceWindow.print();
-  };
+      </div>
+    `);
+  });
+
+  invoiceWindow.document.write(`</body></html>`);
+  invoiceWindow.document.close();
+  invoiceWindow.focus();
+  invoiceWindow.print();
+};
+
+
+
 
   // CSV export
   const handleExportCSV = () => {
@@ -306,15 +326,15 @@ export default function AdminOrdersPage() {
           <thead className="bg-gray-100 border-b">
             <tr>
               <th className="p-3">
-                <input
-                  type="checkbox"
-                  checked={selectedOrders.length === paginatedOrders.length}
-                  onChange={(e) => {
-                    if (e.target.checked)
-                      setSelectedOrders(paginatedOrders.map((o) => o._id));
-                    else setSelectedOrders([]);
-                  }}
-                />
+               <input
+  type="checkbox"
+  checked={selectedOrders.length === paginatedOrders.length}
+  onChange={(e) => {
+    if (e.target.checked)
+      setSelectedOrders(paginatedOrders.map((o) => o._id));
+    else setSelectedOrders([]);
+  }}
+/>
               </th>
               <th className="p-3 text-left">Order ID</th>
               <th className="p-3 text-left">Customer</th>

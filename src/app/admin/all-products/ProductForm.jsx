@@ -17,7 +17,7 @@ export default function ProductForm({ initialData = {}, onClose }) {
     type: initialData.type || "",
     gender: initialData.gender || "",
     description: initialData.description || "",
-    stockCount: initialData.stockCount || "",
+    stock: initialData.stock || "",
     colors: initialData.colors?.join(", ") || "",
     models: initialData.models?.join(", ") || "",
     tag: initialData.tag || "",

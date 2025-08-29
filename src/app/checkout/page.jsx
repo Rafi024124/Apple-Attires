@@ -60,6 +60,7 @@ export default function CheckoutPage() {
       return;
     }
 
+  
     const orderData = {
       name,
       phone,
@@ -70,7 +71,8 @@ export default function CheckoutPage() {
       orderDate: new Date().toISOString(),
       insideDhaka: isInsideDhaka,
     };
-
+  console.log(cartItems);
+  
     try {
       setLoading(true);
       const res = await fetch("/api/orders", {
