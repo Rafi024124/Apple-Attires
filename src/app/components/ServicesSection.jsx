@@ -219,7 +219,7 @@ const handleAddToCart = async (item) => {
   return (
     <>
     {/* Category Buttons */}
-<div className="max-w-6xl mx-auto px-4 flex flex-wrap gap-2 mb-4">
+<div className="max-w-7xl mx-auto px-4 flex flex-wrap gap-2 mb-4">
  <CartDrawer
   open={cartDrawerOpen}
   item={cartItem}
@@ -242,7 +242,7 @@ const handleAddToCart = async (item) => {
   ))}
 </div>
       {/* Top Controls */}
-      <div className="max-w-6xl mx-auto px-4 flex flex-wrap items-center gap-3 justify-between mb-4">
+      <div className="max-w-7xl mx-auto px-4 flex flex-wrap items-center gap-3 justify-between mb-4">
         {/* Left group: Search + filter + sort */}
         <div className="flex flex-wrap gap-2 items-center flex-grow min-w-[240px]">
           <input
@@ -376,7 +376,7 @@ const handleAddToCart = async (item) => {
 
       {/* Grid/List view */}
       <div
-        className={`grid gap-4 px-4 max-w-6xl mx-auto ${
+        className={`grid gap-4 px-4 max-w-7xl mx-auto ${
           layoutView.includes('grid')
             ? layoutView === 'grid-1'
               ? 'grid-cols-1'

@@ -6,16 +6,20 @@ import MostViewedSection from "./MostViewedSection/page";
 import IphoneCoversSection from "./IphoneCoverSection/page";
 
 import SamsungCoversSection from "./SamsungCoversSection/page";
+import Banner from "@/components/Banner";
+import Footer from "./components/Footer/Footer";
 
 export default function Home() {
   return (
  <>
+   <Banner></Banner>
    <ServicesSection></ServicesSection>
    <CategoryPage></CategoryPage>
    <NewArrivalsSection></NewArrivalsSection>
    <MostViewedSection></MostViewedSection>
    <IphoneCoversSection></IphoneCoversSection>
    <SamsungCoversSection></SamsungCoversSection>
+   <Footer></Footer>
  </>
   );
 }

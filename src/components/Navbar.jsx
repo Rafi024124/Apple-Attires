@@ -56,7 +56,7 @@ const Navbar = () => {
   });
 
   return (
-    <div className="navbar bg-white shadow-md px-6 max-w-7xl mx-auto rounded-full sticky top-0 z-10 mb-4">
+    <div className="navbar bg-white shadow-md px-6 max-w-7xl mx-auto  sticky top-0 z-10 mb-4">
       {/* Left: mobile menu + logo */}
       <div className="navbar-start">
         <div className="dropdown relative">
@@ -98,7 +98,7 @@ const Navbar = () => {
           <div className="relative w-10 h-10 sm:w-14 sm:h-14 md:w-20 md:h-20 cursor-pointer">
             <Link href="/">
               <Image
-                src="/appleAttiresLogo1.jpg"
+                src="/appleLogo.jpg"
                 alt="Logo"
                 fill
                 className="rounded-full object-cover hover:scale-105 transition-transform duration-300"

@@ -7,6 +7,7 @@ import { CartProvider } from "./context/CartContext";
 import { Sora } from 'next/font/google';
 import Script from 'next/script';
 
+
 const sora = Sora({
   subsets: ['latin'],
   display: 'swap',
@@ -41,6 +42,7 @@ export default function RootLayout({ children }) {
         <CartProvider>
           <NextAuthProvider>
             <Navbar />
+            
             {children}
           </NextAuthProvider>
         </CartProvider>

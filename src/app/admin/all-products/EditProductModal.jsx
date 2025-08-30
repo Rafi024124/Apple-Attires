@@ -78,6 +78,7 @@ export default function EditProductModal({ open, onClose, product ,onUpdated}) {
     name: "",
     price: "",
     discount: "",
+      discountEnd: "",
     brand: "",
     mainCategory: "",
     subCategory: "",
@@ -107,6 +108,7 @@ export default function EditProductModal({ open, onClose, product ,onUpdated}) {
         name: product.name || "",
         price: product.price || "",
         discount: product.discount || "",
+         discountEnd: product.discountEnd ? new Date(product.discountEnd).toISOString().slice(0, 10) : "",
         brand: product.brand || "",
         mainCategory: product.mainCategory || "",
         subCategory: product.subCategory || "",
@@ -276,6 +278,14 @@ export default function EditProductModal({ open, onClose, product ,onUpdated}) {
             onChange={handleChange}
             className="input w-full"
           />
+          <input
+  type="date"
+  name="discountEnd"
+  placeholder="Discount End Date"
+  value={form.discountEnd}
+  onChange={handleChange}
+  className="input w-full"
+/>
         </div>
 
         {/* BRAND */}

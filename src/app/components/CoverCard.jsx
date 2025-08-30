@@ -20,7 +20,12 @@ export default function CoverCard({ item, onViewDetails, onAddToCart }) {
   const [imageError, setImageError] = useState(false);
  
 
-  console.log("stock",stock);
+  const isDiscountActive = useMemo(() => {
+  if (!item.discountEnd || discount <= 0) return false;
+  const now = new Date();
+  const discountEndDate = new Date(item.discountEnd);
+  return now < discountEndDate;
+}, [item.discountEnd, discount]);
   
   // Extract colors
   const uniqueColorsSet = new Set(
@@ -52,8 +57,9 @@ export default function CoverCard({ item, onViewDetails, onAddToCart }) {
     }
     return () => clearInterval(interval);
   }, [hoverImages, isHovering]);
+const discountedPrice = price - price * (discount / 100);
+ const displayedPrice = isDiscountActive ? discountedPrice : price;
 
-  const discountedPrice = discount > 0 ? price - price * (discount / 100) : price;
 
   // ✅ Overall stock logic
 const cartQuantityForItem = useMemo(
@@ -105,6 +111,13 @@ const isQuantityTooHigh = quantity > availablestock;
 
   return (
     <div className="relative group col-span-1 bg-white shadow-sm hover:shadow-lg transition duration-300 ease-in-out cursor-pointer flex flex-col h-[330px]">
+    {isDiscountActive && (
+  <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md z-1 shadow-md">
+    {discount}% OFF
+  </div>
+)}
+     
+     
       {showModelSelector && (
         <div className="absolute inset-0 bg-white/90 backdrop-blur-md z-20 flex flex-col justify-center items-center p-4 rounded-xl">
           <button
@@ -237,16 +250,17 @@ const isQuantityTooHigh = quantity > availablestock;
           {name}
         </h3>
 
-        <p className="text-center mt-1 px-3">
-          {discount > 0 ? (
-            <span className="flex justify-center items-center gap-2">
-              <span className="text-gray-400 line-through text-sm">৳{price}</span>
-              <span className="text-orange-600 font-semibold text-lg">৳{discountedPrice.toFixed(0)}</span>
-            </span>
-          ) : (
-            <span className="text-orange-600 font-semibold text-lg">৳{price}</span>
-          )}
-        </p>
+     <p className="text-center mt-1 px-3">
+  {isDiscountActive ? (
+    <span className="flex justify-center items-center gap-2">
+      <span className="text-gray-400 line-through text-sm">৳{price}</span>
+      <span className="text-orange-600 font-semibold text-lg">৳{displayedPrice.toFixed(0)}</span>
+    </span>
+  ) : (
+    <span className="text-orange-600 font-semibold text-lg">৳{price}</span>
+  )}
+</p>
+
       </div>
 
       <div className="flex md:hidden justify-between px-3 py-2 mt-auto gap-2">
