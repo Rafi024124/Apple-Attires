@@ -1,8 +1,11 @@
 import dbConnect, { collectionNamesObj } from "@/lib/dbConnect";
 import { ObjectId } from "mongodb";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export const GET = async (req, { params }) => {
+  
   try {
     const { id } = await params;
     if (!id) return NextResponse.json({ error: "Missing ID" }, { status: 400 });
@@ -46,6 +49,10 @@ export const GET = async (req, { params }) => {
 };
 
 export async function DELETE(req, { params }) {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
   try {
     const { id } = params;
     const coversCollection = await dbConnect(collectionNamesObj.coversCollection);
@@ -64,6 +71,10 @@ export async function DELETE(req, { params }) {
 }
 
 export async function PATCH(req, { params }) {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
   try {
     const { id } = params;
     const body = await req.json();

@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function GET() {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+   return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  }
   try {
     const response = await axios.get("https://portal.packzy.com/api/v1/get_balance", {
       headers: {

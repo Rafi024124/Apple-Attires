@@ -2,6 +2,7 @@
 import ProtectedRoute from "@/app/components/protectedRoute/page";
 import React, { useState } from "react";
 import Select from "react-select";
+import Swal from "sweetalert2";
 
 const iphoneModels = [
   "iPhone 16 Pro Max", "iPhone 16 Pro", "iPhone 16 Plus", "iPhone 16",
@@ -141,7 +142,15 @@ export default function Page() {
 
     const data = await res.json();
     if (res.ok) {
-      alert("Cover added successfully!");
+      Swal.fire({
+              icon: "success",
+              title: "Deleted!",
+              text: "Product was deleted successfully.",
+              timer: 2000,
+              showConfirmButton: false,
+              background: "#000",
+              color: "#FFB74D",
+            });
     } else {
       console.error(data.error);
       alert("Failed to add cover.");

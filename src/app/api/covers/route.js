@@ -1,6 +1,7 @@
 import dbConnect, { collectionNamesObj } from "@/lib/dbConnect";
 import { NextResponse } from "next/server";
-
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 // Simple in-memory cache store
 const cache = new Map();
 // Cache TTL in milliseconds
@@ -180,6 +181,10 @@ const modelCounts = countsAggregation.map(c => ({
 };
 
 export async function POST(request) {
+   const session = await getServerSession(authOptions);
+    if (!session) {
+     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
   try {
     const body = await request.json();
 

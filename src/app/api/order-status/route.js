@@ -3,8 +3,15 @@ import { NextResponse } from "next/server";
 import axios from "axios";
 import dbConnect, { collectionNamesObj } from "@/lib/dbConnect";
 import { ObjectId } from "mongodb";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function GET(req) {
+  
+   const session = await getServerSession(authOptions);
+  if (!session) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  }
   try {
     const { searchParams } = new URL(req.url);
     const orderId = searchParams.get("orderId");

@@ -20,21 +20,18 @@ const Navbar = () => {
 
   const user = session?.user || null;
 
-  // always-visible links
   const publicLinks = [
     { href: "/", label: "Home" },
     { href: "/IphoneCases", label: "Iphone Cases" },
     { href: "/samsungCases", label: "Samsung Cases" },
   ];
 
-  // admin / protected links (only if logged in)
   const privateLinks = [
     { href: "/admin/add-product", label: "Add Products" },
     { href: "/admin/all-products", label: "All Products" },
     { href: "/admin/orders", label: "Orders" },
   ];
 
-  // combine based on login
   const navLinks = session ? [...publicLinks, ...privateLinks] : publicLinks;
 
   const navItems = navLinks.map(({ href, label }) => {
@@ -44,24 +41,23 @@ const Navbar = () => {
       <li key={href}>
         <Link
           href={href}
-          className={`
-            relative inline-block px-2 py-1 transition duration-300 
-            ${isActive 
-              ? "text-orange-500 font-bold after:w-full" 
-              : "text-orange-300 group"}
-            after:absolute after:left-0 after:-bottom-[2px] after:h-[2px] after:w-0 
-            after:bg-orange-500 after:transition-all after:duration-300 
-            group-hover:after:w-full
-          `}
+          className={`relative inline-block px-3 py-1 font-medium transition-colors duration-300
+            ${isActive ? "text-orange-600" : "text-gray-700 hover:text-orange-500"}`}
         >
           {label}
+          {/* underline effect */}
+          <span
+            className={`absolute left-0 -bottom-[2px] h-[2px] bg-orange-500 transition-all duration-300 ease-out
+              ${isActive ? "w-full" : "w-0 group-hover:w-full"}`}
+          />
         </Link>
       </li>
     );
   });
 
   return (
-    <div className="navbar bg-white text-white shadow-md px-6 max-w-7xl mx-auto rounded-full sticky top-0 z-10 mb-4">
+    <div className="navbar bg-white shadow-md px-6 max-w-7xl mx-auto rounded-full sticky top-0 z-10 mb-4">
+      {/* Left: mobile menu + logo */}
       <div className="navbar-start">
         <div className="dropdown relative">
           <div
@@ -80,16 +76,16 @@ const Navbar = () => {
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: -100, opacity: 0 }}
                 transition={{ type: "tween", duration: 0.3 }}
-                className="absolute left-0 mt-3 p-2 w-48 shadow rounded-box z-[999] bg-black/80 backdrop-blur-md"
+                className="absolute left-0 mt-3 p-3 w-48 shadow rounded-xl z-[999] bg-white border border-orange-100"
               >
                 {user && (
-                  <div className="mt-3 flex gap-2 mb-2 items-center bg-black p-1 rounded-t-2xl">
+                  <div className="mt-2 mb-3 flex gap-2 items-center bg-orange-50 p-2 rounded-lg">
                     <img
                       src={user?.image || "/default-profile.png"}
                       alt="profile"
-                      className="w-10 h-10 rounded-full border-2 border-orange-500 shadow-[0_0_10px_#F97316]"
+                      className="w-10 h-10 rounded-full border-2 border-orange-500 shadow-sm"
                     />
-                    <h1 className="text-[12px] text-white">{user?.name}</h1>
+                    <h1 className="text-sm text-gray-800 font-semibold">{user?.name}</h1>
                   </div>
                 )}
                 {navItems}
@@ -105,7 +101,7 @@ const Navbar = () => {
                 src="/appleAttiresLogo1.jpg"
                 alt="Logo"
                 fill
-                className="rounded-full object-cover"
+                className="rounded-full object-cover hover:scale-105 transition-transform duration-300"
                 priority
               />
             </Link>
@@ -113,13 +109,14 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Center: nav items */}
       <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1 space-x-2">{navItems}</ul>
+        <ul className="flex items-center gap-6">{navItems}</ul>
       </div>
 
-      <div className="navbar-end flex items-center space-x-3">
-        {/* Cart Icon with badge */}
-        <Link href="/cart" className="relative text-2xl text-white hover:text-orange-500 transition">
+      {/* Right: cart + login/logout */}
+      <div className="navbar-end flex items-center space-x-4">
+        <Link href="/cart" className="relative text-2xl text-orange-500 hover:text-orange-600 transition">
           <FiShoppingCart />
           {totalQuantity > 0 && (
             <span className="absolute -top-2 -right-2 bg-red-600 rounded-full text-xs w-5 h-5 flex items-center justify-center font-bold text-white">
@@ -128,17 +125,16 @@ const Navbar = () => {
           )}
         </Link>
 
-        {/* Login / Logout buttons */}
         {status === "authenticated" ? (
           <button
             onClick={() => signOut()}
-            className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded text-white font-semibold transition"
+            className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg text-white font-semibold transition shadow-sm"
           >
             Logout
           </button>
         ) : (
           <Link href="/login">
-            <button className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded text-white font-semibold transition">
+            <button className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg text-white font-semibold transition shadow-sm">
               Login
             </button>
           </Link>

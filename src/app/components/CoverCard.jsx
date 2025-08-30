@@ -202,7 +202,9 @@ const isQuantityTooHigh = quantity > availablestock;
               text-orange-500 rounded-sm p-1 px-2
               flex items-center gap-1 hover:scale-110 transition-transform duration-300 text-lg font-medium"
             >
-              <FaSearch />
+             <div className='bg-orange-500 rounded-full p-1'>
+               <FaSearch  className='text-white'/>
+             </div>
               
             </button>
           </div>
