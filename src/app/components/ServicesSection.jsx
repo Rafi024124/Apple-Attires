@@ -29,7 +29,6 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
   const [debouncedMainCategory, setDebouncedMainCategory] = useState('');
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
 const [cartItem, setCartItem] = useState(null);
-
 const handleAddToCart = async (item) => {
   try {
     // 1️⃣ Fetch the updated item from the server
@@ -56,19 +55,59 @@ const handleAddToCart = async (item) => {
   const abortControllerRef = useRef(null);
   const initialRender = useRef(true);
 
-  useEffect(() => {
-    async function fetchCoverTypes() {
-      try {
-        const res = await fetch('/api/covers/types');
-        if (!res.ok) throw new Error('Failed to fetch cover types');
-        const data = await res.json();
-        setCoverTypes(data.types || []);
-      } catch (error) {
-        console.error(error);
-      }
+useEffect(() => {
+  async function fetchCovers() {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
     }
-    fetchCoverTypes();
-  }, []);
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
+      if (debouncedCoverType) params.append('type', debouncedCoverType);
+      if (debouncedSortOption && debouncedSortOption !== 'default') {
+        params.append('sort', debouncedSortOption);
+      }
+      if (debouncedMainCategory) params.append('mainCategory', debouncedMainCategory);
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+
+      const res = await fetch(`/api/covers?${params.toString()}`, {
+        signal: controller.signal,
+      });
+
+      if (!res.ok) throw new Error('Failed to fetch covers');
+      const data = await res.json();
+      setCovers(data.covers);
+      setTotalCount(data.totalCount);
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        console.error(error);
+        alert('Failed to load covers');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  fetchCovers();
+
+  return () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+  };
+}, [
+  debouncedSearchTerm,
+  debouncedCoverType,
+  debouncedSortOption,
+  debouncedMainCategory,
+  page,
+  limit,
+]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -397,7 +436,7 @@ const handleAddToCart = async (item) => {
             ))}
         {!loading && covers.length === 0 && (
           <div className="col-span-full text-center py-8 text-gray-500">
-            No covers found.
+            No covers found!
           </div>
         )}
       </div>
