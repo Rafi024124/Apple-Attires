@@ -110,7 +110,7 @@ const isQuantityTooHigh = quantity > availablestock;
   };
 
   return (
-    <div className="relative group col-span-1 bg-white shadow-sm hover:shadow-lg transition duration-300 ease-in-out cursor-pointer flex flex-col h-[330px]">
+    <div className="relative group col-span-1 bg-white shadow-sm hover:shadow-lg transition duration-300 ease-in-out cursor-pointer flex flex-col h-[400px]">
     {isDiscountActive && (
   <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md z-1 shadow-md">
     {discount}% OFF
@@ -171,7 +171,7 @@ const isQuantityTooHigh = quantity > availablestock;
         onClick={() => !showModelSelector && router.push(`/covers/${_id}`)}
       >
         <div
-          className="relative w-full h-44 md:h-48 rounded-lg overflow-hidden"
+          className="relative w-full h-60 md:h-72 rounded-lg overflow-hidden"
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
         >
@@ -246,9 +246,12 @@ const isQuantityTooHigh = quantity > availablestock;
           </div>
         )}
 
-        <h3 className="mt-4 text-sm text-center lg:text-base px-3 text-gray-800 leading-tight tracking-wide" title={name}>
-          {name}
-        </h3>
+      <h3
+  className="mt-4 text-sm text-center lg:text-base px-3 text-gray-800 leading-tight tracking-wide overflow-hidden text-ellipsis whitespace-nowrap"
+  title={name}
+>
+  {name}
+</h3>
 
      <p className="text-center mt-1 px-3">
   {isDiscountActive ? (
