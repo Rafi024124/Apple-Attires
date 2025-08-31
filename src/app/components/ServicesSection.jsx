@@ -21,7 +21,7 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
   const [totalCount, setTotalCount] = useState(initialTotalCount);
   const [mainCategory, setMainCategory] = useState('');
 
-  const [layoutView, setLayoutView] = useState('grid-3');
+  const [layoutView, setLayoutView] = useState('grid-4');
 
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [debouncedCoverType, setDebouncedCoverType] = useState('');

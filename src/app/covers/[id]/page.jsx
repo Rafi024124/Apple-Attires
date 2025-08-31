@@ -76,7 +76,7 @@ export default function CoverDetails() {
     if (!cover?.mainCategory || !cover?.subCategory) return;
     try {
       const res = await fetch(
-        `/api/covers?mainCategory=${cover.mainCategory}&subCategory=${cover.subCategory}&limit=4`
+        `/api/covers?mainCategory=${cover.mainCategory}&subCategory=${cover.subCategory}&limit=8`
       );
       if (!res.ok) throw new Error("Failed to fetch related covers");
 

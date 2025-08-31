@@ -1,5 +1,5 @@
 // app/covers/page.jsx
-import ServicesSection from "@/components/ServicesSection";
+import ServicesSection from "../components/ServicesSection";
 
 export const revalidate = 60; // ISR: re-generate page every 60 seconds
 

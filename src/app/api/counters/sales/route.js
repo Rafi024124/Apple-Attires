@@ -1,4 +1,4 @@
-import { connectToDB } from "@/lib/mongodb";
+import { connectToDB } from "../../../../lib/dbConnect";
 import SalesCounter from "@/models/SalesCounter";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -27,6 +27,10 @@ export async function PATCH(req) {
 }
 
 export async function GET(req) {
+   const session = await getServerSession(authOptions);
+  if (!session) {
+   return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  }
   try {
     await connectToDB();
     const counter = await SalesCounter.findById("totalSales");

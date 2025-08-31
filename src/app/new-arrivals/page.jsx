@@ -32,15 +32,10 @@ export default function NewArrivalsSection() {
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">
-            New Arrivals
-          </h2>
-          <Link
-            href="/covers?sort=createdAt_desc"
-            className="text-orange-500 hover:underline text-sm"
-          >
-            View All
-          </Link>
+           <h2 className="text-3xl font-semibold mb-6 border-b-2 border-orange-500 inline-block pb-2 tracking-wide drop-shadow-md">
+        New Arrivals
+      </h2>
+          
         </div>
 
         {/* Loading State */}

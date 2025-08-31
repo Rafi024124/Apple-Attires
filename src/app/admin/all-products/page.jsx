@@ -129,7 +129,7 @@ export default function AdminProductsPage() {
 
   return (
     <ProtectedRoute>
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-6 min-h-screen">
       {/* Page Title */}
       <h1 className="text-3xl font-bold mb-6 text-gray-800">
         Admin - All Products
@@ -239,7 +239,7 @@ export default function AdminProductsPage() {
                       {prod.name}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-700">
-                      ${prod.price}
+                      ৳{prod.price}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-700">
                       {prod.stock}

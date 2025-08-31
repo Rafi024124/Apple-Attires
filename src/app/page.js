@@ -19,7 +19,7 @@ export default function Home() {
    <MostViewedSection></MostViewedSection>
    <IphoneCoversSection></IphoneCoversSection>
    <SamsungCoversSection></SamsungCoversSection>
-   <Footer></Footer>
+ 
  </>
   );
 }

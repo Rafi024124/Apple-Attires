@@ -200,81 +200,99 @@ export default function Page() {
   };
 
   return (
-    <ProtectedRoute>
-      <div className="max-w-3xl mx-auto py-12 px-6">
-        <h1 className="text-3xl font-bold mb-6">Add New Product</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
+  <ProtectedRoute>
+    <div className="max-w-4xl mx-auto py-12 px-6">
+      <div className="bg-white dark:bg-gray-900 shadow-lg rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+        <h1 className="text-3xl font-bold mb-8 text-gray-800 dark:text-gray-100">
+          Add New Product
+        </h1>
+
+        <form onSubmit={handleSubmit} className="space-y-8">
           {/* NAME */}
-          <label className="block">
-            Product Name <span className="text-red-500">*</span>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Product Name <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               name="name"
               value={form.name}
               onChange={handleChange}
-              className="input w-full"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-gray-800 dark:text-white"
               required
             />
-          </label>
+          </div>
 
           {/* PRICE & DISCOUNT */}
-          <div className="flex gap-4">
-            <label className="w-full">
-              Price <span className="text-red-500">*</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Price <span className="text-red-500">*</span>
+              </label>
               <input
                 type="number"
                 name="price"
                 value={form.price}
                 onChange={handleChange}
-                className="input w-full"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
                 required
               />
-            </label>
-            <label className="w-full">
-              Discount (%)
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Discount (%)
+              </label>
               <input
                 type="number"
                 name="discount"
                 value={form.discount}
                 onChange={handleChange}
-                className="input w-full"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
               />
-            </label>
+            </div>
           </div>
-          <div className="flex gap-4">
-  
 
-  <label className="w-full">
-    Discount End
-    <input
-      type="datetime-local"
-      name="discountEnd"
-      value={form.discountEnd}
-      onChange={handleChange}
-      className="input w-full"
-      placeholder="Optional"
-    />
-  </label>
-</div>
+          {/* DISCOUNT END */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Discount End
+            </label>
+            <input
+              type="datetime-local"
+              name="discountEnd"
+              value={form.discountEnd}
+              onChange={handleChange}
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
+              placeholder="Optional"
+            />
+          </div>
 
           {/* BRAND */}
-          <input
-            type="text"
-            name="brand"
-            placeholder="Brand (optional)"
-            value={form.brand}
-            onChange={handleChange}
-            className="input w-full"
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Brand (optional)
+            </label>
+            <input
+              type="text"
+              name="brand"
+              value={form.brand}
+              onChange={handleChange}
+              placeholder="e.g. Spigen, Apple"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
+            />
+          </div>
 
           {/* MAIN CATEGORY */}
-          <label className="block">
-            Main Category <span className="text-red-500">*</span>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Main Category <span className="text-red-500">*</span>
+            </label>
             <select
               name="mainCategory"
               value={form.mainCategory}
               onChange={handleChange}
-              className="input w-full"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
               required
             >
               <option value="">Select Main Category</option>
@@ -284,11 +302,13 @@ export default function Page() {
               <option value="charger">Charger</option>
               <option value="accessories">Accessories</option>
             </select>
-          </label>
+          </div>
 
-          {/* TYPE */}
-          <label className="block">
-            Cover Type
+          {/* COVER TYPE */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Cover Type
+            </label>
             <Select
               options={coverTypes}
               value={coverTypes.find((opt) => opt.value === form.type) || null}
@@ -298,16 +318,18 @@ export default function Page() {
               className="w-full"
               placeholder="Choose type (Silicone, Transparent, MagSafe, etc.)"
             />
-          </label>
+          </div>
 
           {/* SUB CATEGORY */}
-          <label className="block">
-            Sub Category <span className="text-red-500">*</span>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Sub Category <span className="text-red-500">*</span>
+            </label>
             <select
               name="subCategory"
               value={form.subCategory}
               onChange={handleChange}
-              className="input w-full"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
               required
             >
               <option value="">Select Sub Category</option>
@@ -315,12 +337,12 @@ export default function Page() {
               <option value="samsung">Samsung</option>
               <option value="others">Others</option>
             </select>
-          </label>
+          </div>
 
           {/* MODELS */}
           {form.subCategory === "iphone" && (
             <Select
-            required
+              required
               options={iphoneModels}
               value={selectedModelsOptions}
               onChange={handleModelsChange}
@@ -342,34 +364,34 @@ export default function Page() {
 
           {/* IMAGE UPLOADS */}
           <div>
-            <label className="block mb-1 font-semibold">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
               Images <span className="text-red-500">*</span>
             </label>
-            <div className="flex gap-2 flex-wrap mb-2">
+            <div className="flex gap-3 flex-wrap mb-3">
               {form.images.map((img, index) => (
                 <div key={index} className="relative group">
                   <img
                     src={img.url}
                     alt="Uploaded"
-                    className="w-20 h-20 object-cover rounded"
+                    className="w-24 h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm"
                   />
                   {img.color && (
-                    <div className="absolute bottom-0 left-0 bg-black bg-opacity-50 text-white text-xs px-1 rounded-br">
+                    <div className="absolute bottom-0 left-0 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded-tr-md">
                       {img.color}
                     </div>
                   )}
-                  {/* ❌ delete button */}
                   <button
                     type="button"
                     onClick={() => removeImage(index)}
-                    className="absolute top-0 right-0 bg-red-600 text-white p-1 rounded-full text-xs opacity-80 hover:opacity-100"
+                    className="absolute -top-2 -right-2 bg-red-600 text-white p-1 rounded-full shadow-md hover:bg-red-700 transition"
                   >
                     <FaTimes />
                   </button>
                 </div>
               ))}
             </div>
-            <div className="flex items-center gap-2">
+
+            <div className="flex items-center gap-3">
               <select
                 value={colorForImage?.value || ""}
                 onChange={(e) => {
@@ -378,7 +400,7 @@ export default function Page() {
                   );
                   setColorForImage(selected || null);
                 }}
-                className="input w-full"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
               >
                 <option value="">Select Color (optional)</option>
                 {basicColors.map(({ value, label }) => (
@@ -390,64 +412,85 @@ export default function Page() {
               <button
                 type="button"
                 onClick={handleImageUpload}
-                className="text-blue-600 underline text-sm whitespace-nowrap"
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition"
               >
-                + Upload Image
+                + Upload
               </button>
             </div>
           </div>
 
           {/* DESCRIPTION */}
-          <textarea
-            name="description"
-            placeholder="Description (optional)"
-            value={form.description}
-            onChange={handleChange}
-            className="input h-24 w-full"
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Description
+            </label>
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              placeholder="Enter product details..."
+              className="w-full h-28 rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-3 focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
+            />
+          </div>
 
           {/* STOCK */}
-          <label className="block">
-            Overall Stock <span className="text-red-500">*</span>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Overall Stock <span className="text-red-500">*</span>
+            </label>
             <input
               type="number"
               name="stock"
               value={form.stock}
               onChange={handleChange}
-              className="input w-full"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
               required
             />
-          </label>
+          </div>
 
           {/* TAGS */}
-          <Select
-            options={predefinedTags}
-            value={predefinedTags.find((opt) => opt.value === form.tag) || null}
-            onChange={(selected) =>
-              setForm((prev) => ({ ...prev, tag: selected?.value || "" }))
-            }
-            className="w-full"
-            placeholder="Select a Tag (optional)"
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Tag (optional)
+            </label>
+            <Select
+              options={predefinedTags}
+              value={predefinedTags.find((opt) => opt.value === form.tag) || null}
+              onChange={(selected) =>
+                setForm((prev) => ({ ...prev, tag: selected?.value || "" }))
+              }
+              className="w-full"
+              placeholder="Select a Tag"
+            />
+          </div>
 
           {/* SLUG */}
-          <input
-            type="text"
-            name="slug"
-            value={form.slug}
-            readOnly
-            className="input text-gray-400 w-full"
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Slug
+            </label>
+            <input
+              type="text"
+              name="slug"
+              value={form.slug}
+              readOnly
+              className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+            />
+          </div>
 
           {/* SUBMIT */}
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-          >
-            Submit Product
-          </button>
+          <div className="pt-4">
+            <button
+              type="submit"
+              className="w-full md:w-auto px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 shadow-md transition"
+            >
+              Submit Product
+            </button>
+          </div>
         </form>
       </div>
-    </ProtectedRoute>
-  );
+    </div>
+  </ProtectedRoute>
+);
+
 }
