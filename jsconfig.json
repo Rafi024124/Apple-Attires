@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",          // Set base directory (root of your project)
+    "baseUrl": "src",          // base directory is src
     "paths": {
-      "@/*": ["src/*"]       // Maps '@' to 'src' folder
+      "@/*": ["*"]             // '@/' now points to src/*
     }
   }
 }
