@@ -110,7 +110,7 @@ const isQuantityTooHigh = quantity > availablestock;
   };
 
   return (
-    <div className="relative group col-span-1 bg-white shadow-sm hover:shadow-lg transition duration-300 ease-in-out cursor-pointer flex flex-col h-[400px]">
+    <div className="relative group col-span-1 p-2 bg-white shadow-sm hover:shadow-lg transition duration-300 ease-in-out cursor-pointer flex flex-col h-[400px]">
     {isDiscountActive && (
   <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md z-1 shadow-md">
     {discount}% OFF

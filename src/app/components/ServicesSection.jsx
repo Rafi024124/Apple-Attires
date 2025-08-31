@@ -361,33 +361,34 @@ useEffect(() => {
           </div>
 
           {/* Mobile Layout Buttons */}
-          <div className="flex sm:hidden items-center gap-1 border border-gray-300 rounded overflow-hidden select-none">
-            {['grid-1', 'grid-2', 'list'].map((layout) => (
-              <button
-                key={layout}
-                onClick={() => setLayoutView(layout)}
-                className={`px-3 py-1 text-sm ${
-                  layoutView === layout ? activeButtonClasses : inactiveButtonClasses
-                }`}
-                title={layout}
-              >
-                {layout === 'list' ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 mx-auto"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                ) : (
-                  layout.split('-')[1]
-                )}
-              </button>
-            ))}
-          </div>
+         <div className="flex sm:hidden items-center gap-1 border border-gray-300 rounded overflow-hidden select-none">
+    <button
+      key="grid-1"
+      onClick={() => setLayoutView('grid-1')}
+      className={`px-3 py-1 text-sm ${layoutView === 'grid-1' ? activeButtonClasses : inactiveButtonClasses}`}
+      title="1-column"
+    >
+      1
+    </button>
+    <button
+      key="list"
+      onClick={() => setLayoutView('list')}
+      className={`px-3 py-1 text-sm ${layoutView === 'list' ? activeButtonClasses : inactiveButtonClasses}`}
+      title="List"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-4 w-4 mx-auto"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+  </div>
+
 
           {/* Show Limit Dropdown */}
           <div className="flex items-center gap-1">
