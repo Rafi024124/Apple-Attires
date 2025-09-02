@@ -110,12 +110,13 @@ const isQuantityTooHigh = quantity > availablestock;
   };
 
   return (
-    <div className="relative group col-span-1 p-2 bg-white shadow-sm hover:shadow-lg transition duration-300 ease-in-out cursor-pointer flex flex-col h-[400px]">
+    <div className="relative group col-span-1 p-2 bg-white shadow-sm hover:shadow-lg transition duration-300 ease-in-out cursor-pointer flex flex-col h-[500px] lg:h-[410px] md:h-[410px] ">
     {isDiscountActive && (
   <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md z-1 shadow-md">
     {discount}% OFF
   </div>
 )}
+
      
      
       {showModelSelector && (
@@ -171,7 +172,7 @@ const isQuantityTooHigh = quantity > availablestock;
         onClick={() => !showModelSelector && router.push(`/covers/${_id}`)}
       >
         <div
-          className="relative w-full h-60 md:h-72 rounded-lg overflow-hidden"
+          className="relative w-full h-80 md:h-72 rounded-lg overflow-hidden"
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
         >
@@ -180,7 +181,7 @@ const isQuantityTooHigh = quantity > availablestock;
               src={isHovering && hoverImages.length > 0 ? hoverImages[hoverIndex].url : currentImage}
               alt={name}
               fill
-              className="object-contain"
+              className="object-cover"
               unoptimized
               sizes="(max-width: 768px) 100vw, 314px"
               onError={() => setImageError(true)}

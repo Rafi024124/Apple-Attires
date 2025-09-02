@@ -244,29 +244,35 @@ export default function AdminProductsPage() {
                     <td className="px-4 py-3 text-sm text-gray-700">
                       {prod.stock}
                     </td>
-                    <td className="px-4 py-3 text-center space-x-3">
-                      <button
-                        onClick={() => setViewingProduct(prod)}
-                        className="text-blue-600 hover:text-blue-800"
-                        title="View Details"
-                      >
-                        👁️
-                      </button>
-                      <button
-                        onClick={() => setEditingProduct(prod)}
-                        className="text-green-600 hover:text-green-800"
-                        title="Update Product"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        onClick={() => handleDelete(prod._id)}
-                        className="text-red-600 hover:text-red-800"
-                        title="Delete Product"
-                      >
-                        🗑️
-                      </button>
-                    </td>
+                    <td className="px-4 py-3 text-center flex justify-center gap-2">
+  {/* View Details */}
+  <button
+    onClick={() => setViewingProduct(prod)}
+    title="View Details"
+    className="w-10 h-10 flex items-center justify-center bg-blue-100 rounded-md hover:bg-blue-200 transition-colors"
+  >
+    <span className="text-blue-600 text-lg">👁️</span>
+  </button>
+
+  {/* Edit Product */}
+  <button
+    onClick={() => setEditingProduct(prod)}
+    title="Update Product"
+    className="w-10 h-10 flex items-center justify-center bg-green-100 rounded-md hover:bg-green-200 transition-colors"
+  >
+    <span className="text-green-600 text-lg">✏️</span>
+  </button>
+
+  {/* Delete Product */}
+  <button
+    onClick={() => handleDelete(prod._id)}
+    title="Delete Product"
+    className="w-10 h-10 flex items-center justify-center bg-red-100 rounded-md hover:bg-red-200 transition-colors"
+  >
+    <span className="text-red-600 text-lg">🗑️</span>
+  </button>
+</td>
+
                   </tr>
                 );
               })

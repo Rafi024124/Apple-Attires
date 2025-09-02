@@ -346,12 +346,7 @@ export default function CoverDetails() {
           </button>
 
           <hr className="my-4" />
-          <div><strong>Type:</strong> {type || "N/A"}</div>
-          <div><strong>Gender:</strong> {gender || "N/A"}</div>
-          <div><strong>Status:</strong> {isAvailable ? "Available" : "Out of Stock"}</div>
-          <div><strong>Featured:</strong> {isFeatured ? "Yes" : "No"}</div>
-          <div><strong>Created At:</strong> {new Date(createdAt).toLocaleDateString()}</div>
-          <div><strong>Stock:</strong> {stock || 0}</div>
+          
         </div>
       </div>
 
@@ -359,7 +354,7 @@ export default function CoverDetails() {
       {related.length > 0 && (
         <div className="mt-12">
           <h2 className="text-2xl font-semibold mb-6 text-gray-800">Related Products</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {related.map((item) => (
               <CoverCard
                 key={item._id}

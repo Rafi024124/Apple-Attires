@@ -15,7 +15,7 @@ export default function Banner() {
   }, []);
 
   return (
-    <div className="relative w-full h-[500px] mb-4 overflow-hidden bg-black max-w-7xl mx-auto">
+    <div className="relative w-full lg:h-[500px] h-[200px] mb-4 overflow-hidden bg-black max-w-7xl mx-auto">
       {images.map((src, index) => (
         <div
           key={index}
@@ -28,7 +28,7 @@ export default function Banner() {
             alt={`Banner ${index + 1}`}
             fill
             priority
-            className="object-cover"
+            className="object-container"
           />
         </div>
       ))}

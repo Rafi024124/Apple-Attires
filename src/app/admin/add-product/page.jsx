@@ -99,6 +99,7 @@ export default function Page() {
 
   const [form, setForm] = useState(initialForm);
   const [colorForImage, setColorForImage] = useState(null);
+ const [tempModels, setTempModels] = useState([]);
 
   const handleImageUpload = async () => {
     if (!window.cloudinary) {
@@ -340,17 +341,51 @@ export default function Page() {
           </div>
 
           {/* MODELS */}
-          {form.subCategory === "iphone" && (
-            <Select
-              required
-              options={iphoneModels}
-              value={selectedModelsOptions}
-              onChange={handleModelsChange}
-              isMulti
-              className="w-full"
-              placeholder="Select iPhone Model(s)"
-            />
-          )}
+          {/* MODELS */}
+{(form.subCategory === "iphone" || form.subCategory === "samsung") && (
+  <div className="p-4 border border-gray-300 dark:border-gray-600 rounded-lg mb-4">
+    <p className="font-medium text-gray-700 dark:text-gray-300 mb-2">
+      Select Models:
+    </p>
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto">
+      {(form.subCategory === "iphone" ? iphoneModels : samsungModels).map((model) => (
+        <label
+          key={model.value}
+          className="flex items-center gap-2 text-gray-800 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 p-2 rounded cursor-pointer transition"
+        >
+          <input
+            type="checkbox"
+            checked={tempModels.includes(model.value)}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setTempModels((prev) => [...prev, model.value]);
+              } else {
+                setTempModels((prev) => prev.filter((v) => v !== model.value));
+              }
+            }}
+            className="accent-blue-500"
+          />
+          {model.label}
+        </label>
+      ))}
+    </div>
+
+    <button
+      type="button"
+      onClick={() => setForm((prev) => ({ ...prev, models: tempModels }))}
+      className="mt-3 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+    >
+      Add Selected Models
+    </button>
+
+    {form.models.length > 0 && (
+      <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+        Selected Models: {form.models.join(", ")}
+      </p>
+    )}
+  </div>
+)}
+
           {form.subCategory === "samsung" && (
             <Select
               options={samsungModels}
