@@ -120,7 +120,7 @@ const isQuantityTooHigh = quantity > availablestock;
      
      
       {showModelSelector && (
-        <div className="absolute inset-0 bg-white/90 backdrop-blur-md z-20 flex flex-col justify-center items-center p-4 rounded-xl">
+        <div className="absolute inset-0 bg-white/90 text-black backdrop-blur-md z-20 flex flex-col justify-center items-center p-4 rounded-xl">
           <button
             className="absolute top-2 right-2 text-gray-600 hover:text-red-500"
             onClick={() => setShowModelSelector(false)}
@@ -142,14 +142,16 @@ const isQuantityTooHigh = quantity > availablestock;
             ))}
           </select>
 
-          <div className="flex items-center gap-3 mb-3">
-            <button onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="px-2 py-1 border rounded">
+          <div className="flex items-center gap-3 mb-3 ">
+            <button 
+            
+            onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="px-2 py-1 border rounded bg-orange-500">
               <FaMinus />
             </button>
             <span className="font-medium text-sm">{quantity}</span>
             <button
               onClick={() => setQuantity((q) => Math.min(availablestock, q + 1))}
-              className="px-2 py-1 border rounded"
+              className="px-2 py-1 border rounded bg-orange-500"
             >
               <FaPlus />
             </button>
@@ -208,10 +210,7 @@ const isQuantityTooHigh = quantity > availablestock;
             </button>
 
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onViewDetails) onViewDetails(_id);
-              }}
+              
               className="
               text-orange-500 rounded-sm p-1 px-2
               flex items-center gap-1 hover:scale-110 transition-transform duration-300 text-lg font-medium"

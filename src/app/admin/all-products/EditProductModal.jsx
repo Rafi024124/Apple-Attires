@@ -207,24 +207,26 @@ export default function EditProductModal({ open, onClose, product, onUpdated }) 
   };
 
   return (
-    <SimpleModal open={open} onClose={handleCancel} title="Edit Product">
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <SimpleModal 
+    
+    open={open} onClose={handleCancel} title="Edit Product">
+      <form onSubmit={handleSubmit} className="space-y-4 text-black bg-white">
 
         {/* NAME */}
-        <input type="text" name="name" placeholder="Product Name" value={form.name} onChange={handleChange} className="input w-full" required />
+        <input type="text" name="name" placeholder="Product Name" value={form.name} onChange={handleChange} className="input w-full bg-white border-orange-400 border-2 " required />
 
         {/* PRICE & DISCOUNT */}
-        <div className="flex gap-4">
-          <input type="number" name="price" placeholder="Price" value={form.price} onChange={handleChange} className="input w-full" required />
-          <input type="number" name="discount" placeholder="Discount (%)" value={form.discount} onChange={handleChange} className="input w-full" />
-          <input type="date" name="discountEnd" placeholder="Discount End Date" value={form.discountEnd} onChange={handleChange} className="input w-full" />
+        <div className="flex gap-4 bg-white">
+          <input type="number" name="price" placeholder="Price" value={form.price} onChange={handleChange} className="input w-full bg-white border-orange-400 border-2 " required />
+          <input type="number" name="discount" placeholder="Discount (%)" value={form.discount} onChange={handleChange} className="input w-full bg-white border-orange-400 border-2 " />
+          <input type="date" name="discountEnd" placeholder="Discount End Date" value={form.discountEnd} onChange={handleChange} className="input w-full bg-white border-orange-400 border-2 " />
         </div>
 
         {/* BRAND */}
-        <input type="text" name="brand" placeholder="Brand" value={form.brand} onChange={handleChange} className="input w-full" />
+        <input type="text" name="brand" placeholder="Brand" value={form.brand} onChange={handleChange} className="input w-full bg-white border-orange-400 border-2 " />
 
         {/* MAIN CATEGORY */}
-        <select name="mainCategory" value={form.mainCategory} onChange={handleChange} className="input w-full">
+        <select name="mainCategory" value={form.mainCategory} onChange={handleChange} className="input w-full bg-white border-orange-400 border-2 ">
           <option value="">Select Main Category</option>
           <option value="covers">Covers</option>
           <option value="protectors">Screen Protectors</option>
@@ -234,16 +236,16 @@ export default function EditProductModal({ open, onClose, product, onUpdated }) 
         </select>
 
         {/* TYPE & GENDER */}
-        <div className="flex gap-4">
-          <input type="text" name="type" placeholder="Type" value={form.type} onChange={handleChange} className="input w-full" />
-          <select name="gender" value={form.gender} onChange={handleChange} className="input w-full">
+        <div className="flex gap-4 ">
+          <input type="text" name="type" placeholder="Type" value={form.type} onChange={handleChange} className="input w-full bg-white border-orange-400 border-2 " />
+          <select name="gender" value={form.gender} onChange={handleChange} className="input w-full bg-white border-orange-400 border-2 ">
             <option value="Unisex">Unisex</option>
             <option value="Female">Female</option>
           </select>
         </div>
 
         {/* SUB CATEGORY */}
-        <select name="subCategory" value={form.subCategory} onChange={handleChange} className="input w-full">
+        <select name="subCategory" value={form.subCategory} onChange={handleChange} className="input w-full bg-white border-orange-400 border-2 ">
           <option value="">Select Sub Category</option>
           <option value="iphone">iPhone</option>
           <option value="samsung">Samsung</option>
@@ -257,7 +259,7 @@ export default function EditProductModal({ open, onClose, product, onUpdated }) 
             options={getModelsOptions()}
             value={selectedModels}
             onChange={handleModelsChange}
-            className="w-full"
+            className="w-full bg-white border-orange-400 border-2 "
             placeholder="Select model(s)..."
             closeMenuOnSelect={false}
           />
@@ -278,26 +280,26 @@ export default function EditProductModal({ open, onClose, product, onUpdated }) 
             ))}
           </div>
           <div className="flex gap-2 items-center">
-            <select value={colorForImage?.value || ""} onChange={(e) => setColorForImage(basicColors.find(c => c.value === e.target.value) || null)} className="input w-full">
+            <select value={colorForImage?.value || ""} onChange={(e) => setColorForImage(basicColors.find(c => c.value === e.target.value) || null)} className="input w-full bg-white border-orange-400 border-2 ">
               <option value="">Select Color (optional)</option>
               {basicColors.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
             </select>
-            <button type="button" onClick={handleImageUpload} className="text-blue-600 underline text-sm">+ Upload Image</button>
+            <button type="button" onClick={handleImageUpload} className="p-2 rounded-2xl text-white bg-blue-500 border-2  underline text-sm">+ Upload Image</button>
           </div>
         </div>
 
         {/* DESCRIPTION */}
-        <textarea name="description" placeholder="Description" value={form.description} onChange={handleChange} className="input h-24 w-full" />
+        <textarea name="description" placeholder="Description" value={form.description} onChange={handleChange} className="input h-24 w-full bg-white border-orange-400 border-2 " />
 
         {/* STOCK */}
-        <input type="number" name="stock" placeholder="Overall Stock" value={form.stock} onChange={handleChange} className="input w-full" />
+        <input type="number" name="stock" placeholder="Overall Stock" value={form.stock} onChange={handleChange} className="input w-full bg-white border-orange-400 border-2 " />
 
         {/* TAG */}
         <Select
           options={tagOptions}
           value={form.tag}
           onChange={handleTagChange}
-          className="w-full"
+          className="w-full bg-white border-orange-400 border-2 "
           placeholder="Select Tag"
         />
 
@@ -312,11 +314,11 @@ export default function EditProductModal({ open, onClose, product, onUpdated }) 
         </div>
 
         {/* SLUG */}
-        <input type="text" name="slug" value={form.slug} readOnly className="input text-gray-400 w-full" />
+        <input type="text" name="slug" value={form.slug} readOnly className="input text-gray-400 w-full bg-white border-orange-400 border-2 " />
 
         {/* BUTTONS */}
         <div className="flex justify-end gap-3">
-          <button type="button" onClick={handleCancel} className="px-4 py-2 rounded border border-gray-300">Cancel</button>
+          <button type="button" onClick={handleCancel} className="px-4 bg-red-600 py-2 rounded border border-gray-300">Cancel</button>
           <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Update Product</button>
         </div>
       </form>

@@ -8,7 +8,7 @@ export const GET = async () => {
 
     // Fetch the latest 10 products based on createdAt
     const newArrivals = await coversCollection
-      .find({ isAvailable: true }) // Optional: only available items
+      .find() // Optional: only available items
       .sort({ createdAt: -1 })
       .limit(10)
       .toArray();

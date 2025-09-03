@@ -307,7 +307,7 @@ useEffect(() => {
             </select>
           )}
 
-          <label htmlFor="sortBy" className="text-sm font-semibold ml-2 hidden sm:inline">
+          <label htmlFor="sortBy" className="text-sm font-semibold ml-2 text-black hidden sm:inline">
             Sort By:
           </label>
           <select
@@ -392,7 +392,7 @@ useEffect(() => {
 
           {/* Show Limit Dropdown */}
           <div className="flex items-center gap-1">
-            <label htmlFor="limitSelect" className="text-sm font-semibold mr-1 hidden sm:inline">
+            <label htmlFor="limitSelect" className="text-sm text-black font-semibold mr-1 hidden sm:inline">
               Show:
             </label>
             <select
@@ -402,7 +402,7 @@ useEffect(() => {
                 setLimit(parseInt(e.target.value, 10));
                 setPage(1);
               }}
-              className="px-2 py-1 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="px-2 py-1 text-black rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               {[10, 20, 25, 50, 100].map((num) => (
                 <option key={num} value={num}>

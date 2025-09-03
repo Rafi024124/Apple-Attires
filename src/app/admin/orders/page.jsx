@@ -247,7 +247,7 @@ const handleBatchPrint = (ids) => {
 
   return (
    <ProtectedRoute>
-     <div className="max-w-7xl mx-auto p-6">
+     <div className="max-w-7xl mx-auto p-6 text-black">
       <h1 className="text-3xl font-bold mb-6">All Orders</h1>
 
       {/* Batch Actions */}
@@ -454,7 +454,7 @@ function OrderRow({
   }, [order]);
 
   return (
-    <tr className="border-b">
+    <tr className="border-b text-black">
       <td className="p-3">
         <input
           type="checkbox"
@@ -614,7 +614,7 @@ function OrderDetailsModal({ order, setShowModal }) {
   }, [order.phone]);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black  bg-opacity-40 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full relative overflow-y-auto max-h-[90vh]">
         <h2 className="text-xl font-bold mb-4">Order Details</h2>
 

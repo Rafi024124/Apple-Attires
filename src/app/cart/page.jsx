@@ -31,7 +31,7 @@ export default function CartPage() {
 
   if (cartItems.length === 0) {
     return (
-      <div className="max-w-4xl mx-auto p-6 text-center min-h-screen">
+      <div className="max-w-4xl mx-auto p-6 text-center min-h-screen ">
         <h2 className="text-2xl font-semibold mb-4">Your cart is empty.</h2>
         <p>Add some items to get started!</p>
         <button
@@ -51,7 +51,7 @@ export default function CartPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 text-black min-h-screen">
       <h1 className="text-3xl font-bold mb-8">
         Your Cart ({totalQuantity} {totalQuantity === 1 ? "item" : "items"})
       </h1>

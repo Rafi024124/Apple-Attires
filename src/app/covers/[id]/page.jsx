@@ -185,7 +185,7 @@ export default function CoverDetails() {
   const isQuantityTooHigh = quantity > availableStock;
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-6 text-black">
       <CartDrawer open={showCartDrawer} onClose={() => setShowCartDrawer(false)} />
 
       {showPreview && (
@@ -298,7 +298,7 @@ export default function CoverDetails() {
 
           <div>
             <strong>Color:</strong>
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className="flex flex-wrap gap-2 mt-2 ">
               {uniqueColors.map((color) => {
                 const idx = images.findIndex(img => color === "default" ? !img.color : img.color === color);
                 return (
@@ -308,10 +308,10 @@ export default function CoverDetails() {
                       setSelectedColor(color === "default" ? null : color);
                       if (idx >= 0) setMainIndex(idx);
                     }}
-                    className={`px-4 py-1 rounded-full border-2 font-semibold ${
+                    className={`px-4 py-1  rounded-full border-2 font-semibold text-black ${
                       (selectedColor === color) || (color === "default" && selectedColor === null)
                         ? "border-orange-500 bg-orange-100 dark:bg-orange-700 text-orange-800 dark:text-white"
-                        : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        : "border-gray-300 dark:border-gray-600 text-black hover:bg-gray-100 dark:hover:bg-gray-700"
                     }`}
                     style={{ textTransform: "capitalize" }}
                   >
@@ -323,7 +323,7 @@ export default function CoverDetails() {
           </div>
 
           {cover.description && (
-            <div className="mt-4">
+            <div className="mt-4 text-black">
               <strong>Description:</strong>
               <p className="mt-1 text-gray-700">{cover.description}</p>
             </div>
