@@ -24,7 +24,7 @@ export default function CheckoutPage() {
 
   if (cartItems.length === 0) {
     return (
-      <div className="max-w-4xl mx-auto p-6 text-center">
+      <div className="max-w-4xl mx-auto p-6 text-center min-h-screen">
         <h2 className="text-2xl font-semibold mb-4">Your cart is empty.</h2>
         <p>Add some items to get started!</p>
       </div>

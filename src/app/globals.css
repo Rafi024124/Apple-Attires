@@ -8,6 +8,9 @@
   --dark-brown: #663817;
   --soft-white: #FAFAFA;
 }
+body{
+  background-color: white;
+}
 
 /* 🛠️ Optional Utility Classes (if you want to use them like Tailwind) */
 .bg-beige {

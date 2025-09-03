@@ -39,7 +39,7 @@ export default function IphoneCoversPage() {
     <div className="px-4 py-6 md:flex md:gap-6">
       
       {/* Sidebar for desktop / Horizontal list for mobile */}
-      <aside className="md:w-60 md:shrink-0">
+      <aside className="md:w-60 md:shrink-0 bg-gray-100 text-black">
         <h2 className="font-bold text-lg mb-4 md:block hidden">iPhone Models</h2>
 
         {/* Mobile: horizontal scroll */}
@@ -78,6 +78,17 @@ export default function IphoneCoversPage() {
 
         {/* Desktop: vertical list */}
         <ul className="space-y-2 hidden md:block">
+          <li>
+            <button
+              className={`
+                text-left w-full px-3 py-1 rounded hover:bg-gray-200
+                ${selectedModel === '' ? 'bg-gray-300 font-semibold' : ''}
+              `}
+              onClick={() => setSelectedModel('')}
+            >
+              All Models
+            </button>
+          </li>
           {iphoneModels.map(model => {
             const countObj = modelCounts.find(m => m.model === model.value);
             const count = countObj ? countObj.count : 0;
@@ -92,22 +103,12 @@ export default function IphoneCoversPage() {
                   `}
                   onClick={() => setSelectedModel(model.value)}
                 >
-                  {model.label} <span className="text-orange-400">({count})</span>
+                  {model.label} <span>({count})</span>
                 </button>
               </li>
             );
           })}
-          <li>
-            <button
-              className={`
-                text-left w-full px-3 py-1 rounded hover:bg-gray-200
-                ${selectedModel === '' ? 'bg-gray-300 font-semibold' : ''}
-              `}
-              onClick={() => setSelectedModel('')}
-            >
-              All Models
-            </button>
-          </li>
+          
         </ul>
       </aside>
 

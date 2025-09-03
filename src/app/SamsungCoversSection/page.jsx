@@ -22,7 +22,7 @@ export default function SamsungCoversSection() {
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="flex justify-between items-center mb-6">
-           <h2 className="text-3xl font-semibold mb-6 border-b-2 border-orange-500 inline-block pb-2 tracking-wide drop-shadow-md">
+           <h2 className="text-3xl font-semibold mb-6 text-black border-b-2 border-orange-500 inline-block pb-2 tracking-wide drop-shadow-md">
        Samsung Cases
       </h2>
           

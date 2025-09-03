@@ -32,7 +32,7 @@ export default function NewArrivalsSection() {
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="flex justify-between items-center mb-6">
-           <h2 className="text-3xl font-semibold mb-6 border-b-2 border-orange-500 inline-block pb-2 tracking-wide drop-shadow-md">
+           <h2 className="text-3xl text-black font-semibold mb-6 border-b-2 border-orange-500 inline-block pb-2 tracking-wide drop-shadow-md">
         New Arrivals
       </h2>
           

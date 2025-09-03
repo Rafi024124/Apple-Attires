@@ -23,7 +23,7 @@ export default function CategoryPage() {
 
   return (
     <div className=" px-4 py-8 max-w-6xl mx-auto text-center">
-      <h1 className="text-3xl font-bold mb-8 text-gray-800">Pick Your Device</h1>
+      <h1 className="text-3xl font-bold mb-8 text-orange-500">Pick Your Device</h1>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6 justify-center mb-10">
         {categories.map(({ name, image}) => (

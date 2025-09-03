@@ -39,11 +39,11 @@ export default function SamsungCoversPage() {
     <div className="px-4 py-6 md:flex md:gap-6">
       
       {/* Sidebar for desktop / Horizontal list for mobile */}
-      <aside className="md:w-60 md:shrink-0">
+      <aside className="md:w-60 md:shrink-0 text-black">
         <h2 className="font-bold text-lg mb-4 md:block hidden">Samsung Models</h2>
 
         {/* Mobile: horizontal scroll */}
-        <div className="flex md:hidden overflow-x-auto pb-3 gap-2">
+        <div className="flex md:hidden overflow-x-auto pb-3 gap-2 ">
             <button
             className={`
               whitespace-nowrap px-4 py-2 rounded-full border 
@@ -77,7 +77,7 @@ export default function SamsungCoversPage() {
         </div>
 
         {/* Desktop: vertical list */}
-        <ul className="space-y-2 hidden md:block">
+        <ul className="space-y-2 hidden md:block bg-gray-100 text-black">
             <li>
             <button
               className={`

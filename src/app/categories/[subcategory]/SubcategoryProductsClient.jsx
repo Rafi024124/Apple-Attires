@@ -52,12 +52,12 @@ export default function SubcategoryProductsClient({ subcategory }) {
 
       {/* PRODUCTS GRID */}
       <section aria-labelledby="covers-heading" className="mb-20">
-        <h2 id="covers-heading" className="text-3xl font-semibold mb-6 border-b-2 border-orange-500 inline-block pb-2 tracking-wide drop-shadow-md">
+        <h2 id="covers-heading" className="text-3xl font-semibold text-black mb-6 border-b-2 border-orange-500 inline-block pb-2 tracking-wide drop-shadow-md">
           Phone Covers
         </h2>
 
         {loading && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-8">
             {[...Array(8)].map((_, i) => (
               <SkeletonCoverCard key={i} />
             ))}
@@ -71,7 +71,7 @@ export default function SubcategoryProductsClient({ subcategory }) {
         )}
 
         {!loading && products.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8 bg-gray-100 p-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-8 bg-gray-100 p-3">
             {products.map((item) => (
               <CoverCard
                 key={item._id}
@@ -87,7 +87,7 @@ export default function SubcategoryProductsClient({ subcategory }) {
       {/* PROTECTORS GRID */}
       <section aria-labelledby="protectors-heading" className="mb-20">
         {loadingProtectors && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-8">
             {[...Array(6)].map((_, i) => (
               <SkeletonCoverCard key={i} />
             ))}
@@ -102,7 +102,7 @@ export default function SubcategoryProductsClient({ subcategory }) {
             >
               Screen Protectors
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8 bg-gray-100 p-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-8 bg-gray-100 p-3">
               {protectors.map((item) => (
                 <CoverCard
                   key={item._id}

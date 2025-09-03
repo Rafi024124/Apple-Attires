@@ -287,7 +287,7 @@ useEffect(() => {
           <input
             type="text"
             placeholder="Search covers by name, etc."
-            className="px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 flex-grow min-w-[120px]"
+            className="px-3 py-2 rounded border text-black border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 flex-grow min-w-[120px]"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -317,7 +317,7 @@ useEffect(() => {
               setSortOption(e.target.value);
               setPage(1);
             }}
-            className="px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="px-3 py-2 rounded border bg-white text-black border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             <option value="default">Default</option>
             <option value="name_asc">Name (A-Z)</option>

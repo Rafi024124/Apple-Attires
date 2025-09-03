@@ -181,7 +181,7 @@ const isQuantityTooHigh = quantity > availablestock;
               src={isHovering && hoverImages.length > 0 ? hoverImages[hoverIndex].url : currentImage}
               alt={name}
               fill
-              className="object-cover"
+              className="object-contain"
               unoptimized
               sizes="(max-width: 768px) 100vw, 314px"
               onError={() => setImageError(true)}
