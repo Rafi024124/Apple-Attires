@@ -14,13 +14,25 @@ export default function AdminOrdersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedOrders, setSelectedOrders] = useState([]); // batch selection
-
+  const [orderStats, setOrderStats] = useState({ totalOrders: 0, totalSales: 0 });
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-
-
+const fetchOrdersCount = async () =>{
+  try {
+    const res = await fetch("/api/orderCount");
+   const data = await res.json();
+  
+   setOrderStats(data);
+  } catch (error) {
+    console.error("Error fetching orders count:", error);
+  }
+   
+}
+ useEffect(()=>{
+   fetchOrdersCount();
+ },[])
  
 
   const fetchOrders = async () => {
@@ -92,7 +104,7 @@ export default function AdminOrdersPage() {
   // Status update
   const handleStatusChange = async (id, newStatus) => {
     try {
-      if (!["Pending", "Delivered", "Hold"].includes(newStatus)) return;
+      if (!["Pending", "Delivered", "Hold","Cancelled", "Processing"].includes(newStatus)) return;
       const res = await fetch(`/api/orders/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -221,14 +233,15 @@ const handleBatchPrint = (ids) => {
   }, [orders, searchQuery, statusFilter]);
 
   // Counts
-  const statusCounts = useMemo(() => {
-    const counts = { Pending: 0, Delivered: 0, Hold: 0 };
-    orders.forEach((o) => {
-      const s = o.status || "Pending";
-      if (counts[s] !== undefined) counts[s]++;
-    });
-    return counts;
-  }, [orders]);
+ const statusCounts = useMemo(() => {
+  const counts = { Pending: 0, Delivered: 0, Hold: 0, Cancelled: 0, Processing: 0 };
+  orders.forEach((o) => {
+    const s = o.status || "Pending";
+    if (counts[s] !== undefined) counts[s]++;
+  });
+  return counts;
+}, [orders]);
+
 
   // Pagination
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
@@ -248,6 +261,22 @@ const handleBatchPrint = (ids) => {
   return (
    <ProtectedRoute>
      <div className="max-w-7xl mx-auto p-6 text-black">
+     <div className="p-6 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-xl shadow-lg border border-cyan-300/30 max-w-md mx-auto">
+  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2 text-cyan-700">
+    <span className="text-3xl">📊</span> Orders Summary
+  </h2>
+  
+  <div className="flex justify-between items-center mb-2 p-3 bg-white/80 rounded-lg shadow-sm border border-cyan-100/50">
+    <span className="text-gray-700 font-medium">Total Orders</span>
+    <span className="text-cyan-600 font-bold text-lg">{orderStats.totalOrders}</span>
+  </div>
+
+  <div className="flex justify-between items-center p-3 bg-white/80 rounded-lg shadow-sm border border-cyan-100/50">
+    <span className="text-gray-700 font-medium">Total Sales</span>
+    <span className="text-green-600 font-bold text-lg">৳{orderStats.totalSales}</span>
+  </div>
+</div>
+
       <h1 className="text-3xl font-bold mb-6">All Orders</h1>
 
       {/* Batch Actions */}
@@ -270,6 +299,18 @@ const handleBatchPrint = (ids) => {
         >
           Set Hold
         </button>
+        <button
+  onClick={() => handleBatchStatusChange("Cancelled")}
+  className="px-3 py-1 bg-red-400 text-black rounded"
+>
+  Set Cancelled
+</button>
+<button
+  onClick={() => handleBatchStatusChange("Processing")}
+  className="px-3 py-1 bg-purple-400 text-black rounded"
+>
+  Set Processing
+</button>
         <button
           onClick={handleBatchDelete}
           className="px-3 py-1 bg-red-500 text-white rounded"
@@ -309,6 +350,8 @@ const handleBatchPrint = (ids) => {
           <option value="Pending">Pending ({statusCounts.Pending})</option>
           <option value="Delivered">Delivered ({statusCounts.Delivered})</option>
           <option value="Hold">Hold ({statusCounts.Hold})</option>
+          <option value="Cancelled">Cancelled ({statusCounts.Cancelled})</option>
+          <option value="Processing">Processing ({statusCounts.Processing})</option>
         </select>
 
         <select
@@ -474,21 +517,30 @@ function OrderRow({
       <td className="p-3 flex items-center gap-2">{order.phone}</td>
       <td className="p-3">৳{order.totalPrice}</td>
       <td className="p-3">
-        <select
-          value={order.status || "Pending"}
-          onChange={(e) => handleStatusChange(order._id, e.target.value)}
-          className={`border rounded px-2 py-1 ${
-            order.status === "Pending"
-              ? "bg-yellow-200"
-              : order.status === "Delivered"
-              ? "bg-green-200"
-              : "bg-blue-200"
-          }`}
-        >
-          <option value="Pending">Pending</option>
-          <option value="Delivered">Delivered</option>
-          <option value="Hold">Hold</option>
-        </select>
+      <select
+  value={order.status || "Pending"}
+  onChange={(e) => handleStatusChange(order._id, e.target.value)}
+  className={`border rounded px-2 py-1 ${
+    order.status === "Pending"
+      ? "bg-yellow-200"
+      : order.status === "Delivered"
+      ? "bg-green-200"
+      : order.status === "Hold"
+      ? "bg-blue-200"
+      : order.status === "Cancelled"
+      ? "bg-red-200"
+      : order.status === "Processing"
+      ? "bg-purple-200"
+      : ""
+  }`}
+>
+  <option value="Pending">Pending</option>
+  <option value="Delivered">Delivered</option>
+  <option value="Hold">Hold</option>
+  <option value="Cancelled">Cancelled</option>
+  <option value="Processing">Processing</option>
+</select>
+
       </td>
       <td className="p-3">{new Date(order.createdAt).toLocaleString()}</td>
       <td className="p-3 flex flex-wrap gap-2">

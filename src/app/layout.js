@@ -26,13 +26,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: 'Your Website Title',
-  description: 'Best iPhone Covers for Women',
+  title: 'Apple Attires',
+  description: 'Best iPhone Covers for Iphone and Samsung',
+     
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={sora.className}>
+      
       <body>
         {/* ✅ Cloudinary Widget Script */}
         <Script
