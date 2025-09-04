@@ -129,7 +129,7 @@ export default function AdminProductsPage() {
 
   return (
     <ProtectedRoute>
-      <div className="max-w-7xl mx-auto p-6 min-h-screen">
+      <div className="max-w-7xl mx-auto py-6 min-h-screen">
       {/* Page Title */}
       <h1 className="text-3xl font-bold mb-6 text-gray-800">
         Admin - All Products

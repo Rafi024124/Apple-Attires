@@ -185,7 +185,7 @@ export default function CoverDetails() {
   const isQuantityTooHigh = quantity > availableStock;
 
   return (
-    <div className="max-w-6xl mx-auto p-6 text-black">
+    <div className="max-w-6xl mx-auto py-6 px-1 text-black">
       <CartDrawer open={showCartDrawer} onClose={() => setShowCartDrawer(false)} />
 
       {showPreview && (
@@ -244,7 +244,7 @@ export default function CoverDetails() {
             </button>
             <button
               onClick={() => setShowPreview(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-white border rounded hover:scale-105 transition"
+              className="flex items-center gap-2 px-1 py-2 bg-white border rounded hover:scale-105 transition"
             >
               <FaExpand className="text-black" />
               <span className="text-sm font-medium">Preview</span>
@@ -354,7 +354,7 @@ export default function CoverDetails() {
       {related.length > 0 && (
         <div className="mt-12">
           <h2 className="text-2xl font-semibold mb-6 text-gray-800">Related Products</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
             {related.map((item) => (
               <CoverCard
                 key={item._id}

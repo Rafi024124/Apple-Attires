@@ -260,7 +260,7 @@ const handleBatchPrint = (ids) => {
 
   return (
    <ProtectedRoute>
-     <div className="max-w-7xl mx-auto p-6 text-black">
+     <div className="max-w-7xl mx-auto py-6 px-2 text-black">
      <div className="p-6 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-xl shadow-lg border border-cyan-300/30 max-w-md mx-auto">
   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2 text-cyan-700">
     <span className="text-3xl">📊</span> Orders Summary

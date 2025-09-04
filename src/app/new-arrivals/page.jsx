@@ -29,7 +29,7 @@ export default function NewArrivalsSection() {
 
   return (
     <section className="py-8 bg-gray-50 max-w-7xl mx-auto">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-1">
         {/* Section Header */}
         <div className="flex justify-between items-center mb-6">
            <h2 className="text-3xl text-black font-semibold mb-6 border-b-2 border-orange-500 inline-block pb-2 tracking-wide drop-shadow-md">
@@ -44,7 +44,7 @@ export default function NewArrivalsSection() {
         ) : newArrivals.length === 0 ? (
           <p className="text-gray-500 text-center">No new arrivals yet.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 md:grid-cols-3 gap-1">
             {newArrivals.map((item) => (
               <CoverCard
                 key={item._id}

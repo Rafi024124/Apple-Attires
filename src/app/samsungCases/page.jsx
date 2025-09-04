@@ -36,7 +36,7 @@ export default function SamsungCoversPage() {
   };
 
   return (
-    <div className="px-4 py-6 md:flex md:gap-6">
+    <div className="px-1 py-6 md:flex md:gap-6">
       
       {/* Sidebar for desktop / Horizontal list for mobile */}
       <aside className="md:w-60 md:shrink-0 text-black">
@@ -46,7 +46,7 @@ export default function SamsungCoversPage() {
         <div className="flex md:hidden overflow-x-auto pb-3 gap-2 ">
             <button
             className={`
-              whitespace-nowrap px-4 py-2 rounded-full border 
+              whitespace-nowrap px-1 py-2 rounded-full border 
               ${selectedModel === '' 
                 ? 'bg-orange-500 text-white border-orange-500' 
                 : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'}
@@ -81,7 +81,7 @@ export default function SamsungCoversPage() {
             <li>
             <button
               className={`
-                text-left w-full px-3 py-1 rounded hover:bg-gray-200
+                text-left w-full px-1 py-1 rounded hover:bg-gray-200
                 ${selectedModel === '' ? 'bg-gray-300 font-semibold' : ''}
               `}
               onClick={() => setSelectedModel('')}
@@ -97,7 +97,7 @@ export default function SamsungCoversPage() {
               <li key={model.value}>
                 <button
                   className={`
-                    text-left w-full px-3 py-1 rounded hover:bg-orange-500
+                    text-left w-full px-2 py-1 rounded hover:bg-orange-500
                     ${selectedModel === model.value 
                       ? 'bg-orange-500 text-white font-semibold' 
                       : ''}
@@ -114,12 +114,12 @@ export default function SamsungCoversPage() {
       </aside>
 
       {/* Main Section */}
-      <main className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4 md:mt-0">
+      <main className="flex-1 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-1 mt-4 md:mt-0">
         {covers.map(item => (
           <CoverCard key={item._id} item={item} />
         ))}
         {covers.length === 0 && (
-          <p className="col-span-full text-center text-gray-500 mt-10">
+          <p className="col-span-full text-center text-gray-500 mt-10 min-h-80">
             No covers found for this model.
           </p>
         )}

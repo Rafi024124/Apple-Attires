@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useState,useRef,useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -14,6 +14,8 @@ import { useCart } from "@/app/context/CartContext";
 const Navbar = () => {
   const { data: session, status } = useSession();
   const { totalQuantity } = useCart();
+  const menuRef = useRef(null);
+const hamburgerRef = useRef(null);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -32,6 +34,30 @@ const Navbar = () => {
     { href: "/admin/orders", label: "Orders" },
   ];
 
+  const handleLinkClick = () => {
+  setIsMenuOpen(false);
+};
+  useEffect(() => {
+  function handleClickOutside(event) {
+    if (menuRef.current && !menuRef.current.contains(event.target) &&
+      hamburgerRef.current &&
+      !hamburgerRef.current.contains(event.target)) {
+      setIsMenuOpen(false);
+    }
+  }
+
+  if (isMenuOpen) {
+    document.addEventListener("mousedown", handleClickOutside);
+  } else {
+    document.removeEventListener("mousedown", handleClickOutside);
+  }
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, [isMenuOpen]);
+
+
   const navLinks = session ? [...publicLinks, ...privateLinks] : publicLinks;
 
   const navItems = navLinks.map(({ href, label }) => {
@@ -40,6 +66,7 @@ const Navbar = () => {
     return (
       <li key={href}>
         <Link
+        onClick={handleLinkClick}
           href={href}
           className={`relative inline-block px-3 py-1 font-medium transition-colors duration-300
             ${isActive ? "text-orange-600" : "text-gray-700 hover:text-orange-500"}`}
@@ -62,6 +89,7 @@ const Navbar = () => {
         <div className="dropdown relative">
           <div
             role="button"
+             ref={hamburgerRef}
             className="lg:hidden text-orange-500 p-2"
             onClick={() => setIsMenuOpen((prev) => !prev)}
           >
@@ -71,6 +99,7 @@ const Navbar = () => {
           <AnimatePresence>
             {isMenuOpen && (
               <Motion.ul
+              ref={menuRef}
                 key="dropdown"
                 initial={{ x: -100, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -78,16 +107,7 @@ const Navbar = () => {
                 transition={{ type: "tween", duration: 0.3 }}
                 className="absolute left-0 mt-3 p-3 w-48 shadow rounded-xl z-[999] bg-white border border-orange-100"
               >
-                {user && (
-                  <div className="mt-2 mb-3 flex gap-2 items-center bg-orange-50 p-2 rounded-lg">
-                    <img
-                      src={user?.image || "/default-profile.png"}
-                      alt="profile"
-                      className="w-10 h-10 rounded-full border-2 border-orange-500 shadow-sm"
-                    />
-                    <h1 className="text-sm text-gray-800 font-semibold">{user?.name}</h1>
-                  </div>
-                )}
+                
                 {navItems}
               </Motion.ul>
             )}

@@ -46,7 +46,7 @@ export default function SubcategoryProductsClient({ subcategory }) {
   }, [subcategory]);
 
   return (
-    <div className="min-h-screen py-12 bg-gradient-to-tr  max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-12 bg-gradient-to-tr  max-w-7xl mx-auto px-1 sm:px-6 lg:px-8">
       
       
 
@@ -57,7 +57,7 @@ export default function SubcategoryProductsClient({ subcategory }) {
         </h2>
 
         {loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
             {[...Array(8)].map((_, i) => (
               <SkeletonCoverCard key={i} />
             ))}
@@ -71,7 +71,7 @@ export default function SubcategoryProductsClient({ subcategory }) {
         )}
 
         {!loading && products.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-8 bg-gray-100 p-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 bg-gray-100 py-3">
             {products.map((item) => (
               <CoverCard
                 key={item._id}
@@ -87,7 +87,7 @@ export default function SubcategoryProductsClient({ subcategory }) {
       {/* PROTECTORS GRID */}
       <section aria-labelledby="protectors-heading" className="mb-20">
         {loadingProtectors && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
             {[...Array(6)].map((_, i) => (
               <SkeletonCoverCard key={i} />
             ))}
@@ -98,11 +98,11 @@ export default function SubcategoryProductsClient({ subcategory }) {
           <>
             <h2
               id="protectors-heading"
-              className="text-3xl font-semibold mb-6 border-b-2 border-yellow-400 inline-block pb-2 tracking-wide drop-shadow-md"
+              className="text-3xl text-black font-semibold mb-6 border-b-2 border-orange-500 inline-block pb-2 tracking-wide drop-shadow-md"
             >
               Screen Protectors
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-8 bg-gray-100 p-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 bg-gray-100 py-3">
               {protectors.map((item) => (
                 <CoverCard
                   key={item._id}

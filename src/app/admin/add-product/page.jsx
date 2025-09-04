@@ -202,7 +202,7 @@ export default function Page() {
 
   return (
   <ProtectedRoute>
-    <div className="max-w-4xl mx-auto py-12 px-6">
+    <div className="max-w-4xl mx-auto py-12 px-1">
       <div className="bg-white dark:bg-gray-900 shadow-lg rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
         <h1 className="text-3xl font-bold mb-8 text-gray-800 dark:text-gray-100">
           Add New Product
