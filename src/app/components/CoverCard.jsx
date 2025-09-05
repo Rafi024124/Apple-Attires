@@ -8,9 +8,10 @@ import { useCart } from '@/app/context/CartContext';
 
 export default function CoverCard({ item, onViewDetails, onAddToCart }) {
   const router = useRouter();
-  const { _id, name, images = [], price, discount = 0, models = [], stock  } = item;
+  const { _id, name, images = [], price, discount = 0, models = [], stock,slug  } = item;
   const { addToCart, cartItems } = useCart();
 
+ 
   const [hoverIndex, setHoverIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
   const [showModelSelector, setShowModelSelector] = useState(false);
@@ -57,7 +58,7 @@ export default function CoverCard({ item, onViewDetails, onAddToCart }) {
     return () => clearInterval(interval);
   }, [hoverImages, isHovering]);
 
-  const discountedPrice = price - price * (discount / 100);
+  const discountedPrice =  Math.round(price - price * (discount / 100)) 
   const displayedPrice = isDiscountActive ? discountedPrice : price;
 
   // Stock logic
@@ -160,7 +161,7 @@ export default function CoverCard({ item, onViewDetails, onAddToCart }) {
       {/* Main clickable content */}
       <div
         className={`flex flex-col flex-grow transition-all duration-300 ${showModelSelector ? 'pointer-events-none opacity-30 scale-95' : 'opacity-100'}`}
-        onClick={() => !showModelSelector && router.push(`/covers/${_id}`)}
+        onClick={() => !showModelSelector && router.push(`/covers/${slug}`)}
       >
 
         {/* Image */}
@@ -238,7 +239,7 @@ export default function CoverCard({ item, onViewDetails, onAddToCart }) {
           {isOutOfstock ? 'Out of Stock' : isQuantityTooHigh ? `Only ${availablestock} available` : 'Add to Cart'}
         </button>
         <button
-          onClick={(e) => { e.stopPropagation(); router.push(`/covers/${_id}`); }}
+          onClick={(e) => { e.stopPropagation(); router.push(`/covers/${slug}`); }}
           className="flex-1 py-2 text-sm font-medium rounded-lg shadow-md bg-gray-800 hover:bg-gray-700 text-white transition"
         >
           Order Now

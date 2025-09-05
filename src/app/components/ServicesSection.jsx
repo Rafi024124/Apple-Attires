@@ -30,7 +30,7 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
 
   const handleAddToCart = async (item) => {
     try {
-      const res = await fetch(`/api/covers/${item._id}`);
+      const res = await fetch(`/api/covers/${item.slug}`);
       if (!res.ok) throw new Error('Failed to fetch updated cover');
       const updatedItem = await res.json();
 
@@ -198,20 +198,19 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
     limit,
   ]);
 
-  async function handleViewDetails(id) {
-    setLoadingDetails(true);
-    try {
-      const res = await fetch(`/api/covers/${id}`);
-      if (!res.ok) throw new Error('Failed to fetch details');
-      const data = await res.json();
-      setSelectedProduct(data);
-    } catch (error) {
-      console.error(error);
-      alert('Failed to load details');
-    }
-    setLoadingDetails(false);
-    console.log("selected product", selectedProduct);
+async function handleViewDetails(item) {
+  setLoadingDetails(true);
+  try {
+    const res = await fetch(`/api/covers/${item.slug}`);
+    if (!res.ok) throw new Error('Failed to fetch details');
+    const data = await res.json();
+    setSelectedProduct(data);
+  } catch (error) {
+    console.error(error);
+    alert('Failed to load details');
   }
+  setLoadingDetails(false);
+}
 
   const totalPages = Math.ceil(totalCount / limit);
 
@@ -238,26 +237,41 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
   return (
     <>
       {/* Category Buttons */}
+       <h1 className="text-center text-3xl font-bold mb-8 text-gray-800 max-w-7xl mx-auto">Filter By Category</h1>
       <div className="max-w-7xl mx-auto px-4 flex flex-wrap gap-2 mb-4">
+        
         <CartDrawer
           open={cartDrawerOpen}
           item={cartItem}
           onClose={() => setCartDrawerOpen(false)}
         />
+           
+      {[
+  { name: 'All Products', img: '/all.jpeg' },
+  { name: 'covers', img: '/images.jpeg' },
+  { name: 'protectors', img: '/pro.jpg' },
+  { name: 'lens', img: '/len.jpg' },
+  { name: 'accessories', img: '/acc.jpg' },
+]
+.map(({ name, img }) => (
+  <button
+    key={name}
+    onClick={() => handleCategoryClick(name === 'All Products' ? '' : name)}
+    className={`flex flex-col sm:flex-row items-center sm:items-center justify-center gap-1 sm:gap-2 px-2 py-3 rounded border text-xs sm:text-sm font-semibold flex-1
+      ${mainCategory === name || (name === 'All Products' && mainCategory === '')
+        ? 'bg-orange-400 text-white'
+        : 'bg-white text-gray-700 hover:bg-orange-100'
+      }`}
+  >
+    <img
+      src={img}
+      alt={name}
+      className="w-10 h-10 sm:w-16 sm:h-16 object-contain"
+    />
+    <span className="mt-1 sm:mt-0">{name}</span>
+  </button>
+))}
 
-        {['All Products', 'covers', 'protectors', 'accessories'].map((category) => (
-          <button
-            key={category}
-            onClick={() => handleCategoryClick(category === 'All Products' ? '' : category)}
-            className={`px-3 py-2 rounded border text-sm font-semibold
-              ${mainCategory === category || (category === 'All Products' && mainCategory === '')
-                ? 'bg-orange-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-orange-100'
-              }`}
-          >
-            {category}
-          </button>
-        ))}
       </div>
 
       {/* Top Controls */}
@@ -269,7 +283,7 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
   <input
     type="text"
     placeholder="Search covers by name, etc."
-    className="pl-10 pr-3 py-2 w-full rounded border text-black border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+    className="pl-10 pr-3 py-2 w-full rounded text-black border-2 border-orange-400 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
     value={searchTerm}
     onChange={(e) => setSearchTerm(e.target.value)}
   />
@@ -279,7 +293,7 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
             <select
               value={selectedCoverType}
               onChange={handleTypeChange}
-              className="px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="px-3 py-2 rounded border border-orange-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               <option value="">All Cover Types</option>
               {coverTypes.map((type) => (
@@ -340,12 +354,12 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
         {loading
           ? Array.from({ length: limit }).map((_, i) => <SkeletonCoverCard key={i} />)
           : covers.map((item) => (
-              <CoverCard
-                key={item._id}
-                onAddToCart={() => handleAddToCart(item)}
-                item={item}
-                onViewDetails={handleViewDetails}
-              />
+             <CoverCard
+  key={item._id}
+  item={item}
+  onAddToCart={() => handleAddToCart(item)}
+  onViewDetails={() => handleViewDetails(item)}
+/>
             ))}
         {!loading && covers.length === 0 && (
           <div className="col-span-full text-center py-8 text-gray-500">

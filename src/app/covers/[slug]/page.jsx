@@ -12,8 +12,8 @@ import CoverDetailsSkeleton from "./CoverDetailsSkeleton";
 import CoverCard from "@/app/components/CoverCard";
 
 export default function CoverDetails() {
-  const params = useParams();
-  const { id } = params;
+
+  const { slug } = useParams();
   const router = useRouter();
 
   const [cover, setCover] = useState(null);
@@ -33,29 +33,43 @@ export default function CoverDetails() {
   const { addToCart, cartItems } = useCart();
 
   // Fetch product details
-  useEffect(() => {
-    async function fetchCover() {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(`/api/covers/${id}`);
-        if (!res.ok) throw new Error("Failed to fetch cover details");
-
-        const data = await res.json();
-        setCover(data);
-        setRelated(data.related || []);
-        setSelectedModel(data.models?.[0] || "");
-        setSelectedColor(data.images?.[0]?.color || (data.images?.[0] ? null : null));
-        setMainIndex(0);
-        setQuantity(1);
-      } catch (err) {
-        setError(err.message || "Unknown error");
-      } finally {
-        setLoading(false);
-      }
+useEffect(() => {
+  async function fetchCover() {
+    if (!slug) {
+    
+      return;
     }
-    if (id) fetchCover();
-  }, [id]);
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/covers/${slug}`);
+      //console.log("Fetch response:", res);
+
+      if (!res.ok) throw new Error("Failed to fetch cover details");
+
+      const data = await res.json();
+      //console.log("Fetched data:", data);
+
+      setCover(data);
+      setRelated(data.related || []);
+      setSelectedModel(data.models?.[0] || "");
+      setSelectedColor(data.images?.[0]?.color || (data.images?.[0] ? null : null));
+      setMainIndex(0);
+      setQuantity(1);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  fetchCover();
+}, [slug]);
+
+
 
   // Fetch related products
   useEffect(() => {
@@ -219,7 +233,8 @@ export default function CoverDetails() {
     gender = "",
     stock = 0,
     discount = 0,
-    discountEnd
+    discountEnd,
+   
   } = cover || {};
 
   const discountEndDate = discountEnd ? new Date(discountEnd) : null;
@@ -228,8 +243,9 @@ export default function CoverDetails() {
     discount > 0 && discountEndDate && new Date() < discountEndDate;
 
   const discountedPrice = isDiscountActive
-    ? price - price * (discount / 100)
-    : price;
+  ? Math.round(price - price * (discount / 100)) // rounds to nearest integer
+  : price;
+
 
   const savings = isDiscountActive ? price - discountedPrice : 0;
 
@@ -373,7 +389,7 @@ export default function CoverDetails() {
   </div>
 
   {/* Thumbnails */}
-  <div className="flex gap-3 mt-4 overflow-x-auto w-full max-w-md pb-2">
+  <div className="flex gap-3 mt-4 overflow-x-auto w-full max-w-md p-2 justify-center">
     {images.map(({ url, color }, i) => (
       <button
         key={i}
