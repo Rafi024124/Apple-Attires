@@ -3,6 +3,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react"; 
 import { FaArrowLeft, FaArrowRight, FaExpand } from "react-icons/fa";
 import { useCart } from "@/app/context/CartContext";
 import CartDrawer from "@/app/components/cartDrawer/page";
@@ -19,30 +21,16 @@ export default function CoverDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [mainIndex, setMainIndex] = useState(0);
+    
   const [selectedModel, setSelectedModel] = useState("");
   const [selectedColor, setSelectedColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [showCartDrawer, setShowCartDrawer] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-
+  const [timeLeft, setTimeLeft] = useState(null);
   const mainImageRef = useRef(null);
   const zoomLensRef = useRef(null);
   const { addToCart, cartItems } = useCart();
-
-  const images = cover?.images || [];
-
-  // Extract unique colors
-  const uniqueColors = React.useMemo(() => {
-    const colorsSet = new Set();
-    let hasDefault = false;
-    images.forEach(({ color }) => {
-      if (color) colorsSet.add(color);
-      else hasDefault = true;
-    });
-    const colorsArray = [...colorsSet];
-    if (hasDefault) colorsArray.unshift("default");
-    return colorsArray;
-  }, [images]);
 
   // Fetch product details
   useEffect(() => {
@@ -68,30 +56,42 @@ export default function CoverDetails() {
     }
     if (id) fetchCover();
   }, [id]);
-  console.log(cover);
-  
 
+  // Fetch related products
   useEffect(() => {
-  async function fetchRelated() {
-    if (!cover?.mainCategory || !cover?.subCategory) return;
-    try {
-      const res = await fetch(
-        `/api/covers?mainCategory=${cover.mainCategory}&subCategory=${cover.subCategory}&limit=8`
-      );
-      if (!res.ok) throw new Error("Failed to fetch related covers");
+    async function fetchRelated() {
+      if (!cover?.mainCategory || !cover?.subCategory) return;
+      try {
+        const res = await fetch(
+          `/api/covers?mainCategory=${cover.mainCategory}&subCategory=${cover.subCategory}&limit=8`
+        );
+        if (!res.ok) throw new Error("Failed to fetch related covers");
 
-      const data = await res.json();
-      const relatedCovers = data.covers.filter((c) => c._id !== cover._id); // exclude self
-      setRelated(relatedCovers);
-    } catch (err) {
-      console.error("Error fetching related:", err);
+        const data = await res.json();
+        const relatedCovers = data.covers.filter((c) => c._id !== cover._id); // exclude self
+        setRelated(relatedCovers);
+      } catch (err) {
+        console.error("Error fetching related:", err);
+      }
     }
-  }
-  fetchRelated();
-}, [cover]);
+    fetchRelated();
+  }, [cover]);
 
+  // Extract images safely
+  const images = cover?.images || [];
 
-
+  // Extract unique colors
+  const uniqueColors = React.useMemo(() => {
+    const colorsSet = new Set();
+    let hasDefault = false;
+    images.forEach(({ color }) => {
+      if (color) colorsSet.add(color);
+      else hasDefault = true;
+    });
+    const colorsArray = [...colorsSet];
+    if (hasDefault) colorsArray.unshift("default");
+    return colorsArray;
+  }, [images]);
 
   // Update zoom lens whenever main image changes
   useEffect(() => {
@@ -120,10 +120,45 @@ export default function CoverDetails() {
   const decreaseQuantity = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
   const increaseQuantity = () => setQuantity((q) => q + 1);
 
+
+  const handleOrderNow = () => {
+  if (!selectedModel) return alert("Please select a model.");
+  if (!cover) return;
+
+  const stock = cover.stock || 0;
+
+  const cartQuantity = cartItems
+    .filter(item => item._id === cover._id)
+    .reduce((sum, item) => sum + item.quantity, 0);
+
+  const availableStock = stock - cartQuantity;
+
+  if (availableStock <= 0) return alert("This product is out of stock.");
+  if (quantity > availableStock) return alert(`Only ${availableStock} item(s) available.`);
+
+  // Add to cart
+  addToCart({
+    _id: cover._id,
+    name: cover.name,
+    price: discountedPrice, // use discounted price if active
+    image: images[mainIndex]?.url || "/fallback.jpg",
+    quantity,
+    model: selectedModel,
+    color: selectedColor,
+  });
+
+  // Reset selection quantity
+  setQuantity(1);
+
+  // Navigate to checkout
+  router.push("/checkout");
+};
+
   const handleAddToCart = () => {
     if (!selectedModel) return alert("Please select a model.");
+    if (!cover) return;
 
-    const stock = cover.stock || 0; // ✅ overall stock
+    const stock = cover.stock || 0;
 
     const cartQuantity = cartItems
       .filter(item => item._id === cover._id)
@@ -137,7 +172,7 @@ export default function CoverDetails() {
     addToCart({
       _id: cover._id,
       name: cover.name,
-      price: cover.price,
+      price: discountedPrice,
       image: images[mainIndex]?.url || "/fallback.jpg",
       quantity,
       model: selectedModel,
@@ -171,16 +206,66 @@ export default function CoverDetails() {
     if (zoomLensRef.current) zoomLensRef.current.style.display = "none";
   }
 
+  // ⚡ Safely destructure only if cover exists
+  const {
+    name = "",
+    price = 0,
+    tag = "",
+    models = [],
+    isAvailable = false,
+    isFeatured = false,
+    createdAt = "",
+    type = "",
+    gender = "",
+    stock = 0,
+    discount = 0,
+    discountEnd
+  } = cover || {};
+
+  const discountEndDate = discountEnd ? new Date(discountEnd) : null;
+
+  const isDiscountActive =
+    discount > 0 && discountEndDate && new Date() < discountEndDate;
+
+  const discountedPrice = isDiscountActive
+    ? price - price * (discount / 100)
+    : price;
+
+  const savings = isDiscountActive ? price - discountedPrice : 0;
+
+  // Discount countdown timer
+  useEffect(() => {
+    if (!isDiscountActive || !discountEndDate) return;
+
+    const interval = setInterval(() => {
+      const now = new Date();
+      const diff = discountEndDate - now;
+
+      if (diff <= 0) {
+        clearInterval(interval);
+        setTimeLeft(null);
+      } else {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+
+        setTimeLeft({ days, hours, minutes, seconds });
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isDiscountActive, discountEndDate]);
+
   if (loading) return <CoverDetailsSkeleton />;
   if (error) return <p className="text-center text-red-500">Error: {error}</p>;
   if (!cover) return <p className="text-center">No cover found.</p>;
 
-  const { name, price, tag, models = [], isAvailable, isFeatured, createdAt, type, gender, stock } = cover;
-
   const cartQuantity = cartItems
     .filter(item => item._id === cover._id)
     .reduce((sum, item) => sum + item.quantity, 0);
-  const availableStock = (stock || 0) - cartQuantity;
+
+  const availableStock = stock - cartQuantity;
   const isOutOfStock = availableStock <= 0;
   const isQuantityTooHigh = quantity > availableStock;
 
@@ -189,91 +274,165 @@ export default function CoverDetails() {
       <CartDrawer open={showCartDrawer} onClose={() => setShowCartDrawer(false)} />
 
       {showPreview && (
-        <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-90 flex justify-center items-center"
-          onClick={() => setShowPreview(false)}
-        >
-          <Image
-            src={images[mainIndex]?.url || "/fallback.jpg"}
-            alt="Preview"
-            width={800}
-            height={1000}
-            className="rounded-lg object-contain max-h-[90vh]"
-          />
-        </div>
-      )}
+  <AnimatePresence>
+    <motion.div
+      key="preview"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex justify-center items-center p-4"
+    >
+      {/* Close Button */}
+      <button
+        onClick={() => setShowPreview(false)}
+        className="absolute top-6 right-6 text-white/80 hover:text-white p-2 rounded-full bg-white/10 hover:bg-white/20 transition"
+      >
+        <X className="w-6 h-6" />
+      </button>
+
+      {/* Image with animation */}
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="max-w-4xl max-h-[90vh] w-full flex justify-center"
+      >
+        <Image
+          src={images[mainIndex]?.url || "/fallback.jpg"}
+          alt="Preview"
+          width={800}
+          height={1000}
+          className="rounded-xl object-contain shadow-2xl"
+        />
+      </motion.div>
+    </motion.div>
+  </AnimatePresence>
+)}
 
       <h1 className="text-3xl font-semibold mb-6 text-center text-gray-800 md:text-left">{name}</h1>
 
       <div className="flex flex-col md:flex-row gap-10">
         {/* Image Section */}
         <div className="w-full md:w-1/2 flex flex-col items-center">
-          <div
-            ref={mainImageRef}
-            className="relative w-full aspect-[3.9/4] max-w-md border rounded overflow-hidden"
-            onMouseMove={handleMouseMove}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
-            <Image
-              src={images[mainIndex]?.url || "/fallback.jpg"}
-              alt="Main"
-              fill
-              sizes="(max-width: 768px) 100vw, 400px"
-              className="object-contain"
-              unoptimized
-            />
-            <div
-              ref={zoomLensRef}
-              className="absolute border border-gray-400 rounded-md shadow-lg"
-              style={{
-                display: "none",
-                width: "200px",
-                height: "200px",
-                backgroundRepeat: "no-repeat",
-                backgroundSize: "500% 500%",
-                zIndex: 10,
-              }}
-            />
-          </div>
+  {/* Main Image */}
+  <div
+    ref={mainImageRef}
+    className="relative w-full aspect-[3.9/4] max-w-md border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-lg bg-white/5"
+    onMouseMove={handleMouseMove}
+    onMouseEnter={handleMouseEnter}
+    onMouseLeave={handleMouseLeave}
+  >
+    <Image
+      src={images[mainIndex]?.url || "/fallback.jpg"}
+      alt="Main"
+      fill
+      sizes="(max-width: 768px) 100vw, 400px"
+      className="object-contain"
+      unoptimized
+    />
 
-          {/* Controls */}
-          <div className="w-full max-w-md mt-4 flex items-center justify-between gap-2">
-            <button onClick={prevImage} className="bg-black text-white p-2 rounded-full hover:bg-opacity-70 transition">
-              <FaArrowLeft />
-            </button>
-            <button
-              onClick={() => setShowPreview(true)}
-              className="flex items-center gap-2 px-1 py-2 bg-white border rounded hover:scale-105 transition"
-            >
-              <FaExpand className="text-black" />
-              <span className="text-sm font-medium">Preview</span>
-            </button>
-            <button onClick={nextImage} className="bg-black text-white p-2 rounded-full hover:bg-opacity-70 transition">
-              <FaArrowRight />
-            </button>
-          </div>
+    {/* Zoom Lens */}
+    <div
+      ref={zoomLensRef}
+      className="absolute rounded-lg shadow-lg border border-white/30 backdrop-blur-sm"
+      style={{
+        display: "none",
+        width: "200px",
+        height: "200px",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "500% 500%",
+        zIndex: 10,
+      }}
+    />
+  </div>
 
-          {/* Thumbnails */}
-          <div className="flex gap-3 mt-4 overflow-x-auto w-full max-w-md">
-            {images.map(({ url, color }, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  setMainIndex(i);
-                  setSelectedColor(color || null);
-                }}
-                className={`w-20 h-28 rounded overflow-hidden border-2 ${mainIndex === i ? "border-cyan-500" : "border-transparent"}`}
-              >
-                <Image src={url} alt={`Thumbnail ${i + 1}`} width={80} height={112} className="object-cover" unoptimized />
-              </button>
-            ))}
-          </div>
-        </div>
+  {/* Controls */}
+  <div className="w-full max-w-md mt-4 flex items-center justify-between gap-3">
+    <button
+      onClick={prevImage}
+      className="p-3 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 text-white shadow-md hover:scale-110 transition"
+    >
+      <FaArrowLeft />
+    </button>
+
+    <button
+      onClick={() => setShowPreview(true)}
+      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium shadow-md hover:scale-105 transition"
+    >
+      <FaExpand />
+      <span className="text-sm">Preview</span>
+    </button>
+
+    <button
+      onClick={nextImage}
+      className="p-3 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 text-white shadow-md hover:scale-110 transition"
+    >
+      <FaArrowRight />
+    </button>
+  </div>
+
+  {/* Thumbnails */}
+  <div className="flex gap-3 mt-4 overflow-x-auto w-full max-w-md pb-2">
+    {images.map(({ url, color }, i) => (
+      <button
+        key={i}
+        onClick={() => {
+          setMainIndex(i);
+          setSelectedColor(color || null);
+        }}
+        className={`relative w-20 h-28 rounded-lg overflow-hidden border-2 transition-transform duration-200 ${
+          mainIndex === i
+            ? "border-cyan-500 scale-105 shadow-md"
+            : "border-transparent hover:scale-105 hover:shadow-sm"
+        }`}
+      >
+        <Image
+          src={url}
+          alt={`Thumbnail ${i + 1}`}
+          width={80}
+          height={112}
+          className="object-cover"
+          unoptimized
+        />
+      </button>
+    ))}
+  </div>
+</div>
+
 
         {/* Product Info */}
         <div className="flex-1 space-y-4">
-          <p className="text-xl font-semibold text-red-600">৳{price}</p>
+         <div className="space-y-2">
+  {isDiscountActive ? (
+    <>
+      <div className="flex items-center gap-3">
+        <span className="text-gray-400 line-through text-lg">
+          ৳{price}
+        </span>
+        <span className="text-orange-600 font-bold text-2xl">
+          ৳{discountedPrice.toFixed(0)}
+        </span>
+      </div>
+      <p className="text-green-600 font-medium">
+        Save ৳{savings.toFixed(0)} ({discount}%)
+      </p>
+
+      {timeLeft && (
+        <div className="bg-red-50 border border-red-200 px-3 py-2 rounded-lg inline-block">
+          <p className="text-red-600 font-semibold text-sm">
+            Hurry up! Offer ends in:
+          </p>
+          <p className="font-bold text-red-700 text-lg">
+            {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
+          </p>
+        </div>
+      )}
+    </>
+  ) : (
+    <p className="text-orange-600 font-bold text-2xl">৳{price}</p>
+  )}
+</div>
           {tag && <p className="bg-yellow-200 px-2 py-1 inline-block rounded">{tag}</p>}
 
           <div>
@@ -329,21 +488,37 @@ export default function CoverDetails() {
             </div>
           )}
 
-          <button
-            onClick={handleAddToCart}
-            disabled={isOutOfStock || isQuantityTooHigh}
-            className={`mt-4 px-6 py-2 rounded ${
-              isOutOfStock || isQuantityTooHigh
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-orange-500 hover:bg-orange-600 text-white"
-            }`}
-          >
-            {isOutOfStock
-              ? "Out of Stock"
-              : isQuantityTooHigh
-              ? `Only ${availableStock} available`
-              : "Add to Cart"}
-          </button>
+        <div className="flex gap-2 mt-4">
+  <button
+  onClick={handleAddToCart}
+  disabled={isOutOfStock || isQuantityTooHigh}
+  className={`
+    relative mt-4 px-6 py-2 rounded transition 
+    ${isOutOfStock || isQuantityTooHigh
+      ? "bg-gray-400 cursor-not-allowed"
+      : "bg-orange-500 hover:bg-orange-600 text-white active:scale-95 active:bg-orange-700"
+    }
+  `}
+>
+  {isOutOfStock
+    ? "Out of Stock"
+    : isQuantityTooHigh
+    ? `Only ${availableStock} available`
+    : "Add to Cart"}
+</button>
+ <button
+    onClick={handleOrderNow}
+    disabled={isOutOfStock || isQuantityTooHigh}
+    className={` relative mt-4 px-6 py-2 rounded transition text-white ${
+      isOutOfStock || isQuantityTooHigh
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-green-600 hover:bg-green-700"
+    }`}
+  >
+    Order Now
+  </button>
+        </div>
+
 
           <hr className="my-4" />
           
@@ -353,13 +528,16 @@ export default function CoverDetails() {
       {/* Related Products */}
       {related.length > 0 && (
         <div className="mt-12">
+          
           <h2 className="text-2xl font-semibold mb-6 text-gray-800">Related Products</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
             {related.map((item) => (
               <CoverCard
                 key={item._id}
                 item={item}
+                
                 onViewDetails={(id) => router.push(`/covers/${id}`)}
+                  onAddToCart={() => setShowCartDrawer(true)}
               />
             ))}
           </div>

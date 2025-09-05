@@ -31,7 +31,7 @@ export default function CartPage() {
 
   if (cartItems.length === 0) {
     return (
-      <div className="max-w-4xl mx-auto p-6 text-center min-h-screen ">
+      <div className="max-w-4xl mx-auto p-6 text-center min-h-screen text-black">
         <h2 className="text-2xl font-semibold mb-4">Your cart is empty.</h2>
         <p>Add some items to get started!</p>
         <button
@@ -45,9 +45,9 @@ export default function CartPage() {
   }
 
   const handleRemove = (cartItemId) => {
-    if (confirm("Are you sure you want to remove this item from your cart?")) {
+   
       removeFromCart(cartItemId);
-    }
+    
   };
 
   return (

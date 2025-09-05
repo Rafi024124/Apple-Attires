@@ -7,6 +7,7 @@ import { CartProvider } from "./context/CartContext";
 import { Sora } from 'next/font/google';
 import Script from 'next/script';
 import Footer from "./components/Footer/Footer";
+import StickyCartButton from "./components/stickyCart/page";
 
 
 const sora = Sora({
@@ -45,7 +46,7 @@ export default function RootLayout({ children }) {
         <CartProvider>
           <NextAuthProvider>
             <Navbar />
-            
+            <StickyCartButton></StickyCartButton>
             {children}
               <Footer></Footer>
           </NextAuthProvider>

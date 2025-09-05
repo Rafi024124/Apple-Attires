@@ -5,7 +5,7 @@ import CoverCard from './CoverCard';
 import ProductDetailsModal from './ProductDetailsModal';
 import SkeletonCoverCard from './SkeletonCoverCard';
 import CartDrawer from './cartDrawer/page';
-
+import { FaSearch } from "react-icons/fa";
 export default function ServicesSection({ initialCovers = [], initialTotalCount = 0 }) {
   const [covers, setCovers] = useState(initialCovers);
   const [loading, setLoading] = useState(false);
@@ -264,13 +264,16 @@ export default function ServicesSection({ initialCovers = [], initialTotalCount 
       <div className="max-w-7xl mx-auto px-4 flex flex-wrap items-center gap-3 justify-between mb-4">
         {/* Left group: Search + filter + sort */}
         <div className="flex flex-wrap gap-2 items-center flex-grow min-w-[240px]">
-          <input
-            type="text"
-            placeholder="Search covers by name, etc."
-            className="px-3 py-2 rounded border text-black border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 flex-grow min-w-[120px]"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <div className="relative w-full max-w-sm">
+  <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500" />
+  <input
+    type="text"
+    placeholder="Search covers by name, etc."
+    className="pl-10 pr-3 py-2 w-full rounded border text-black border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+</div>
 
           {mainCategory === 'Covers' && (
             <select

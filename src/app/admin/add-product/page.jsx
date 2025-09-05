@@ -202,7 +202,7 @@ export default function Page() {
 
   return (
   <ProtectedRoute>
-    <div className="max-w-4xl mx-auto py-12 px-1">
+    <div className="max-w-4xl mx-auto py-12 px-1 text-black">
       <div className="bg-white dark:bg-gray-900 shadow-lg rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
         <h1 className="text-3xl font-bold mb-8 text-gray-800 dark:text-gray-100">
           Add New Product
@@ -426,32 +426,40 @@ export default function Page() {
               ))}
             </div>
 
-            <div className="flex items-center gap-3">
-              <select
-                value={colorForImage?.value || ""}
-                onChange={(e) => {
-                  const selected = basicColors.find(
-                    (c) => c.value === e.target.value
-                  );
-                  setColorForImage(selected || null);
-                }}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
-              >
-                <option value="">Select Color (optional)</option>
-                {basicColors.map(({ value, label }) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                onClick={handleImageUpload}
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition"
-              >
-                + Upload
-              </button>
-            </div>
+          <div className="flex items-center gap-3">
+  <input
+    list="color-options"
+    value={colorForImage?.value || ""}
+    onChange={(e) => {
+      const val = e.target.value;
+      const selected = basicColors.find((c) => c.value === val);
+      if (selected) {
+        setColorForImage(selected); // picked from list
+      } else {
+        setColorForImage({ value: val, label: val }); // custom input
+      }
+    }}
+    placeholder="Select or type a color"
+    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
+  />
+
+  <datalist id="color-options">
+    {basicColors.map(({ value, label }) => (
+      <option key={value} value={value}>
+        {label}
+      </option>
+    ))}
+  </datalist>
+
+  <button
+    type="button"
+    onClick={handleImageUpload}
+    className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition"
+  >
+    + Upload
+  </button>
+</div>
+
           </div>
 
           {/* DESCRIPTION */}

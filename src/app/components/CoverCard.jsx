@@ -85,13 +85,14 @@ export default function CoverCard({ item, onViewDetails, onAddToCart }) {
       return;
     }
 
-    addToCart({
-      ...item,
-      color: selectedColor || 'default',
-      model: selectedModel || '',
-      quantity,
-      image: currentImage,
-    });
+   addToCart({
+  ...item,
+  color: selectedColor || 'default',
+  model: selectedModel || '',
+  quantity,
+  image: currentImage,
+  price: displayedPrice, // ✅ forward discounted price if active
+});
 
     setQuantity(1);
     if (onAddToCart) onAddToCart(item);
