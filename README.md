@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 📱 Apple Attires – E-Commerce Platform
 
-## Getting Started
+🚀 Live Site: [Apple Attires](https://appleattires.vercel.app/)  
+📂 Repository: [GitHub](https://github.com/Rafi024124/Apple-Attires)  
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ⚠️ Important Notice
+**Admin credentials are not shared in this repository because this platform is being used for real business operations.**  
+Only general user functionalities can be tested on the live site.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 🛒 About the Project
+Apple Attires is a full-featured **e-commerce platform** built for selling mobile accessories such as phone covers, cables, adapters, chargers, screen protectors, and lens protectors.  
+It provides a smooth shopping experience for customers and a powerful admin panel for product and order management.  
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## ✨ Features
 
-To learn more about Next.js, take a look at the following resources:
+### 🔹 User Features
+- Browse a wide range of mobile accessories.
+- Filter products by **model and color**.
+- View product details with multiple images and color variations.
+- Add products to the **cart** and place secure orders.
+- Responsive design for a seamless shopping experience on desktop and mobile.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 🔹 Admin Features
+- **Product Management**: Add, edit, and delete products.
+- **Order Management**:
+  - View and manage customer orders.
+  - Detect potential **fraudulent orders**.
+  - Directly create consignments with **Steadfast courier service** (Bangladesh integration).
+- Inventory tracking for better product management.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 🔹 Security & Authentication
+- Secure login and authentication powered by **NextAuth**.
+- Separate roles for **Admin** and **User**.
+- Fraud detection to minimize fake orders.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🛠️ Tech Stack
+- **Frontend:** Next.js, Tailwind CSS  
+- **Authentication:** NextAuth  
+- **Backend & Database:** Node.js, Express.js, MongoDB  
+- **Hosting:** Vercel  
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 📸 Screenshots (Optional)
+_Add screenshots of your live site here to showcase UI and features._
+
+---
+
+## ⚙️ Installation & Setup (For Local Development)
+If you want to run a development version of this project:
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Rafi024124/Apple-Attires.git
